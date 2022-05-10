@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "D:/cpp/Sci/Flow/build/_deps/catch-subbuild/CMakeFiles/catch-populate"
+		},
+		{
+			"file" : "D:/cpp/Sci/Flow/build/_deps/catch-subbuild/CMakeFiles/catch-populate.rule"
+		},
+		{
+			"file" : "D:/cpp/Sci/Flow/build/_deps/catch-subbuild/CMakeFiles/catch-populate-complete.rule"
+		},
+		{
+			"file" : "D:/cpp/Sci/Flow/build/_deps/catch-subbuild/catch-populate-prefix/src/catch-populate-stamp/catch-populate-build.rule"
+		},
+		{
+			"file" : "D:/cpp/Sci/Flow/build/_deps/catch-subbuild/catch-populate-prefix/src/catch-populate-stamp/catch-populate-configure.rule"
+		},
+		{
+			"file" : "D:/cpp/Sci/Flow/build/_deps/catch-subbuild/catch-populate-prefix/src/catch-populate-stamp/catch-populate-download.rule"
+		},
+		{
+			"file" : "D:/cpp/Sci/Flow/build/_deps/catch-subbuild/catch-populate-prefix/src/catch-populate-stamp/catch-populate-install.rule"
+		},
+		{
+			"file" : "D:/cpp/Sci/Flow/build/_deps/catch-subbuild/catch-populate-prefix/src/catch-populate-stamp/catch-populate-mkdir.rule"
+		},
+		{
+			"file" : "D:/cpp/Sci/Flow/build/_deps/catch-subbuild/catch-populate-prefix/src/catch-populate-stamp/catch-populate-patch.rule"
+		},
+		{
+			"file" : "D:/cpp/Sci/Flow/build/_deps/catch-subbuild/catch-populate-prefix/src/catch-populate-stamp/catch-populate-test.rule"
+		},
+		{
+			"file" : "D:/cpp/Sci/Flow/build/_deps/catch-subbuild/catch-populate-prefix/src/catch-populate-stamp/catch-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"catch-populate"
+		],
+		"name" : "catch-populate"
+	}
+}
