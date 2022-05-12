@@ -1,4 +1,0 @@
-test_electrode 1 0.107169
-test_grid 0 0
----
-test_grid
