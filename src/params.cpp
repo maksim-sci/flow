@@ -4,30 +4,35 @@
 
 #include <params/params.hpp>
 
+#include <../include/json.hpp>
+#include <string>
+#include <fstream>
+auto settings = nlohmann::json::parse(std::ifstream("settings.json"));
+
 params::params()
-    : Ea1(1.0),
-      Ea2(0.9),
-      Ea3(0.82),
-      Ea4(0.82),
-      y(7.0),
-      a(3.589),
-      T(300.0),
-      k(8.617e-5),
-      E(5.9e6),
-      e(4.803e-10),
-      v(10.0e12)
+    : Ea1(settings["Ea1"]),
+    Ea2(settings["Ea2"]),
+    Ea3(settings["Ea3"]),
+    Ea4(settings["Ea4"]),
+    y(settings["y"]),
+    a(settings["a"]),
+    T(settings["T"]),
+    k(settings["k"]),
+    E(settings["E"]),
+    e(settings["e"]),
+    v(settings["v"])
 {}
 
-params::params(double E)
-    : Ea1(1.0),
-      Ea2(0.9),
-      Ea3(0.82),
-      Ea4(0.82),
-      y(7.0),
-      a(3.589),
-      T(300.0),
-      k(8.617e-5),
-      e(4.803e-10),
-      v(10.0e12),
-      E(E)
+params::params(double _E)
+    : Ea1(settings["Ea1"]),
+    Ea2(settings["Ea2"]),
+    Ea3(settings["Ea3"]),
+    Ea4(settings["Ea4"]),
+    y(settings["y"]),
+    a(settings["a"]),
+    T(settings["T"]),
+    k(settings["k"]),
+    e(settings["e"]),
+    v(settings["v"]),
+    E(_E)
 {}
