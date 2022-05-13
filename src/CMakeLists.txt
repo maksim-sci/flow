@@ -25,6 +25,9 @@ add_library(vovka_library
         app.cpp
         ${HEADER_LIST})
 
+
+link_libraries(stdc++fs)
+
 target_link_libraries(vovka_library PRIVATE fmt::fmt)
 
 # We need this directory, and users of our library will need it too

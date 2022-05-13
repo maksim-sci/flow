@@ -16,7 +16,7 @@ class runFlow
 {
 public:
   runFlow(std::tuple<int, int, int> limGrid, std::tuple<int, int, int, int, int, int> limLug,
-          bool generateGrid, std::string from_file, std::string _outperiodic);
+          bool generateGrid, std::string from_file, std::string _outperiodic,bool _unique_folder);
 
   void run(int cntFlow, int freqRecording, int msgDebug);
 
