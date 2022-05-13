@@ -23,17 +23,17 @@ params::params()
     e(settings["e"]),
     v(settings["v"])
 {
-  // std::cout<<settings["Ea1"]<<std::endl;
-  //   std::cout<<settings["Ea2"]<<std::endl;
-  //   std::cout<<settings["Ea3"]<<std::endl;
-  //   std::cout<<settings["Ea4"]<<std::endl;
-  //   std::cout<<settings["y"]<<std::endl;
-  //   std::cout<<settings["a"]<<std::endl;
-  //   std::cout<<settings["T"]<<std::endl;
-  //   std::cout<<settings["k"]<<std::endl;
-  //   std::cout<<settings["E"]<<std::endl;
-  //   std::cout<<settings["e"]<<std::endl;
-  //   std::cout<<settings["v"]<<std::endl;
+  // std::cout<<Ea1<<std::endl;
+  // std::cout<<Ea2<<std::endl;
+  // std::cout<<Ea3<<std::endl;
+  // std::cout<<Ea4<<std::endl;
+  // std::cout<<y<<std::endl;
+  // std::cout<<a<<std::endl;
+  // std::cout<<T<<std::endl;
+  // std::cout<<k<<std::endl;
+  // std::cout<<E<<std::endl;
+  // std::cout<<e<<std::endl;
+  // std::cout<<v<<std::endl;
 
 }
 
