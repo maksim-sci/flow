@@ -46,10 +46,13 @@ flow::flow(class grid& grid, class section& section, class params& params)
       point(0, 0, 2),   point(0, 0, -2)
   };
   statistic = {};
+  reactionsBox.reserve(1024);
 }
 
 void flow::run()
 {
+  reactionsBox.clear();
+  sFreq = 0;
   for (int x = 0; x < grid->atoms.size(); x++)
   {
     for (int y = 0; y < grid->atoms[x].size(); y++)
@@ -79,7 +82,6 @@ void flow::run()
       }
     }
   }
-
   for (int i = 0; i < reactionsBox.size(); i++)
   {
     double freq = reactionsBox[i].freq / sFreq;
@@ -174,6 +176,7 @@ void flow::calc(TypeReaction rType, class atom* atom, double gain)
     reactionData reactionDt= {std::make_tuple(x, y, z), std::make_tuple(xs, ys, zs), freq, rType};
     reactionsBox.push_back(reactionDt);
   }
+  //std::cout<<reactionsBox.size()<<std::endl;
 }
 
 void flow::transitionR1(reactionData& react)

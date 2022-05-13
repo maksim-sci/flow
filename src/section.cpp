@@ -23,15 +23,19 @@ void section::add(const std::pair<int, double>& p)
 
 int section::get()
 {
-  assert(_sum >= 0.99 && _sum <= 1.01);
+  if(!(_sum >= 0.99 && _sum <= 1.01))
+  {
+    printf("Incorrect time %f \n",_sum);
+    exit(-1);
+  }
   assert(data.size() > 0);
-  std::random_device rd;
+  static std::random_device rd;
   // перемешаем данные
-  auto rngShuffle = std::default_random_engine { rd() };
+  static auto rngShuffle = std::default_random_engine { rd() };
   std::shuffle(std::begin(data), std::end(data), rngShuffle);
 
-  std::mt19937 rng(rd());
-  std::uniform_real_distribution<> dis(0, 1);
+  static std::mt19937 rng(rd());
+  static std::uniform_real_distribution<> dis(0, 1);
   double rn = dis(rng);
   double sum = 0.0;
   auto is = [rn, &sum] (const std::pair<int, double>& el) mutable -> bool { sum = sum + el.second; return sum >= rn; };

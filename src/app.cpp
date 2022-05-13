@@ -50,6 +50,8 @@ void runFlow::run(int cntFlow, int freqRecording, int msgDebug)
         toFile(fs::absolute(outperiodic).append("run_"+std::to_string(i)+".xyz").string(), grid);
     }
     sec.clear();
+
+    //f.reactionsBox.clear();
   }
 
   if (cntFlow < freqRecording)
