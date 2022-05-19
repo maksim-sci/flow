@@ -54,7 +54,7 @@ void loadsettings()
 int main() {
   loadsettings();
   auto limGrid = std::make_tuple(settings::sizex,settings::sizey , settings::sizez);
-  auto limLug = std::make_tuple(settings::minx, settings::miny, settings::minz, settings::maxx, settings::maxy, settings::maxz);
+  auto limLug = std::make_tuple(settings::minx, settings::maxx, settings::miny, settings::maxy, settings::minz,  settings::maxz);
   auto r = runFlow(limGrid, limLug, settings::generateGrid, settings::from_file ,settings::out_folder,settings::unique_folder);
   r.run(settings::timeLimit, settings::recordPeriod, settings::recordPeriod);
   return 0;

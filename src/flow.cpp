@@ -5,6 +5,7 @@
 #include <tuple>
 #include <cmath>
 #include <vector>
+#include <iostream>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -85,7 +86,10 @@ void flow::run()
   for (int i = 0; i < reactionsBox.size(); i++)
   {
     double freq = reactionsBox[i].freq / sFreq;
-    section->add({i, freq});
+    if(freq>0)
+    {
+      section->add({i, freq});
+    }
   }
 
   int idx = section->get();
@@ -163,6 +167,7 @@ void flow::calc(TypeReaction rType, class atom* atom, double gain)
       continue;
 
     double E = t.getE(atom, sA, gain, grid->lug.inLug(sA));
+    //std::cout<<"E: "<<E<<" "<<grid->lug.inLug(sA)<<std::endl;
     double prod = p->y * p->a * p->e * E;
     if (Ea - prod < 0)
     {

@@ -24,6 +24,7 @@ public:
 
 private:
   std::string outperiodic;
+  std::string gridOut;
   class grid grid;
   section sec;
   params param;

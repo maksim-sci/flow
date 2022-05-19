@@ -31,11 +31,13 @@ int electrode::getCntAtoms() const
 
 std::ostream& operator << (std::ostream& os, const electrode& e)
 {
-  int sz = e.plates[e.down].size();
-  for (int i = 0; i < sz; i++)
+  for (auto& a:e.plates[e.down])
   {
-    os << e.plates[e.down][i] << std::endl;
-    os << e.plates[e.top][i] << std::endl;
+    os << a << std::endl;
+  }
+  for (auto& a:e.plates[e.top])
+  {
+    os << a << std::endl;
   }
   return os;
 }
