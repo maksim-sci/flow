@@ -12,4 +12,20 @@ public:
 
   const double Ea1, Ea2, Ea3, Ea4, y, a, T, k, e, v;
   double E;
+  double R1mult;
+  double R2mult;
+  double R3mult;
+  double R4mult;
+  double E1mult;
+  double E2mult;
+  double E3mult;
+  double AE1;
+  double AE2;
+  double AE3;
+  double DE2;
+  double DE3;
+  double le;
+  double hconst;
+  double kb;
+  double Temperature;
 };

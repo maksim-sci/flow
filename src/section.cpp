@@ -25,7 +25,7 @@ int section::get()
 {
   if(!(_sum >= 0.99 && _sum <= 1.01))
   {
-    printf("Incorrect time %f \n",_sum);
+    printf("Incorrect time %e \n",_sum);
     exit(-1);
   }
   assert(data.size() > 0);

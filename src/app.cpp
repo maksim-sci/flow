@@ -12,6 +12,8 @@
 #include <locale>
 #include <iomanip>
 #include <filesystem>
+#include <istream>
+#include <fstream>
 
 namespace fs = std::filesystem;
 runFlow::runFlow(std::tuple<int, int, int> limGrid, std::tuple<int, int, int, int, int, int> limLug,
@@ -57,12 +59,17 @@ void runFlow::run(int cntFlow, int freqRecording, int msgDebug)
   auto f = flow(grid, sec, param);
   for (int i = 0; i < cntFlow; i++)
   {
+    //std::cout<<i<<std::endl;
     f.run();
     if ( (i % freqRecording == 0) )
     {
       if(outperiodic!="")
         std::cout << "recording in flow " << i << std::endl;
         toFile(fs::absolute(gridOut).append("run_"+std::to_string(i)+".xyz").string(), grid);
+        std::ofstream o(fs::absolute(outperiodic).append("current.txt"),std::ios_base::app);
+        o<<i<<"    "<<f.I<<std::endl;
+        f.I = 0;
+        o.close();
     }
     sec.clear();
     //std::cout<<"flow: "<<i<<" size: "<<f.reactionsBox.size()<<std::endl;

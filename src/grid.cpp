@@ -99,14 +99,12 @@ grid::grid(const int rx, const int ry, const int rz, bool generate)
 
 std::ostream& operator << (std::ostream& os, const grid& g)
 {
-  std::vector<size_t> counts = {0,0,0,0,0,0,0,0,0};
   for (int x = 0; x < g.atoms.size(); x++)
   {
     for (int y = 0; y < g.atoms[x].size(); y++)
     {
       for (int z = 0; z < g.atoms[x][y].size(); z++)
       {
-        counts[(size_t)g.atoms[x][y][z].type]++;
         if (g.atoms[x][y][z].type == TypeAtom::EMPTY_INTERSTITIAL_ATOM)
         {
           continue;
@@ -114,10 +112,6 @@ std::ostream& operator << (std::ostream& os, const grid& g)
         os << g.atoms[x][y][z] << std::endl;
       }
     }
-  }
-  for (int i = 0; i<6;i++)
-  {
-    std::cout<<"sizes: "<<i<<" "<<counts[i]<<std::endl;
   }
   return os;
 }

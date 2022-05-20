@@ -52,10 +52,18 @@ void loadsettings()
 
 
 int main() {
+  std::cout<<"Running main"<<std::endl;
+  try
+  {
   loadsettings();
   auto limGrid = std::make_tuple(settings::sizex,settings::sizey , settings::sizez);
   auto limLug = std::make_tuple(settings::minx, settings::maxx, settings::miny, settings::maxy, settings::minz,  settings::maxz);
   auto r = runFlow(limGrid, limLug, settings::generateGrid, settings::from_file ,settings::out_folder,settings::unique_folder);
   r.run(settings::timeLimit, settings::recordPeriod, settings::recordPeriod);
+  }
+  catch(std::exception& e)
+  {
+    std::cout<<"Exception happened: "<<e.what()<<std::endl;
+  }
   return 0;
 }

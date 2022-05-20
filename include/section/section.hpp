@@ -18,8 +18,8 @@ public:
   void clear();
 
   friend std::ostream& operator << (std::ostream&, const section&);
+  double _sum;
 
 private:
   std::vector<std::pair<int, double>> data;
-  double _sum;
 };
