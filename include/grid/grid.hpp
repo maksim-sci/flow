@@ -27,7 +27,7 @@ class grid
 {
 public:
   grid(const int rx, const int ry, const int rz, bool generate);
-
+  void invert();
   friend std::ostream& operator << (std::ostream&, const grid&);
   friend std::istream& operator >> (std::istream&, grid&);
 

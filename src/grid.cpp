@@ -171,3 +171,20 @@ void grid::addLug(int lx_, int rx_, int ly_, int ry_, int lz_, int rz_)
 {
   lug = {lx_, rx_, ly_, ry_, lz_, rz_};
 }
+
+void grid::invert()
+{
+  for(auto& a:atoms)
+  {
+    for(auto&b:a)
+    {
+      size_t max = b.size;
+      for(size_t cnt = 0; b<max/2;cnt++ )
+      {
+        auto a = b[cnt];
+        b[cnt] = b[max-cnt];
+        b[max-cnt] = a;
+      }
+    }
+  }
+}
