@@ -5,6 +5,8 @@
 #include <types/atom.hpp>
 #include <grid/grid.hpp>
 #include <electrode/electrode.hpp>
+#include <params/params.hpp>
+#include "types.h"
 
 #include <random>
 #include <iostream>
@@ -29,11 +31,12 @@ bool lug::inLug(const atom *a)
   return x >= lx && x <= rx && y >= ly && y <= ry && z >= lz && z <= rz;
 }
 
-grid::grid(const int rx, const int ry, const int rz, bool generate)
+grid::grid(const int rx, const int ry, const int rz, params* _param, bool generate)
       : el(electrode(0, rx, 0, ry, -1, rz+1))
       , rx(rx)
       , ry(ry)
       , rz(rz)
+      ,param(_param)
 {
   atoms.resize(rx+1);
   for (auto& y : atoms)
@@ -55,12 +58,12 @@ grid::grid(const int rx, const int ry, const int rz, bool generate)
       }
     }
   }
-
+  
   if (!generate)
   {
     return;
   }
-
+  std::cout<<"Generating grid"<<std::endl;
   static std::random_device rd;
   std::mt19937 gen(rd());
   static std::uniform_int_distribution<> change(0, 10);
@@ -130,7 +133,7 @@ std::istream& operator >> (std::istream& is, grid& g)
     std::istringstream ss(line);
     atom a;
     ss >> a;
-    if (a.type == TypeAtom::ELECTRODE)
+    if (a.type == TypeAtom::ELECTRODE || a.type == TypeAtom::EMPTY_INTERSTITIAL_ATOM)
     {
       continue;
     }
@@ -178,13 +181,26 @@ void grid::invert()
   {
     for(auto&b:a)
     {
-      size_t max = b.size;
-      for(size_t cnt = 0; b<max/2;cnt++ )
+      size_t max = b.size();
+      for(size_t cnt = 0; cnt<=max/2;cnt++ )
       {
-        auto a = b[cnt];
-        b[cnt] = b[max-cnt];
-        b[max-cnt] = a;
+        std::swap(b[cnt],b[max-cnt]);;
       }
     }
   }
 }
+
+  double grid::distance(pos_t first,pos_t second)
+  {
+    double a = (std::get<0>(second)-std::get<0>(first))*param->a;
+    double b = (std::get<1>(second)-std::get<1>(first))*param->b;
+    double c = (std::get<2>(second)-std::get<2>(first))*param->c;
+    double bb = b+c*param->cosb;
+    double cc = c*param->sinb;
+    double bbb = bb*param->sina;
+    double aa = a+bb*param->cosa;
+    return sqrt(aa*aa+bbb*bbb+cc*cc);//TODO remake this?!
+  }
+
+ 
+

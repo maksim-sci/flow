@@ -4,9 +4,11 @@
 
 #pragma once
 
+#include "types.h"
 #include <grid/grid.hpp>
 #include <section/section.hpp>
 #include <params/params.hpp>
+#include <flow/flow.hpp>
 
 #include <string>
 #include <tuple>
@@ -18,15 +20,17 @@ public:
   runFlow(std::tuple<int, int, int> limGrid, std::tuple<int, int, int, int, int, int> limLug,
           bool generateGrid, std::string from_file, std::string _outperiodic,bool _unique_folder);
 
-  void run(int cntFlow, int freqRecording, int msgDebug);
+  void step();
+  void run(int cntFlow);
 
-  
-
-private:
+  size_t freqRecording;
+  size_t step_number;
   std::string outperiodic;
   std::string gridOut;
   class grid grid;
   section sec;
   params param;
   bool isToFile;
+  flow f;
+private:
 };

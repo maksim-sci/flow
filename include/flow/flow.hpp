@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "types.h"
 #include <grid/grid.hpp>
 #include <section/section.hpp>
 #include <params/params.hpp>
@@ -17,10 +18,10 @@
 class reactionData
 {
 public:
-  reactionData(std::tuple<int, int, int>&& first, std::tuple<int, int, int>&& second, double freq, TypeReaction type);
+  reactionData(pos_t&& first, pos_t&& second, double freq, TypeReaction type);
 
-  std::tuple<int, int, int> first;
-  std::tuple<int, int, int> second;
+  pos_t first;
+  pos_t second;
   double freq;
   TypeReaction type;
 };
@@ -38,11 +39,7 @@ public:
   void transitionR2(reactionData& react);
   void transitionR3(reactionData& react);
   void transitionR4(reactionData& react);
-
-  void transitionE1(reactionData& react);
-  void transitionE2(reactionData& react);
-  void transitionE3(reactionData& react);
-  void helperTransition(std::tuple<int, int, int> c, TypeAtom newType) const;
+  void helperTransition(pos_t c, TypeAtom newType) const;
 
   void getStatistic();
 

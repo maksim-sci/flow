@@ -3,11 +3,14 @@
 //
 
 #include <app/app.hpp>
+#include <flow/flow.hpp>
 
 
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <filesystem>
 
 #include <../include/json.hpp>
 
@@ -52,6 +55,7 @@ void loadsettings()
 
 
 int main() {
+  namespace fs = std::filesystem;
   std::cout<<"Running main"<<std::endl;
   try
   {
@@ -59,7 +63,10 @@ int main() {
   auto limGrid = std::make_tuple(settings::sizex,settings::sizey , settings::sizez);
   auto limLug = std::make_tuple(settings::minx, settings::maxx, settings::miny, settings::maxy, settings::minz,  settings::maxz);
   auto r = runFlow(limGrid, limLug, settings::generateGrid, settings::from_file ,settings::out_folder,settings::unique_folder);
-  r.run(settings::timeLimit, settings::recordPeriod, settings::recordPeriod);
+
+  //r.f.grid->invert();
+  r.freqRecording = settings::recordPeriod;
+  r.run(settings::timeLimit);
   }
   catch(std::exception& e)
   {

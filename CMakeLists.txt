@@ -12,9 +12,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
 endif()
 
-if(NOT "${CMAKE_CXX_STANDARD}")
   set(CMAKE_CXX_STANDARD 20)
-endif()
 
 include(FetchContent)
 

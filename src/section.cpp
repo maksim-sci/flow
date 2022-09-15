@@ -18,7 +18,7 @@ void section::add(const std::pair<int, double>& p)
   assert(p.second <= 1.0);
   data.push_back(p);
   _sum += p.second;
-  //printf("seconds %f, curr: %f \n", p.second, _sum);
+  //printf("seconds %.15f, curr: %.15f \n",p.second, _sum);
 }
 
 int section::get()

@@ -2,12 +2,14 @@
 // Created by Danil-Ponkratov
 //
 
+#define _USE_MATH_DEFINES
 #include <params/params.hpp>
 
 #include <settings.hpp>
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <math.h>
 
 params::params()
     : Ea1(settings["Ea1"]),
@@ -16,6 +18,11 @@ params::params()
     Ea4(settings["Ea4"]),
     y(settings["y"]),
     a(settings["a"]),
+    b(settings["b"]),
+    c(settings["c"]),
+    alpha(settings["alpha"]),
+    beta(settings["beta"]),
+    gamma(settings["gamma"]),
     T(settings["T"]),
     k(settings["k"]),
     E(settings["E"]),
@@ -38,17 +45,13 @@ params::params()
     kb(settings["kb"]),
     Temperature(settings["Temperature"])
 {
-  // std::cout<<Ea1<<std::endl;
-  // std::cout<<Ea2<<std::endl;
-  // std::cout<<Ea3<<std::endl;
-  // std::cout<<Ea4<<std::endl;
-  // std::cout<<y<<std::endl;
-  // std::cout<<a<<std::endl;
-  // std::cout<<T<<std::endl;
-  // std::cout<<k<<std::endl;
-  // std::cout<<E<<std::endl;
-  // std::cout<<e<<std::endl;
-  // std::cout<<v<<std::endl;
+
+  sina = sin(M_PI*alpha/180);
+  sinb = sin(M_PI*beta/180);
+  sinc = sin(M_PI*gamma/180);
+  cosa = sin(M_PI*alpha/180);
+  cosb = sin(M_PI*beta/180);
+  cosc = sin(M_PI*gamma/180);
 
 }
 
@@ -59,6 +62,11 @@ params::params(double _E)
     Ea4(settings["Ea4"]),
     y(settings["y"]),
     a(settings["a"]),
+    b(settings["b"]),
+    c(settings["c"]),
+    alpha(settings["alpha"]),
+    beta(settings["beta"]),
+    gamma(settings["gamma"]),
     T(settings["T"]),
     k(settings["k"]),
     e(settings["e"]),
@@ -80,4 +88,11 @@ params::params(double _E)
     hconst(settings["hconst"]),
     kb(settings["kb"]),
     Temperature(settings["Temperature"])
-{}
+{
+  sina = sin(M_PI*alpha/180);
+  sinb = sin(M_PI*beta/180);
+  sinc = sin(M_PI*gamma/180);
+  cosa = sin(M_PI*alpha/180);
+  cosb = sin(M_PI*beta/180);
+  cosc = sin(M_PI*gamma/180);
+}

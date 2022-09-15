@@ -10,7 +10,7 @@ public:
   params();
   explicit params(double E);
 
-  const double Ea1, Ea2, Ea3, Ea4, y, a, T, k, e, v;
+  const double Ea1, Ea2, Ea3, Ea4, y, T, k, e, v;
   double E;
   double R1mult;
   double R2mult;
@@ -28,4 +28,16 @@ public:
   double hconst;
   double kb;
   double Temperature;
+  double a;
+  double b;
+  double c;
+  double alpha;
+  double beta;
+  double gamma;
+  double sina;
+  double sinb;
+  double sinc;
+  double cosa;
+  double cosb;
+  double cosc;
 };

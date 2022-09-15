@@ -4,7 +4,7 @@
 //
 //Upgraded by Maksim Solovev
 //
-
+#include "types.h"
 #include <app/app.hpp>
 #include <flow/flow.hpp>
 #include <memory>
@@ -18,10 +18,13 @@
 namespace fs = std::filesystem;
 runFlow::runFlow(std::tuple<int, int, int> limGrid, std::tuple<int, int, int, int, int, int> limLug,
           bool generateGrid, std::string from_file, std::string _outperiodic,bool _uniqe_folder)
-    : grid(std::get<0>(limGrid), std::get<1>(limGrid), std::get<2>(limGrid), generateGrid)
+    : grid(std::get<0>(limGrid), std::get<1>(limGrid), std::get<2>(limGrid), &param,generateGrid)
       , sec(section())
       ,outperiodic(_outperiodic),
-      param()
+      param(),
+      f(grid, sec, param),
+      step_number(0),
+      freqRecording(999999999)
 {
   if (from_file!="")
     fromFile(from_file, grid);
@@ -52,28 +55,42 @@ runFlow::runFlow(std::tuple<int, int, int> limGrid, std::tuple<int, int, int, in
   auto [lx, rx, ly, ry, lz, rz] = limLug;
   grid.addLug(lx, rx, ly, ry, lz, rz);
 }
-
-
-void runFlow::run(int cntFlow, int freqRecording, int msgDebug)
+void runFlow::step()
 {
-  auto f = flow(grid, sec, param);
+  if ( (step_number % freqRecording == 0) )
+  {
+    if(outperiodic!="")
+    {
+      std::ofstream outf(fs::absolute(outperiodic).append("counts"),std::ios_base::app);
+      if(outf)
+      {
+        for(int i = 0;i<5;i++)
+        {
+          outf<<(TypeReaction)i<<":"<<f.statistic[i]<<" ";
+          f.statistic[i]=0;
+        }
+        outf<<std::endl;
+        outf.close();
+      }
+      std::cout << "recording in flow " << step_number << std::endl;
+      toFile(fs::absolute(gridOut).append("run_"+std::to_string(step_number)+".xyz").string(), grid);
+      std::ofstream current_stream(fs::absolute(outperiodic).append("current.txt"),std::ios_base::app);
+      current_stream<<step_number<<"\t"<<f.I<<std::endl;
+      f.I = 0;
+      current_stream.close();
+    }
+  }
+  f.run();
+
+  step_number++;
+  sec.clear();
+}
+
+void runFlow::run(int cntFlow)
+{
   for (int i = 0; i < cntFlow; i++)
   {
-    //std::cout<<i<<std::endl;
-    f.run();
-    if ( (i % freqRecording == 0) )
-    {
-      if(outperiodic!="")
-        std::cout << "recording in flow " << i << std::endl;
-        toFile(fs::absolute(gridOut).append("run_"+std::to_string(i)+".xyz").string(), grid);
-        std::ofstream o(fs::absolute(outperiodic).append("current.txt"),std::ios_base::app);
-        o<<i<<"    "<<f.I<<std::endl;
-        f.I = 0;
-        o.close();
-    }
-    sec.clear();
-    //std::cout<<"flow: "<<i<<" size: "<<f.reactionsBox.size()<<std::endl;
-    //f.reactionsBox.clear();
+    step();
   }
 
   if (cntFlow < freqRecording)

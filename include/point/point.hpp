@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "types.h"
 #include <tuple>
 #include <iostream>
 
@@ -12,7 +13,7 @@ class point
 public:
   point(int, int, int);
 
-  std::tuple<int, int, int> p;
+  pos_t p;
 };
 
 point operator- (const point&, const point&);

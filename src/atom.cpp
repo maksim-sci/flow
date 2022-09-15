@@ -15,6 +15,7 @@ atom::atom(TypeAtom typeAtom, int x, int y, int z)
   q = getQ(typeAtom);
 }
 
+
 atom::atom()
     : p(point(-100500, -100500, -100500)),
       type(TypeAtom::EMPTY_INTERSTITIAL_ATOM),
