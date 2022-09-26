@@ -46,7 +46,7 @@ params::params()
     kb(settings["kb"]),
     Temperature(settings["Temperature"])
 {
-
+  std::cout<<"params initializing"<<std::endl;
   sina = sin(M_PI*alpha/180);
   sinb = sin(M_PI*beta/180);
   sinc = sin(M_PI*gamma/180);
@@ -91,6 +91,7 @@ params::params(double _E)
     kb(settings["kb"]),
     Temperature(settings["Temperature"])
 {
+  std::cout<<"params initializing"<<std::endl;
   sina = sin(M_PI*alpha/180);
   sinb = sin(M_PI*beta/180);
   sinc = sin(M_PI*gamma/180);

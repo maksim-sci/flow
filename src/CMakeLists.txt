@@ -34,7 +34,7 @@ target_link_libraries(vovka_library PRIVATE fmt::fmt)
 target_include_directories(vovka_library PUBLIC ../include)
 
 # All users of this library will need at least C++17
-target_compile_features(vovka_library PUBLIC cxx_std_17)
+target_compile_features(vovka_library PUBLIC cxx_std_20)
 
 # IDEs should put the headers in a nice place
 source_group(

@@ -20,9 +20,9 @@ runFlow::runFlow(std::tuple<int, int, int> limGrid, std::tuple<int, int, int, in
           bool generateGrid, std::string from_file, std::string _outperiodic,bool _uniqe_folder)
     : sec(section())
       ,outperiodic(_outperiodic),
-      param(),
-      f(grid, sec, param),
       grid(std::get<0>(limGrid), std::get<1>(limGrid), std::get<2>(limGrid), &param,generateGrid),
+      f(grid, sec, param),
+      param(),
       step_number(0),
       freqRecording(999999999)
 {

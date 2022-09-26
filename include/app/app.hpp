@@ -22,6 +22,7 @@ public:
 
   void step();
   void run(int cntFlow);
+  params param;
 
   size_t freqRecording;
   size_t step_number;
@@ -29,7 +30,6 @@ public:
   std::string gridOut;
   class grid grid;
   section sec;
-  params param;
   bool isToFile;
   flow f;
 private:

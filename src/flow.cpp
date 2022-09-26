@@ -27,6 +27,7 @@ flow::flow(class grid& grid, class section& section, class params& params)
       tension(params.E),
       I(0)
 {
+  std::cout<<"flow initializing"<<std::endl;
   R1Shift = {
       point(0, 1, 1),   point(0, -1, 1),
       point(0, 1, -1),  point(0, -1, -1),
@@ -95,7 +96,7 @@ void flow::run()
   int idx = section->get();
   if (idx < 0 || idx > reactionsBox.size())
   {
-    fmt::print("happened assert in section->get()\n");
+    fmt::print("{} {}: happened assert in section->get()\n",__FILE__,__LINE__);
     return;
   }
   
@@ -109,7 +110,6 @@ void flow::transition(reactionData& react)
   switch (react.type)
   {
   case TypeReaction::R1:
-
 
     flow::transitionR1(react);
     statistic[(int) TypeReaction::R1]++;
@@ -183,7 +183,7 @@ void flow::calc(TypeReaction rType, class atom* atom, double gain)
     double prod = p->y * p->a * p->e * E;
     if (Ea - prod < 0)
     {
-      fmt::print("incorrect frequency: reaction type {}, first atom {}, second atom {}\n", rType, *atom, *sA);
+      fmt::print("{} {}: incorrect frequency: reaction type {}, first atom {}, second atom {}\n",__FILE__,__LINE__,rType, *atom, *sA);
       continue;
     }
 
@@ -199,8 +199,14 @@ void flow::calc(TypeReaction rType, class atom* atom, double gain)
   
 }
 
+
+#define checkelectrode(what) {auto [x,y,z] = what;if(grid->get(x,y,z)->type==TypeAtom::ELECTRODE) std::cout<<__FILE__<<": we have found reaction with electrode"<<std::endl;}
+
+#define checkelectrodeomg() checkelectrode(react.first)  checkelectrode(react.second);
+
 void flow::transitionR1(reactionData& react)
 {
+  checkelectrodeomg();
   flow::helperTransition(react.first, TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON);
   flow::helperTransition(react.second, TypeAtom::INTERSTITIAL_ATOM);
   I+=p->e*2*grid->distance(react.first,react.second)*react.freq;
@@ -210,7 +216,7 @@ void flow::transitionR1(reactionData& react)
 
 void flow::transitionR2(reactionData& react)
 {
-  
+  checkelectrodeomg();
   flow::helperTransition(react.first, TypeAtom::EMPTY_INTERSTITIAL_ATOM);
   flow::helperTransition(react.second, TypeAtom::INTERSTITIAL_ATOM);
   I+=p->e*react.freq;
@@ -220,6 +226,7 @@ void flow::transitionR2(reactionData& react)
 
 void flow::transitionR3(reactionData& react)
 {
+  checkelectrodeomg();
   flow::helperTransition(react.first, TypeAtom::FULL_NODE);
   flow::helperTransition(react.second, TypeAtom::EMPTY_INTERSTITIAL_ATOM);
   grid->cnt_--;
@@ -229,6 +236,7 @@ void flow::transitionR3(reactionData& react)
 
 void flow::transitionR4(reactionData& react)
 {
+  checkelectrodeomg();
   flow::helperTransition(react.first, TypeAtom::FULL_NODE);
   flow::helperTransition(react.second, TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON);
   I+=p->e*(-1)*react.freq;
