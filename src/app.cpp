@@ -18,25 +18,27 @@
 namespace fs = std::filesystem;
 runFlow::runFlow(std::tuple<int, int, int> limGrid, std::tuple<int, int, int, int, int, int> limLug,
           bool generateGrid, std::string from_file, std::string _outperiodic,bool _uniqe_folder)
-    : grid(std::get<0>(limGrid), std::get<1>(limGrid), std::get<2>(limGrid), &param,generateGrid)
-      , sec(section())
+    : sec(section())
       ,outperiodic(_outperiodic),
       param(),
       f(grid, sec, param),
+      grid(std::get<0>(limGrid), std::get<1>(limGrid), std::get<2>(limGrid), &param,generateGrid),
       step_number(0),
       freqRecording(999999999)
 {
   if (from_file!="")
     fromFile(from_file, grid);
-  if(outperiodic!="" && _uniqe_folder)
+  if(outperiodic!="")
   {
 
     std::time_t time = std::time(nullptr);
+    if(_uniqe_folder)
     {
       using std::to_string;
       using std::get;
       char mbstr[100];
       std::strftime(mbstr, sizeof(mbstr), "%H_%M_%S(%d_%m_%Y)", std::localtime(&time));
+      //std::cout<<"outperiodic: "<<outperiodic<<std::endl;
       outperiodic = (fs::absolute(fs::path(outperiodic))
       .append(to_string(get<0>(limGrid))+"_"+
       to_string(get<1>(limGrid))+"_"+
@@ -47,7 +49,7 @@ runFlow::runFlow(std::tuple<int, int, int> limGrid, std::tuple<int, int, int, in
     fs::create_directories(outperiodic);
     auto gridout_path = fs::path(outperiodic).append("grid");
     gridOut = gridout_path.string();
-
+    //std::cout<<"outperiodic: "<<gridout_path<<std::endl;
     fs::create_directories(gridout_path);
     fs::copy_file("settings.json",fs::path(outperiodic).append("settings.json"));
 

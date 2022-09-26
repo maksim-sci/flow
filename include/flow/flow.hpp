@@ -47,7 +47,7 @@ public:
   grid* grid;
   section* section;
   params* p;
-  tension t;
+  tension tension;
   double sFreq = 0.0;
 
   std::vector<class point> R1Shift;

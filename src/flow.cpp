@@ -24,7 +24,7 @@ flow::flow(class grid& grid, class section& section, class params& params)
   :   grid(&grid),
       section(&section),
       p(&params),
-      t(params.E),
+      tension(params.E),
       I(0)
 {
   R1Shift = {
@@ -138,7 +138,7 @@ void flow::transition(reactionData& react)
 
 void flow::calc(TypeReaction rType, class atom* atom, double gain)
 {
-  std::vector<class point> RShift;
+  static std::vector<class point> RShift;
   TypeAtom tp;
   double Ea;
 
@@ -178,7 +178,7 @@ void flow::calc(TypeReaction rType, class atom* atom, double gain)
     if (sA->type != tp)
       continue;
 
-    double E = t.getE(atom, sA, gain, grid->lug.inLug(sA));
+    double E = tension.getE(atom, sA, gain, grid->lug.inLug(sA));
     
     double prod = p->y * p->a * p->e * E;
     if (Ea - prod < 0)
@@ -213,7 +213,7 @@ void flow::transitionR2(reactionData& react)
   
   flow::helperTransition(react.first, TypeAtom::EMPTY_INTERSTITIAL_ATOM);
   flow::helperTransition(react.second, TypeAtom::INTERSTITIAL_ATOM);
-  I+=p->e*grid->distance(react.first,react.second)*react.freq;
+  I+=p->e*react.freq;
 
   
 }
@@ -223,7 +223,7 @@ void flow::transitionR3(reactionData& react)
   flow::helperTransition(react.first, TypeAtom::FULL_NODE);
   flow::helperTransition(react.second, TypeAtom::EMPTY_INTERSTITIAL_ATOM);
   grid->cnt_--;
-  I+=p->e*(-2)*grid->distance(react.first,react.second)*react.freq;
+  I+=p->e*(-2)*react.freq;
 
 }
 
@@ -231,7 +231,7 @@ void flow::transitionR4(reactionData& react)
 {
   flow::helperTransition(react.first, TypeAtom::FULL_NODE);
   flow::helperTransition(react.second, TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON);
-  I+=p->e*(-1)*grid->distance(react.first,react.second)*react.freq;
+  I+=p->e*(-1)*react.freq;
 
 }
 

@@ -40,4 +40,5 @@ public:
   double cosa;
   double cosb;
   double cosc;
+  double U;
 };
