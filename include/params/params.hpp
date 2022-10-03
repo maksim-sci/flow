@@ -41,4 +41,5 @@ public:
   double cosb;
   double cosc;
   double U;
+  double e_charge;
 };

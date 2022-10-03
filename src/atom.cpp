@@ -10,7 +10,8 @@
 
 atom::atom(TypeAtom typeAtom, int x, int y, int z)
     : p(point(x, y, z)),
-      type(typeAtom)
+      type(typeAtom),
+      meta(ElectrodeType::NONE)
 {
   q = getQ(typeAtom);
 }

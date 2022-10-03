@@ -8,6 +8,12 @@
 #include <point/point.hpp>
 
 #include <iostream>
+enum class ElectrodeType
+{
+  NONE,
+  POSITIVE,
+  NEGATIVE
+};
 
 class atom
 {
@@ -17,6 +23,7 @@ public:
 
   point p;
   int q;
+  ElectrodeType meta;
   TypeAtom type;
 };
 

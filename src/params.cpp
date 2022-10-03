@@ -44,7 +44,8 @@ params::params()
     le(settings["le"]),
     hconst(settings["hconst"]),
     kb(settings["kb"]),
-    Temperature(settings["Temperature"])
+    Temperature(settings["Temperature"]),
+    e_charge(-1.6e-19)
 {
   std::cout<<"params initializing"<<std::endl;
   sina = sin(M_PI*alpha/180);
@@ -89,7 +90,8 @@ params::params(double _E)
     le(settings["le"]),
     hconst(settings["hconst"]),
     kb(settings["kb"]),
-    Temperature(settings["Temperature"])
+    Temperature(settings["Temperature"]),
+    e_charge(-1.6e-19)
 {
   std::cout<<"params initializing"<<std::endl;
   sina = sin(M_PI*alpha/180);

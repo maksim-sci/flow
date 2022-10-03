@@ -40,7 +40,9 @@ public:
   void transitionR3(reactionData& react);
   void transitionR4(reactionData& react);
   void helperTransition(pos_t c, TypeAtom newType) const;
+  void checkElectrode(pos_t c, double freq);
 
+  void clearStats();
   void getStatistic();
 
   void calcE(TypeReaction rType, class atom* atom, double gain);
@@ -60,7 +62,11 @@ public:
   std::vector<int> statistic;
   std::vector<reactionData> reactionsBox;
 
-  double I;
+  size_t dq;
+  double dt;
+
+  double getI();
+  void clearI();
 };
 
 bool filter(int x, int x_, int lm);

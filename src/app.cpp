@@ -63,23 +63,26 @@ void runFlow::step()
   {
     if(outperiodic!="")
     {
-      std::ofstream outf(fs::absolute(outperiodic).append("counts"),std::ios_base::app);
+      std::ofstream outf(fs::absolute(outperiodic).append("counts.txt"),std::ios_base::app);
       if(outf)
       {
-        for(int i = 0;i<5;i++)
+        for(int i = 0;i<6;i++)
         {
           outf<<(TypeReaction)i<<":"<<f.statistic[i]<<" ";
-          f.statistic[i]=0;
         }
         outf<<std::endl;
         outf.close();
+
       }
       std::cout << "recording in flow " << step_number << std::endl;
       toFile(fs::absolute(gridOut).append("run_"+std::to_string(step_number)+".xyz").string(), grid);
       std::ofstream current_stream(fs::absolute(outperiodic).append("current.txt"),std::ios_base::app);
-      current_stream<<step_number<<"\t"<<f.I<<std::endl;
-      f.I = 0;
+      //current out
+      current_stream<<step_number<<"\t"<<f.getI()<<std::endl;
+      f.clearI();
+      ///////////////////////////////////////////////////////
       current_stream.close();
+      f.clearStats();
     }
   }
   f.run();

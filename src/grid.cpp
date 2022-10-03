@@ -38,7 +38,7 @@ grid::grid(const int rx, const int ry, const int rz, params* _param, bool genera
       , rz(rz)
       ,param(_param)
 {
-  std::cout<<"flow initializing"<<std::endl;
+  std::cout<<"grid initializing"<<std::endl;
   atoms.resize(rx+1);
   for (auto& y : atoms)
   {
@@ -59,11 +59,13 @@ grid::grid(const int rx, const int ry, const int rz, params* _param, bool genera
       }
     }
   }
+  
+
 
   //TODO совместимость с кривоугольными координатами!
 
   param->E = param->U//С новой версии используется задание напряженности через напряжение между электродами. 
-  /distance(pos_t(0,0,0),pos_t(0,0,rz))//расстояние между электродами
+  /distance(pos_t(0,0,0),pos_t(0,0,rz+1))//расстояние между электродами
   *1e+10;//расстояние в ангстремах! поэтому домножаем на размерность, чтобы получить напряженность.
   //хз как быть с кривыми электродами, но что поделать?
   //реально, плак-плак, из-за кривых электродов
@@ -104,6 +106,40 @@ grid::grid(const int rx, const int ry, const int rz, params* _param, bool genera
           atoms[x][y][z] = atom(TypeAtom::INTERSTITIAL_ATOM, x, y, z);
         }
       }
+    }
+  }
+
+  for (int x = 0; x <= rx; x++)
+  {
+    for (int y = 0; y <= ry; y++)
+    {
+      if(param->U>0)
+      {
+         atoms[x][y][0].meta = ElectrodeType::NEGATIVE;
+         atoms[x][y][rz].meta = ElectrodeType::POSITIVE;
+         if(atoms[x][y][0].type==TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON)
+         {
+            atoms[x][y][0].type = TypeAtom::VACANCY_NODE_WITH_ELECTRON;
+         }
+         if(atoms[x][y][rz].type==TypeAtom::VACANCY_NODE_WITH_ELECTRON)
+         {
+            atoms[x][y][rz].type = TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON;
+         }
+      }
+      else
+      {
+        atoms[x][y][0].meta = ElectrodeType::POSITIVE;
+         atoms[x][y][rz].meta = ElectrodeType::NEGATIVE;
+         if(atoms[x][y][rz].type==TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON)
+         {
+            atoms[x][y][rz].type = TypeAtom::VACANCY_NODE_WITH_ELECTRON;
+         }
+         if(atoms[x][y][0].type==TypeAtom::VACANCY_NODE_WITH_ELECTRON)
+         {
+            atoms[x][y][0].type = TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON;
+         }
+      }
+       
     }
   }
 }
@@ -172,6 +208,13 @@ void fromFile(std::string name, grid& g)
   std::string _line;
   std::getline(f, _line); std::getline(f, _line); // строчки с количеством и типами
   f >> g;
+}
+
+atom* grid::get(pos_t pos)
+{
+
+  auto [x,y,z] = pos;
+  return get(x,y,z);
 }
 
 atom* grid::get(int x, int y, int z)

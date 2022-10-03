@@ -11,7 +11,7 @@
     "recordPeriod":200,
     "generateGrid":true,
     "uniquefolder":true,
-    "timeLimit":50000,
+    "timeLimit":500000,
     "from_file":"",
     "out_folder":"C:/Users/sci/Desktop/Flow",
     "Ea1":1.0,

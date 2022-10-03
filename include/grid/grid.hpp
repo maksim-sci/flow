@@ -34,6 +34,8 @@ public:
   friend std::istream& operator >> (std::istream&, grid&);
 
   atom* get(int x, int y, int z);
+  atom* get(pos_t pos);
+
 
   void addLug(int lx, int rx, int ly, int ry, int lz, int rz);
 

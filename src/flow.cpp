@@ -16,6 +16,7 @@
 #include <section/section.hpp>
 #include <types/atom.hpp>
 #include <point/point.hpp>
+#include <atom/atom.hpp>
 
 
 
@@ -25,7 +26,9 @@ flow::flow(class grid& grid, class section& section, class params& params)
       section(&section),
       p(&params),
       tension(params.E),
-      I(0)
+      dq(0),
+      dt(INFINITY),
+      statistic()
 {
   std::cout<<"flow initializing"<<std::endl;
   R1Shift = {
@@ -50,9 +53,23 @@ flow::flow(class grid& grid, class section& section, class params& params)
       point(2, 0, 0),   point(0, -2, 0),
       point(0, 0, 2),   point(0, 0, -2)
   };
+  //clearStats();
   statistic = {0,0,0,0,0,0,0,0,0,0,0};
+  clearStats();
   reactionsBox.reserve(1024);
 }
+
+  void flow::clearStats()
+  {
+      statistic[(int)TypeReaction::R1]=0;
+      statistic[(int)TypeReaction::R2]=0;
+      statistic[(int)TypeReaction::R3]=0;
+      statistic[(int)TypeReaction::R4]=0;
+      statistic[(int)TypeReaction::E1]=0;
+      statistic[(int)TypeReaction::E2]=0;
+      statistic[(int)TypeReaction::E3]=0;
+  }
+
 
 void flow::run()
 {
@@ -106,7 +123,7 @@ void flow::run()
 
 void flow::transition(reactionData& react)
 {
-
+  dt+=1/react.freq;
   switch (react.type)
   {
   case TypeReaction::R1:
@@ -132,13 +149,14 @@ void flow::transition(reactionData& react)
     statistic[(int) TypeReaction::R4]++;
     break;
   }
-  
+  checkElectrode(react.first, react.freq);
+  checkElectrode(react.second, react.freq);
 }
 
 
 void flow::calc(TypeReaction rType, class atom* atom, double gain)
 {
-  static std::vector<class point> RShift;
+  std::vector<class point> RShift;
   TypeAtom tp;
   double Ea;
 
@@ -200,48 +218,68 @@ void flow::calc(TypeReaction rType, class atom* atom, double gain)
 }
 
 
-#define checkelectrode(what) {auto [x,y,z] = what;if(grid->get(x,y,z)->type==TypeAtom::ELECTRODE) std::cout<<__FILE__<<": we have found reaction with electrode"<<std::endl;}
-
-#define checkelectrodeomg() checkelectrode(react.first)  checkelectrode(react.second);
-
 void flow::transitionR1(reactionData& react)
 {
-  checkelectrodeomg();
   flow::helperTransition(react.first, TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON);
   flow::helperTransition(react.second, TypeAtom::INTERSTITIAL_ATOM);
-  I+=p->e*2*grid->distance(react.first,react.second)*react.freq;
   grid->cnt_++;
 
 }
 
 void flow::transitionR2(reactionData& react)
 {
-  checkelectrodeomg();
   flow::helperTransition(react.first, TypeAtom::EMPTY_INTERSTITIAL_ATOM);
   flow::helperTransition(react.second, TypeAtom::INTERSTITIAL_ATOM);
-  I+=p->e*react.freq;
 
   
 }
 
 void flow::transitionR3(reactionData& react)
 {
-  checkelectrodeomg();
   flow::helperTransition(react.first, TypeAtom::FULL_NODE);
   flow::helperTransition(react.second, TypeAtom::EMPTY_INTERSTITIAL_ATOM);
   grid->cnt_--;
-  I+=p->e*(-2)*react.freq;
 
 }
 
 void flow::transitionR4(reactionData& react)
 {
-  checkelectrodeomg();
   flow::helperTransition(react.first, TypeAtom::FULL_NODE);
-  flow::helperTransition(react.second, TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON);
-  I+=p->e*(-1)*react.freq;
-
+  flow::helperTransition(react.second, TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON );
 }
+
+  void flow::checkElectrode(pos_t c, double freq)
+  {
+    auto a = grid->get(c);
+    switch (a->meta)
+    {
+      case ElectrodeType::POSITIVE:
+      {
+        switch (a->type)
+        {
+        case TypeAtom::VACANCY_NODE_WITH_ELECTRON:
+            a->type = TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON;
+            a->q = getQ(TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON);
+            dq+=(p->U<0?1:-1);
+        }
+          break;
+      }
+      case ElectrodeType::NEGATIVE:
+        {
+
+          switch(a->type)
+          {
+          case TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON:
+            a->type = TypeAtom::VACANCY_NODE_WITH_ELECTRON;
+            a->q = getQ(TypeAtom::VACANCY_NODE_WITH_ELECTRON);
+
+          }
+          break;
+        }
+      break;
+    }
+  }
+
 
 void flow::helperTransition(pos_t c, TypeAtom newType) const
 {
@@ -272,4 +310,14 @@ reactionData::reactionData(pos_t&& first, pos_t&& second, double freq, TypeReact
 bool filter(int x, int x_, int lm)
 {
   return x + x_ >= 0 && x + x_ <= lm;
+}
+
+double flow::getI()
+{
+  return dq/dt;
+}
+void flow::clearI()
+{
+  dq = 0;
+  dt = 0;
 }
