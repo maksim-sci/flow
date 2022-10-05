@@ -66,7 +66,7 @@ void runFlow::step()
       std::ofstream outf(fs::absolute(outperiodic).append("counts.txt"),std::ios_base::app);
       if(outf)
       {
-        for(int i = 0;i<6;i++)
+        for(int i = 0;i<7;i++)
         {
           outf<<(TypeReaction)i<<":"<<f.statistic[i]<<" ";
         }
@@ -78,7 +78,7 @@ void runFlow::step()
       toFile(fs::absolute(gridOut).append("run_"+std::to_string(step_number)+".xyz").string(), grid);
       std::ofstream current_stream(fs::absolute(outperiodic).append("current.txt"),std::ios_base::app);
       //current out
-      current_stream<<step_number<<"\t"<<f.getI()<<std::endl;
+      current_stream<<step_number<<"\t"<<f.dq<<"\t"<<f.dt<<"\t"<<f.getI()<<std::endl;
       f.clearI();
       ///////////////////////////////////////////////////////
       current_stream.close();
@@ -97,8 +97,5 @@ void runFlow::run(int cntFlow)
   {
     step();
   }
-
-  if (cntFlow < freqRecording)
-
-  f.getStatistic();
+  toFile(fs::path(outperiodic).append("run.xyz").string(), grid);
 }

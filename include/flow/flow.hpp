@@ -39,6 +39,10 @@ public:
   void transitionR2(reactionData& react);
   void transitionR3(reactionData& react);
   void transitionR4(reactionData& react);
+  void transitionE1(reactionData& react);
+  void transitionE2(reactionData& react);
+  void transitionE3(reactionData& react);
+
   void helperTransition(pos_t c, TypeAtom newType) const;
   void checkElectrode(pos_t c, double freq);
 
@@ -46,19 +50,21 @@ public:
   void getStatistic();
 
   void calcE(TypeReaction rType, class atom* atom, double gain);
+  
   grid* grid;
   section* section;
   params* p;
   tension tension;
   double sFreq = 0.0;
 
-  std::vector<class point> R1Shift;
-  std::vector<class point> R2Shift;
-  std::vector<class point> R3Shift;
-  std::vector<class point> R4Shift;
-  std::vector<class point> E1Shift;
-  std::vector<class point> E2Shift;
-  std::vector<class point> E3Shift;
+  std::vector<pos_t> R1Shift;
+  std::vector<pos_t> R2Shift;
+  std::vector<pos_t> R3Shift;
+  std::vector<pos_t> R4Shift;
+  std::vector<pos_t> E1Shift;
+  std::vector<pos_t> E2Shift;
+  std::vector<pos_t> E3Shift;
+  
   std::vector<int> statistic;
   std::vector<reactionData> reactionsBox;
 

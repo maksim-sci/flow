@@ -10,7 +10,7 @@ public:
   params();
   explicit params(double E);
 
-  const double Ea1, Ea2, Ea3, Ea4, y, T, k, e, v;
+  const double Ea1, Ea2, Ea3, Ea4, ER1, ER2, ER3, y, T, k, e, v;
   double E;
   double R1mult;
   double R2mult;

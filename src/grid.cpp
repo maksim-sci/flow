@@ -116,7 +116,9 @@ grid::grid(const int rx, const int ry, const int rz, params* _param, bool genera
       if(param->U>0)
       {
          atoms[x][y][0].meta = ElectrodeType::NEGATIVE;
+         atoms[x][y][1].meta = ElectrodeType::NEGATIVE;
          atoms[x][y][rz].meta = ElectrodeType::POSITIVE;
+         atoms[x][y][rz-1].meta = ElectrodeType::POSITIVE;
          if(atoms[x][y][0].type==TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON)
          {
             atoms[x][y][0].type = TypeAtom::VACANCY_NODE_WITH_ELECTRON;
@@ -129,7 +131,9 @@ grid::grid(const int rx, const int ry, const int rz, params* _param, bool genera
       else
       {
         atoms[x][y][0].meta = ElectrodeType::POSITIVE;
+        atoms[x][y][1].meta = ElectrodeType::POSITIVE;
          atoms[x][y][rz].meta = ElectrodeType::NEGATIVE;
+         atoms[x][y][rz-1].meta = ElectrodeType::NEGATIVE;
          if(atoms[x][y][rz].type==TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON)
          {
             atoms[x][y][rz].type = TypeAtom::VACANCY_NODE_WITH_ELECTRON;
