@@ -48,6 +48,7 @@ params::params()
     hconst(settings["hconst"]),
     kb(settings["kb"]),
     Temperature(settings["Temperature"]),
+    vac_size(settings["vac_size"]),
     e_charge(-1.6e-19)
 {
   std::cout<<"params initializing"<<std::endl;
@@ -97,6 +98,7 @@ params::params(double _E)
     hconst(settings["hconst"]),
     kb(settings["kb"]),
     Temperature(settings["Temperature"]),
+    vac_size(settings["vac_size"]),
     e_charge(-1.6e-19)
 {
   std::cout<<"params initializing"<<std::endl;

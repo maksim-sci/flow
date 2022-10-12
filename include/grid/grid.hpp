@@ -33,6 +33,7 @@ public:
   friend std::ostream& operator << (std::ostream&, const grid&);
   friend std::istream& operator >> (std::istream&, grid&);
 
+  void updElectrodes();
   atom* get(int x, int y, int z);
   atom* get(pos_t pos);
 

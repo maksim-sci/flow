@@ -8,7 +8,7 @@
     "maxy":18,
     "minz":0,
     "maxz":20,
-    "recordPeriod":3000,
+    "recordPeriod":20000,
     "generateGrid":true,
     "uniquefolder":true,
     "timeLimit":500000,
@@ -50,5 +50,6 @@
     "le":0.2,
     "Temperature":300,
     "hconst":6.24e-34,
-    "kb":1.38e-23
+    "kb":1.38e-23,
+    "vac_size":1
   }

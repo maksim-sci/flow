@@ -42,4 +42,5 @@ public:
   double cosc;
   double U;
   double e_charge;
+  double vac_size;
 };

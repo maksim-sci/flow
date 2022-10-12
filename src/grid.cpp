@@ -109,43 +109,7 @@ grid::grid(const int rx, const int ry, const int rz, params* _param, bool genera
     }
   }
 
-  for (int x = 0; x <= rx; x++)
-  {
-    for (int y = 0; y <= ry; y++)
-    {
-      if(param->U>0)
-      {
-         atoms[x][y][0].meta = ElectrodeType::NEGATIVE;
-         atoms[x][y][1].meta = ElectrodeType::NEGATIVE;
-         atoms[x][y][rz].meta = ElectrodeType::POSITIVE;
-         atoms[x][y][rz-1].meta = ElectrodeType::POSITIVE;
-         if(atoms[x][y][0].type==TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON)
-         {
-            atoms[x][y][0].type = TypeAtom::VACANCY_NODE_WITH_ELECTRON;
-         }
-         if(atoms[x][y][rz].type==TypeAtom::VACANCY_NODE_WITH_ELECTRON)
-         {
-            atoms[x][y][rz].type = TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON;
-         }
-      }
-      else
-      {
-        atoms[x][y][0].meta = ElectrodeType::POSITIVE;
-        atoms[x][y][1].meta = ElectrodeType::POSITIVE;
-         atoms[x][y][rz].meta = ElectrodeType::NEGATIVE;
-         atoms[x][y][rz-1].meta = ElectrodeType::NEGATIVE;
-         if(atoms[x][y][rz].type==TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON)
-         {
-            atoms[x][y][rz].type = TypeAtom::VACANCY_NODE_WITH_ELECTRON;
-         }
-         if(atoms[x][y][0].type==TypeAtom::VACANCY_NODE_WITH_ELECTRON)
-         {
-            atoms[x][y][0].type = TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON;
-         }
-      }
-       
-    }
-  }
+  
 }
 
 
@@ -229,6 +193,49 @@ atom* grid::get(int x, int y, int z)
 void grid::addLug(int lx_, int rx_, int ly_, int ry_, int lz_, int rz_)
 {
   lug = {lx_, rx_, ly_, ry_, lz_, rz_};
+}
+
+void grid::updElectrodes()
+{
+  auto lType = ElectrodeType::POSITIVE;
+  auto rType = ElectrodeType::NEGATIVE;
+  if(param->U>0)
+  {
+    lType = ElectrodeType::NEGATIVE;
+    rType = ElectrodeType::POSITIVE;
+  }
+  for (int x = 0; x <= rx; x++)
+  {
+    for (int y = 0; y <= ry; y++)
+    {
+      //TODO remake
+      auto& atomss = atoms;
+      auto check_electrode = [&atomss,&x,&y](ElectrodeType totype,int z){
+        auto& atom = atomss[x][y][z];
+        atom.meta = totype;
+        if(totype==ElectrodeType::POSITIVE)
+        {
+          if(atom.type==TypeAtom::VACANCY_NODE_WITH_ELECTRON)
+          {
+            atom.type = TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON;
+          }
+        }
+        else if(totype==ElectrodeType::NEGATIVE)
+        {
+          if(atom.type==TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON)
+          {
+            atom.type = TypeAtom::VACANCY_NODE_WITH_ELECTRON;
+          }
+        }
+      };
+      check_electrode(lType,0);
+      check_electrode(lType,1);
+      check_electrode(rType,rz-1);
+      check_electrode(rType,rz);
+
+    }
+       
+  }
 }
 
 void grid::invert()

@@ -235,17 +235,52 @@ void flow::calc(TypeReaction rType, class atom *atom, double gain)
     double prod = p->y * p->a * p->e * E;
     if (Ea - prod < 0)
     {
-      fmt::print("{} {}: incorrect frequency: reaction type {}, first atom {}, second atom {}\n", __FILE__, __LINE__, rType, *atom, *sA);
+      //idk why there was this msg
+      //fmt::print("{} {}: incorrect frequency: reaction type {}, first atom {}, second atom {}\n", __FILE__, __LINE__, rType, *atom, *sA);
       continue;
     }
 
     double freq = p->v * exp(-((Ea - prod) / (p->k * p->T)));
     sFreq += freq;
-    // if(rType==TypeReaction::R3)
-    // {
-    //   std::cout<<freq<<std::endl;
-    // }
+    
     reactionData reactionDt = {std::make_tuple(x, y, z), std::make_tuple(xs, ys, zs), freq, rType};
+    reactionsBox.push_back(reactionDt);
+  }
+}
+
+void flow::calcE1(TypeReaction rType, class atom *atom, double gain)
+{
+  double pot = p->ER1;
+  for (auto &sh : E1Shift)
+  {
+    auto [x_, y_, z_] = sh;
+    auto [x, y, z] = atom->p.p;
+    if ((!filter(x, x_, grid->rx)) || (!filter(y, y_, grid->ry)) ||
+        (!filter(z, z_, grid->rz)))
+      continue;
+
+    pos_t pos2 = pos_t(x + x_, y + y_, z + z_);
+    auto[xs,ys,zs] = pos2;
+    class atom *sA = grid->get(pos2);
+    if (sA->type != TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON)
+      continue;
+
+
+    double E = tension.getE(atom, sA, gain, grid->lug.inLug(sA)); 
+    double bot = p->hconst*(1 - exp(p->e*E/(p->k*p->Temperature)));
+    double distance = grid->distance(sh,pos2);
+    double distance_mult = distance/p->vac_size;
+
+    double freq = p->AE1*E*distance_mult/(bot);
+    if (freq<=0)
+    {
+      //idk why there was this msg yes
+      //fmt::print("{} {}: incorrect frequency: reaction type {}, first atom {}, second atom {}\n", __FILE__, __LINE__, rType, *atom, *sA);
+      continue;
+    }
+    
+    reactionData reactionDt = {std::make_tuple(x, y, z), std::make_tuple(xs, ys, zs), freq, rType};
+
     reactionsBox.push_back(reactionDt);
   }
 }

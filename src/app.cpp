@@ -28,6 +28,7 @@ runFlow::runFlow(std::tuple<int, int, int> limGrid, std::tuple<int, int, int, in
 {
   if (from_file!="")
     fromFile(from_file, grid);
+  grid.updElectrodes();
   if(outperiodic!="")
   {
 
