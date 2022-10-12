@@ -18,6 +18,8 @@
 #include <point/point.hpp>
 #include <atom/atom.hpp>
 
+constexpr double min_valuable_freq = 1e-10;
+
 flow::flow(class grid &grid, class section &section, class params &params)
     : grid(&grid),
       section(&section),
@@ -233,14 +235,17 @@ void flow::calc(TypeReaction rType, class atom *atom, double gain)
     double E = tension.getE(atom, sA, gain, grid->lug.inLug(sA));
 
     double prod = p->y * p->a * p->e * E;
-    if (Ea - prod < 0)
-    {
-      //idk why there was this msg
-      //fmt::print("{} {}: incorrect frequency: reaction type {}, first atom {}, second atom {}\n", __FILE__, __LINE__, rType, *atom, *sA);
-      continue;
-    }
+    // if (Ea - prod < 0)
+    // {
+    //   //idk why there was this msg
+    //   //fmt::print("{} {}: incorrect frequency: reaction type {}, first atom {}, second atom {}\n", __FILE__, __LINE__, rType, *atom, *sA);
+    //   continue;
+    // }
+    //?!
 
     double freq = p->v * exp(-((Ea - prod) / (p->k * p->T)));
+    if(freq<=min_valuable_freq)
+      continue;
     sFreq += freq;
     
     reactionData reactionDt = {std::make_tuple(x, y, z), std::make_tuple(xs, ys, zs), freq, rType};
@@ -269,10 +274,10 @@ void flow::calcE1(TypeReaction rType, class atom *atom, double gain)
     double E = tension.getE(atom, sA, gain, grid->lug.inLug(sA)); 
     double bot = p->hconst*(1 - exp(p->e*E/(p->k*p->Temperature)));
     double distance = grid->distance(sh,pos2);
-    double distance_mult = distance/p->vac_size;
+    double distance_mult = exp(-distance/p->vac_size);
 
     double freq = p->AE1*E*distance_mult/(bot);
-    if (freq<=0)
+    if (freq<=min_valuable_freq)
     {
       //idk why there was this msg yes
       //fmt::print("{} {}: incorrect frequency: reaction type {}, first atom {}, second atom {}\n", __FILE__, __LINE__, rType, *atom, *sA);
@@ -319,7 +324,7 @@ void flow::calcE(TypeReaction rType, class atom* atom, double gain)
       if(bot>0) 
       {
         double freq = A*dE * exp(-2/p->le)/exp(p->hconst*(bot));
-        if(freq>0)
+        if(freq>min_valuable_freq)
         {
           sFreq += freq;
           reactionData reactionDt= {std::make_tuple(x, y, z), std::make_tuple(x2, y2, z2), freq, rType};
