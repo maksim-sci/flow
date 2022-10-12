@@ -278,6 +278,7 @@ void flow::calcE1(TypeReaction rType, class atom *atom, double gain)
       //fmt::print("{} {}: incorrect frequency: reaction type {}, first atom {}, second atom {}\n", __FILE__, __LINE__, rType, *atom, *sA);
       continue;
     }
+    sFreq += freq;
     
     reactionData reactionDt = {std::make_tuple(x, y, z), std::make_tuple(xs, ys, zs), freq, rType};
 
