@@ -25,7 +25,8 @@ atom::atom()
 
 std::ostream& operator << (std::ostream& os, const atom& a)
 {
-  os << shortName(a.type) << a.p;
+  os << shortName(a.type);
+  os << a.p;
   return os;
 }
 

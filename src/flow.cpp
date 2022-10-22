@@ -245,7 +245,9 @@ void flow::calc(TypeReaction rType, class atom *atom, double gain)
 
     double freq = p->v * exp(-((Ea - prod) / (p->k * p->T)));
     if(freq<=min_valuable_freq)
+    {
       continue;
+    }
     sFreq += freq;
     
     reactionData reactionDt = {std::make_tuple(x, y, z), std::make_tuple(xs, ys, zs), freq, rType};
@@ -270,17 +272,14 @@ void flow::calcE1(TypeReaction rType, class atom *atom, double gain)
     if (sA->type != TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON)
       continue;
 
-
     double E = tension.getE(atom, sA, gain, grid->lug.inLug(sA)); 
     double bot = p->hconst*(1 - exp(p->e*E/(p->k*p->Temperature)));
     double distance = grid->distance(sh,pos2);
     double distance_mult = exp(-distance/p->vac_size);
-
-    double freq = p->AE1*E*distance_mult/(bot);
-    if (freq<=min_valuable_freq)
+    double freq = -p->AE1*E*distance_mult/(bot);
+    //fmt::print("E: {} bot: {} distance: {} distance_mult: {} freq: {}\n",E,bot,distance,distance_mult,freq);
+    if(freq<=min_valuable_freq)
     {
-      //idk why there was this msg yes
-      //fmt::print("{} {}: incorrect frequency: reaction type {}, first atom {}, second atom {}\n", __FILE__, __LINE__, rType, *atom, *sA);
       continue;
     }
     sFreq += freq;
@@ -324,12 +323,13 @@ void flow::calcE(TypeReaction rType, class atom* atom, double gain)
       if(bot>0) 
       {
         double freq = A*dE * exp(-2/p->le)/exp(p->hconst*(bot));
-        if(freq>min_valuable_freq)
+        if(freq<=min_valuable_freq)
         {
-          sFreq += freq;
-          reactionData reactionDt= {std::make_tuple(x, y, z), std::make_tuple(x2, y2, z2), freq, rType};
-          reactionsBox.push_back(reactionDt);
+          continue;
         }
+        sFreq += freq;
+        reactionData reactionDt= {std::make_tuple(x, y, z), std::make_tuple(x2, y2, z2), freq, rType};
+        reactionsBox.push_back(reactionDt);
 
       }
     }
