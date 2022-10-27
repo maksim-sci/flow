@@ -86,7 +86,7 @@ void runFlow::step()
       f.clearStats();
     }
   }
-  f.run();
+  f.step();
 
   step_number++;
   sec.clear();

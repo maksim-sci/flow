@@ -1,6 +1,5 @@
 set(HEADER_LIST "${PROJECT_SOURCE_DIR}/include/section/section.hpp"
                 "${PROJECT_SOURCE_DIR}/include/atom/atom.hpp"
-                "${PROJECT_SOURCE_DIR}/include/electrode/electrode.hpp"
                 "${PROJECT_SOURCE_DIR}/include/params/params.hpp"
                 "${PROJECT_SOURCE_DIR}/include/point/point.hpp"
                 "${PROJECT_SOURCE_DIR}/include/types/atom.hpp"
@@ -18,7 +17,6 @@ add_library(vovka_library
         point.cpp
         atom.cpp
         params.cpp
-        electrode.cpp
         grid.cpp
         flow.cpp
         tension.cpp

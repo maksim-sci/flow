@@ -41,3 +41,4 @@ build/.cmake
 .make
 .cmake
 build/
+buildlog.txt

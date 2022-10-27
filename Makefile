@@ -13,3 +13,8 @@ test:
 .PHONY: run
 run:
 	./$(pwd)/build/apps/app
+
+.PHONY: brun
+brun:
+	cmake -S . -B build >> build/buildlog.txt
+	./$(pwd)/build/apps/app

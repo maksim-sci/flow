@@ -31,7 +31,7 @@ class flow
 public:
   flow(class grid& grid, class section& section, class params& params);
 
-  void run();
+  void step();
   void calc(TypeReaction rType, class atom* atom, double gain);
   void calcE(TypeReaction rType, class atom* atom, double gain);
   void calcE1(TypeReaction rType, class atom* atom, double gain);
@@ -51,7 +51,7 @@ public:
   void clearStats();
   void getStatistic();
 
-  
+  bool bcalcu;
   grid* grid;
   section* section;
   params* p;
