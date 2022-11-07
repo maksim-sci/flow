@@ -34,7 +34,6 @@ public:
   void step();
   void calc(TypeReaction rType, class atom* atom, double gain);
   void calcE(TypeReaction rType, class atom* atom, double gain);
-  void calcE1(TypeReaction rType, class atom* atom, double gain);
   void transition(reactionData& react);
 
   void transitionR1(reactionData& react);

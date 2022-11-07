@@ -18,6 +18,8 @@
 #include <point/point.hpp>
 #include <atom/atom.hpp>
 
+#include <sgs.hpp>
+
 constexpr double min_valuable_freq = 1e-10;
 
 flow::flow(class grid &grid, class section &section, class params &params)
@@ -247,7 +249,7 @@ void flow::calc(TypeReaction rType, class atom *atom, double gain)
 
     if (sA->type != tp)
       continue;
-    double prod = p->e * (sA->u-a->u)*1e+10; //1e+10 - distance must be in angstrom //TODO - fix this!!!
+    double prod = p->e * (sA->u-a->u); //1e+10 - distance must be in angstrom //TODO - fix this!!!
     // if (Ea - prod < 0)
     // {
     //   //idk why there was this msg
@@ -256,7 +258,8 @@ void flow::calc(TypeReaction rType, class atom *atom, double gain)
     // }
     //?!
 
-    double freq = p->v * exp(-((Ea - prod) / (p->k * p->T)));
+    double freq = p->v * exp(-((Ea) / (BOLZMAN * p->T)));
+    //fmt::print("E: {} Ea: {} prod: {} freq: {} sA->u-a->u: {}\n",a->u*p->E,Ea,prod,freq,sA->u-a->u);
     if(freq<=min_valuable_freq)
     {
       continue;
@@ -264,42 +267,6 @@ void flow::calc(TypeReaction rType, class atom *atom, double gain)
     sFreq += freq;
     
     reactionData reactionDt = {std::make_tuple(x, y, z), std::make_tuple(x2,y2,z2), freq, rType};
-    reactionsBox.push_back(reactionDt);
-  }
-}
-
-void flow::calcE1(TypeReaction rType, class atom *atom, double gain)
-{
-  double pot = p->ER1;
-  for (auto &sh : E1Shift)
-  {
-    auto [x_, y_, z_] = sh;
-    auto [x, y, z] = atom->p.p;
-    pos_t pos2 = pos_t(x + x_, y + y_, z + z_);
-
-    class atom *sA = grid->get(pos2);
-
-    if (sA==nullptr)
-      continue;
-
-    auto[xs,ys,zs] = pos2;
-    if (sA->type != TypeAtom::VACANCY_NODE_WITHOUT_ELECTRON)
-      continue;
-
-    double E = tension.getE(atom, sA, gain, grid->lug.inLug(sA)); 
-    double bot = p->hconst*(1 - exp(p->e*E/(p->k*p->Temperature)));
-    double distance = grid->distance(sh,pos2);
-    double distance_mult = exp(-distance/p->vac_size);
-    double freq = -p->AE1*E*distance_mult/(bot);
-    //fmt::print("E: {} bot: {} distance: {} distance_mult: {} freq: {}\n",E,bot,distance,distance_mult,freq);
-    if(freq<=min_valuable_freq)
-    {
-      continue;
-    }
-    sFreq += freq;
-    
-    reactionData reactionDt = {std::make_tuple(x, y, z), std::make_tuple(xs, ys, zs), freq, rType};
-
     reactionsBox.push_back(reactionDt);
   }
 }
@@ -333,10 +300,10 @@ void flow::calcE(TypeReaction rType, class atom* atom, double gain)
     if(a2->type==TypeAtom::ELECTRODE)
     {
       auto E = tension.getE(atom, a2, gain, grid->lug.inLug(atom));
-      double bot = 1-exp(p->e*E*2/(p->kb*p->Temperature));
+      double bot = 1-exp(p->e*E*2/(BOLZMAN*p->Temperature));
       if(bot>0) 
       {
-        double freq = A*dE * exp(-2/p->le)/exp(p->hconst*(bot));
+        double freq = A*dE * exp(-2/p->le)/exp(PLANCK*(bot));
         if(freq<=min_valuable_freq)
         {
           continue;
@@ -396,7 +363,7 @@ void flow::transitionE3(reactionData& react)
 void flow::checkElectrode(pos_t c, double freq)
 {
   atom* a = grid->get(c);
-  assert(a==nullptr);
+  if(a==nullptr) return;
   grid->checkElectrode(c);
 }
 
@@ -435,7 +402,7 @@ bool filter(int x, int x_, int lm)
 
 double flow::getI()
 {
-  return dq*p->e_charge/dt;
+  return dq*ELCHARGE/dt;
 }
 void flow::clearI()
 {

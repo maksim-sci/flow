@@ -18,6 +18,8 @@
 
 #include <fmt/format.h>
 
+#include <sgs.hpp>
+
 
 lug::lug()
 {}
@@ -184,11 +186,24 @@ std::istream& operator >> (std::istream& is, grid& g)
   return is;
 }
 
+size_t grid::count() const
+{
+  size_t result = 0;
+  for (auto& vx:atoms)
+    for(auto& vy:vx)
+      for(auto& a:vy)
+      {
+        result+=a.type!=TypeAtom::FULL_NODE?1:0;
+      }
+  return result;
+}
+
+
 
 void toFile(std::string name, const grid& g)
 {
   std::ofstream f(name, std::ios_base::out);
-  f << g.cnt_ << std::endl;
+  f << g.count() << std::endl;
   f << getTypesAtom() << std::endl;
   f << g;
 }
@@ -246,16 +261,16 @@ void grid::calcU()
         bool lugIsLeft = lug.lz<(rz+lz)/2;
         //TODO support of the right lug;
         int sizeLug = (lug.rz-lug.lz)*(lug.ry-lug.ly)*(lug.rz-lug.lz-1);
-        double lug_charge = sizeLug*param->e_charge;
+        double lug_charge = sizeLug*ELCHARGE;
         double distance;
         {
-          double dx = dx>=lug.lx?(dx<=lug.rx?0:lug.rx-dx):lug.lx-dx;
-          double dy = dy>=lug.ly?(dy<=lug.ry?0:lug.ry-dy):lug.lx-dy;
-          double dz = dz>=lug.lz?(dz<=lug.rz?0:lug.rz-dz):lug.lx-dz;
-          distance = sqrt(dx*dx+dy*dy+dz*dz)*1e-10;
+          double dx = (lug.rx+lug.lx)/2.-x;
+          double dy = (lug.ry+lug.ly)/2.-y;
+          double dz = (lug.rz+lug.lz)/2.-z;
+          distance = sqrt(dx*dx+dy*dy+dz*dz)*ANGSTROM;
           //TODO check this!!!
         }
-        double lug_effect = (distance<1.1e-6)?0:lug_charge/distance;
+        double lug_effect = (distance<0.1*ANGSTROM)?0:lug_charge/distance;
         //fmt::print("distance: {} u cond: {}   u effect: {} u result: {}\n",distance, a.u,lug_effect,a.u+lug_effect);
         a.u += lug_effect;
       }
@@ -298,7 +313,7 @@ ElectrodeType grid::checkElectrodeType(pos_t pos)
     bool isElectrodeLeft = z<=(rz-lz)/2;
     bool isLeftElectrodePositive = param->U<0;
     bool isElectrodePositive = (- (isElectrodeLeft&&isLeftElectrodePositive)) && (isElectrodeLeft&&isLeftElectrodePositive);
-    electrodeType = isElectrodePositive?ElectrodeType::NEGATIVE:ElectrodeType::POSITIVE;
+    electrodeType =  isElectrodePositive?ElectrodeType::NEGATIVE:ElectrodeType::POSITIVE;
   }
   return electrodeType;
 }

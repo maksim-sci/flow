@@ -35,6 +35,7 @@ public:
   void updElectrodes();
   atom* get(int x, int y, int z);
   atom* get(pos_t pos);
+  size_t count() const;
   ElectrodeType checkElectrodeType(pos_t pos);
 
   void calcU();
