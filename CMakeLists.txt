@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.11)
 
 project(
-        vovka
-        VERSION 0.1
+        flow
+        VERSION 0.11
         DESCRIPTION "ex kmmk"
         LANGUAGES CXX)
 
