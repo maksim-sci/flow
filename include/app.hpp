@@ -5,10 +5,10 @@
 #pragma once
 
 #include "types.h"
-#include <grid/grid.hpp>
-#include <section/section.hpp>
-#include <params/params.hpp>
-#include <flow/flow.hpp>
+#include <grid.hpp>
+#include <section.hpp>
+#include <params.hpp>
+#include <flow.hpp>
 
 #include <string>
 #include <tuple>

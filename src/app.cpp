@@ -5,8 +5,8 @@
 //Upgraded by Maksim Solovev
 //
 #include "types.h"
-#include <app/app.hpp>
-#include <flow/flow.hpp>
+#include <app.hpp>
+#include <flow.hpp>
 #include <memory>
 #include <sstream>
 #include <locale>

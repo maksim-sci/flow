@@ -3,8 +3,8 @@
 //
 
 #include <types/atom.hpp>
-#include <point/point.hpp>
-#include <atom/atom.hpp>
+#include <point.hpp>
+#include <atom.hpp>
 
 #include <iostream>
 

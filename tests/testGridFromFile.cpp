@@ -5,7 +5,7 @@
 #define CATCH_CONFIG_MAIN
 #define bufsize 2048
 #include <catch2/catch.hpp>
-#include <grid/grid.hpp>
+#include <grid.hpp>
 
 #include <cstdio>
 #include <stdio.h>

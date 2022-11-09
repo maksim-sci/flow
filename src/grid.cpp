@@ -10,9 +10,10 @@
 #include <sstream>
 #include <algorithm>
 
+
 #include <types/atom.hpp>
-#include <grid/grid.hpp>
-#include <params/params.hpp>
+#include <grid.hpp>
+#include <params.hpp>
 #include "types.h"
 
 
@@ -289,11 +290,21 @@ atom* grid::get(int x, int y, int z)
 {
   if(lx>x || rx<=x)
   {
-    return nullptr;
+
+
+    x = lx+x%(rx-lx);
+    if(x<0) {
+      x = x+rx-lx;
+    }
+
   }
   if(ly>y || ry<=y)
   {
-    return nullptr;
+    y = ly+y%(ry-ly);
+
+    if(y<0) {
+      y = y+rx-lx;
+    }
   }
   if(lz>z || rz<=z)
   {

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <atom/atom.hpp>
-#include <grid/grid.hpp>
+#include <atom.hpp>
+#include <grid.hpp>
 
 class tension
 {

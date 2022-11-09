@@ -10,13 +10,13 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include <flow/flow.hpp>
-#include <grid/grid.hpp>
-#include <params/params.hpp>
-#include <section/section.hpp>
+#include <flow.hpp>
+#include <grid.hpp>
+#include <params.hpp>
+#include <section.hpp>
 #include <types/atom.hpp>
-#include <point/point.hpp>
-#include <atom/atom.hpp>
+#include <point.hpp>
+#include <atom.hpp>
 
 #include <sgs.hpp>
 

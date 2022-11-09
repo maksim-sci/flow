@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <atom/atom.hpp>
+#include <atom.hpp>
 #include "types.h"
-#include <params/params.hpp>
+#include <params.hpp>
 
 #include <vector>
 #include <string>

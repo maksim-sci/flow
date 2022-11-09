@@ -2,7 +2,7 @@
 // Created by Danil-Ponkratov
 //
 
-#include <section/section.hpp>
+#include <section.hpp>
 
 #include <cassert>
 #include <random>

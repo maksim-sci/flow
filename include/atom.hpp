@@ -5,7 +5,7 @@
 #pragma once
 
 #include <types/atom.hpp>
-#include <point/point.hpp>
+#include <point.hpp>
 
 #include <iostream>
 enum class ElectrodeType

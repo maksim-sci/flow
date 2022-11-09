@@ -2,7 +2,7 @@
 // Created by Danil-Ponkratov
 //
 
-#include <tension/tension.hpp>
+#include <tension.hpp>
 
 tension::tension(double E)
     : E(E)

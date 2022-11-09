@@ -2,7 +2,7 @@
 // Created by Danil-Ponkratov
 //
 
-#include <point/point.hpp>
+#include <point.hpp>
 
 #include <tuple>
 #include <iostream>

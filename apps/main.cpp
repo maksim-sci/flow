@@ -2,8 +2,8 @@
 // Created by Danil-Ponkratov
 //
 
-#include <app/app.hpp>
-#include <flow/flow.hpp>
+#include <app.hpp>
+#include <flow.hpp>
 
 
 #include <fstream>

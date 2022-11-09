@@ -5,12 +5,12 @@
 #pragma once
 
 #include "types.h"
-#include <grid/grid.hpp>
-#include <section/section.hpp>
-#include <params/params.hpp>
-#include <atom/atom.hpp>
-#include <point/point.hpp>
-#include <tension/tension.hpp>
+#include <grid.hpp>
+#include <section.hpp>
+#include <params.hpp>
+#include <atom.hpp>
+#include <point.hpp>
+#include <tension.hpp>
 
 #include <vector>
 #include <types/reaction.hpp>
