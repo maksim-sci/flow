@@ -53,6 +53,7 @@ include(CTest)
 
 add_subdirectory(apps/flowtest)
 add_subdirectory(apps/demo)
+add_subdirectory(apps/brunner)
 
 enable_testing()
 
