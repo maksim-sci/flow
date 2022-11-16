@@ -31,8 +31,6 @@ FetchContent_MakeAvailable(fmtlib)
 # The compiled library code is here
 add_subdirectory(src)
 
-# The executable code is here
-add_subdirectory(apps)
 
 # Testing only available if this is the main app
 # Emergency override MODERN_CMAKE_BUILD_TESTING provided as well
@@ -40,3 +38,19 @@ add_subdirectory(apps)
 #         AND BUILD_TESTING)
 #     add_subdirectory(tests)
 # endif()
+
+
+
+#================================
+#================================
+#================================
+#================================
+#================================
+#================================
+#TESTING
+
+include(CTest) 
+
+
+enable_testing()
+

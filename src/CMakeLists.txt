@@ -1,26 +1,28 @@
-set(HEADER_LIST "${PROJECT_SOURCE_DIR}/include/section.hpp"
-                "${PROJECT_SOURCE_DIR}/include/atom.hpp"
-                "${PROJECT_SOURCE_DIR}/include/params.hpp"
-                "${PROJECT_SOURCE_DIR}/include/point.hpp"
-                "${PROJECT_SOURCE_DIR}/include/types/atom.hpp"
-                "${PROJECT_SOURCE_DIR}/include/types/reaction.hpp"
-                "${PROJECT_SOURCE_DIR}/include/grid.hpp"
-                "${PROJECT_SOURCE_DIR}/include/flow.hpp"
-                "${PROJECT_SOURCE_DIR}/include/tension.hpp"
-                "${PROJECT_SOURCE_DIR}/include/app.hpp")
+set(HEADER_LIST "${PROJECT_SOURCE_DIR}/include/geometry/vector.hpp"
+                "${PROJECT_SOURCE_DIR}/include/sgs.hpp"
+                "${PROJECT_SOURCE_DIR}/include/geometry/geometry.hpp"
+                "${PROJECT_SOURCE_DIR}/include/grid/cubicchunk.hpp"
+                "${PROJECT_SOURCE_DIR}/include/grid/atom/type.hpp"
+                "${PROJECT_SOURCE_DIR}/include/grid/atom/atom.hpp"
+                "${PROJECT_SOURCE_DIR}/include/grid/lattice.hpp"
+                "${PROJECT_SOURCE_DIR}/include/grid/react/react.hpp"
+                "${PROJECT_SOURCE_DIR}/include/grid/react/puasson.hpp"
+                "${PROJECT_SOURCE_DIR}/include/grid/grid.hpp"
+                "${PROJECT_SOURCE_DIR}/include/math/modulo.hpp"
+                "${PROJECT_SOURCE_DIR}/include/field/condenser.hpp"
+                "${PROJECT_SOURCE_DIR}/include/field/equal.hpp"
+                "${PROJECT_SOURCE_DIR}/include/field/evald.hpp"
+                "${PROJECT_SOURCE_DIR}/include/field/ewald_hack.hpp"
+)
 
 # Make an automatic library - will be static or dynamic based on user setting
 add_library(flow_library
-        section.cpp
-        type_atom.cpp
-        type_reaction.cpp
-        point.cpp
-        atom.cpp
-        params.cpp
-        grid.cpp
-        flow.cpp
-        tension.cpp
-        app.cpp
+        geometry/vector.cpp
+        geometry/geometry.cpp
+        grid/cubicchunk.cpp
+        grid/react.cpp
+        grid/grid.cpp
+        grid/lattice.cpp
         ${HEADER_LIST})
 
 
