@@ -52,6 +52,7 @@ add_subdirectory(src)
 include(CTest) 
 
 add_subdirectory(apps/flowtest)
+add_subdirectory(apps/demo)
 
 enable_testing()
 
