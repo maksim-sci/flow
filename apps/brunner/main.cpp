@@ -33,6 +33,9 @@
 #include <field/equal.hpp>
 #include <chrono>
 
+
+#include "IniReader.hpp"
+
 using geometry::Geometry;
 using geometry::Vector;
 using grid::Grid;
@@ -228,12 +231,11 @@ public:
         reacts.push_back(R4);
     };
 
-    void init_folders()
+    void init_folders(string out, string periodic_out)
     {
-        outfolder = fs::absolute("C:/Users/sci/Desktop/modeltest/test");
+        outfolder = fs::absolute(out);
         fs::create_directories(outfolder);
-        statef = outfolder;
-        statef /= ("states");
+        statef = fs::absolute(periodic_out);
         fs::create_directories(statef);
         {
             auto outfile = outfolder;
@@ -324,9 +326,9 @@ public:
         std::ofstream out(pout, std::ios_base::app);
         out << step << " ";
         for (auto &[name, cnt] : elsum)
-        {
+            {
             out << name << ":" << cnt / dt << " ";
-        }
+            }
         out << std::endl;
         elsum.clear();
         dt = 0;
@@ -633,22 +635,34 @@ public:
 
 void grid_like_final_ex()
 {
+    INIReader settings("./settings.ini");
+
+    if(settings.ParseError()!=0) {
+        fmt::print("error when parsing settings file: settings.ini");
+    }
+    else {
+        fmt::print("settings file loaded: settings.ini");
+    }
+
     class grid_runner run_this_thing_please(sgs::ANGSTROM * 4, 0.6 * sgs::VOLT);
 
     run_this_thing_please.init_types();
     run_this_thing_please.init_reacts();
-    run_this_thing_please.init_folders();
+    string outfile = settings.Get("folders","output","./results");
+    string outfile_periodic = settings.Get("folders","periodic_output","./results/periodic");
+    run_this_thing_please.init_folders(outfile,outfile_periodic);
 
     run_this_thing_please.init_structure();
-    run_this_thing_please.maxstep = 100000;
-    run_this_thing_please.recalc_step = 100;
-    run_this_thing_please.printstep = 100;
+
+    run_this_thing_please.maxstep = settings.GetInteger("calculation","maxstep",10000);
+    run_this_thing_please.recalc_step = settings.GetInteger("calculation","recalc_step",100);
+    run_this_thing_please.printstep = settings.GetInteger("calculation","printstep",100);
+
     run_this_thing_please.run();
 }
 
 int main()
 {
-
     grid_like_final_ex();
     return 0;
 }
