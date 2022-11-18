@@ -325,11 +325,20 @@ public:
     {
         std::ofstream out(pout, std::ios_base::app);
         out << step << " ";
-        for (auto &[name, cnt] : elsum)
-            {
-            out << name << ":" << cnt / dt << " ";
+        double sum = 0;
+        for (auto& a:reacts) {
+            auto ai = elsum.find(a->Name());
+            if(ai!=elsum.end()) {
+                double dq = ai->second/dt;
+                sum+=dq;
+                out << dq << " ";
             }
-        out << std::endl;
+            else
+            {
+                out<<"0 ";
+            }
+        }
+        out << sum<<std::endl;
         elsum.clear();
         dt = 0;
         out.close();
