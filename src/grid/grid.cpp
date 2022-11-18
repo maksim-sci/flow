@@ -136,14 +136,13 @@ namespace grid
                     if (pvec == chunks.end())
                         continue;
                     auto &chunk = *pvec->second;
-                    auto a = chunk.begin();
-                    auto b = chunk.end();
-                    for (;a!=b;)
+                    for (auto a = chunk.begin();a!=chunk.end();)
                     {
                         auto& pos = a->first;
                         a++;
                         if (geometry::IsVectorInCube(pos, l, r))
                         {
+
                             chunk.erase(pos);
                         }
                     }
@@ -188,16 +187,15 @@ namespace grid
     string Grid::to_xyz(double mult) const
     {
         std::stringstream ss(std::ios_base::out);
-        ss << count() << "\n";
-        auto a = begin();
-        auto b = end();
-        for (; !(a == b); ++a)
+        ss << count() << "\n\n";
+        for (auto a = begin(); !a.Finished();)
         {
-            auto atom = a.aiter->second;
+            auto& atom = a.aiter->second;
             auto pos = a.aiter->first;
             pos *= mult;
             const auto &material = atom->Material();
             ss << material->Name() << " " << pos.x << " " << pos.y << " " << pos.z << "\n";
+            ++a;
         };
 
         return ss.str();
@@ -259,11 +257,8 @@ namespace grid
         {
             aiter++;
         }
-        if ((aiter == aiterend) && (citer != citerend))
-        {
-            citer++;
-            if (citer != citerend)
-                aiter = citer->second->begin();
+        while(aiter==aiterend && (++citer)!=citerend) {
+            aiter = citer->second->begin();
         }
         return *this;
     };

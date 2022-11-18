@@ -20,10 +20,18 @@ namespace field {
 
                 if(pos.z>=start && pos.z<=end) {
                     auto& patom = iter.aiter->second;
-                    patom->U(patom->U()+Uf*(pos.z-start));
+                    double dU = patom->U()+Uf*(pos.z-start);
+                    patom->U(dU);
+                    //fmt::print("result: {:e}\n",dU);
                 }
                 ++iter;
             }
-        }
+        };
+
+        inline void Apply(const geometry::Vector& pos,const std::shared_ptr<grid::atom::Atom> patom) {
+            if(pos.z>=start && pos.z<=end) 
+                patom->U(patom->U()+Uf*(pos.z-start));
+
+        };
     };
 }

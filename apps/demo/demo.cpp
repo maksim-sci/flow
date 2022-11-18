@@ -34,7 +34,7 @@ using grid::atom::Atom;
 using grid::atom::Type;
 using grid::Lattice;
 using grid::atom::Atom;
-using grid::React;
+using grid::react::React;
 using grid::Grid;
 
 #define assert_eq(a,b) {if(!((a)==(b))) {fmt::print("{}:{} {}!={}: {}!={}\n",__FILE__,__LINE__,#a,#b,(a),(b));exit(-1);}}
@@ -130,6 +130,41 @@ void grid_save_load_big() {
     std::ofstream out("C:/Users/sci/Desktop/modeltest/base_model.xyz");
 
     out<<string_g;
+}
+
+void grid_clear_parallelep_tst() {
+    Grid g(3);
+
+
+    Geometry geo(Vector(1,2,0)/sqrt(5),Vector(2,1.,1)/sqrt(5),Vector(1,0,2)/sqrt(5));
+    Lattice l(geo);
+    l.add({0,0,0},std::make_shared<Type>(0,0,"omg"));
+
+    g.AddLattice(Vector(0.,0,0),Vector(10,10.,10),l);
+
+    int cnt = g.count();
+    std::ofstream out1("C:/Users/sci/Desktop/modeltest/base_modela.xyz");
+
+    out1<<g.to_xyz();
+
+    out1.close();
+
+
+    std::ofstream out2("C:/Users/sci/Desktop/modeltest/base_modelb.xyz");
+
+    out2<<g.to_xyz();
+
+    out2.close();
+
+    g.ClearParallelep(Vector(0.,0.,0.),Vector(7,7,7));
+
+
+    std::ofstream out("C:/Users/sci/Desktop/modeltest/base_modelc.xyz");
+
+    out<<g.to_xyz();
+    //fmt::print(g.to_xyz());
+
+    out.close();
 }
 
 
@@ -588,6 +623,8 @@ int main() {
     //grid_radius_iterator();
     //grid_ewald_hack_simple_demo();
 
-    grid_like_final_ex();
+    //grid_like_final_ex();
+
+    grid_clear_parallelep_tst();
     return 0;
 }

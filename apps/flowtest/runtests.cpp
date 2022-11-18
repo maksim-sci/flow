@@ -340,7 +340,7 @@ void check_reaction_create() {
     auto t1=make_shared<Type>(0.,1,"OXYGEN");
     auto t2=make_shared<Type>(0.,2,"ELECTRODE");
 
-    React r(t1,t2,100);
+    React r(t1,t2,t1,t2,100);
 }
 
 void check_reaction_check_atoms() {
@@ -352,7 +352,7 @@ void check_reaction_check_atoms() {
 
     auto a2=make_shared<Atom>(t2);
 
-    React r(t1,t2,100);
+    React r(t1,t2,t1,t2,100);
 
     assert_tst(r.AreAtomsOk(a1,a2));
     assert_tst(!r.AreAtomsOk(a1,a1));
@@ -370,8 +370,8 @@ void grid_add_Reaction() {
 
     auto t1 = std::make_shared<grid::atom::Type>(1.,1);
     auto t2 = std::make_shared<grid::atom::Type>(1.,2);
-    auto r1 = std::make_shared<React>(t1,t2,1);
-    auto r2 = std::make_shared<React>(t1,t2,1);
+    auto r1 = std::make_shared<React>(t1,t2,t1,t2,1);
+    auto r2 = std::make_shared<React>(t1,t2,t1,t2,1);
 
     g.AddReact(r1);
     g.AddReact(r2);
@@ -499,13 +499,17 @@ void grid_clear_parallelep() {
 
     Geometry geo(Vector(1.,0,0),Vector(0,1.,0),Vector(0,0,1));
     Lattice l(geo);
+    l.add({0,0,0},make_shared<Type>(0,0,"omg"));
 
-    g.AddLattice(Vector(0.,0,0),Vector(30.,30.,30),l);
+    g.AddLattice(Vector(0.,0,0),Vector(10,10.,10),l);
+
+    int cnt = g.count();
 
 
-    g.ClearParallelep(Vector(10.,10.,10.),Vector(20.,20,20));
+    g.ClearParallelep(Vector(5.,5.,5.),Vector(7.,7,7));
 
-    fmt::print("{}: atoms inserted: {}\n",__FUNCTION__,g.count());
+
+    assert_neq(cnt,g.count());
 
 
 

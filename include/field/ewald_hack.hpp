@@ -26,6 +26,26 @@ namespace field {
             cycle_z = g.Cyclic<'z'>();
         };
 
+        inline void add_chunk_q(const geometry::Vector& pos,double dq) {
+            if(dq==0) return;
+            auto chunk = data.find(grid->calcChunkPos(pos));
+            if(chunk!=data.end()) {
+                chunk->second.q+=dq;
+            }
+        }
+
+        inline void calc_chunk(const geometry::Vector& pos) {
+            auto& chunks = grid->Chunks();
+            auto pchunk = chunks.find(pos);
+            if(pchunk!=chunks.end()) {
+                auto& [vec,chunk] = *pchunk;
+                for(auto iter = chunk->begin();iter!=chunk->end();iter++) {
+                    auto& [atom_pos,atom] = *iter;
+                    atom->U(calc_a(atom_pos));
+                }
+            }
+        }
+
         inline void calc_c() {
             for( auto&pchunk: grid->Chunks()) {
                 auto& vchunk = pchunk.first;
@@ -52,6 +72,10 @@ namespace field {
                     auto vc = grid->getMinDist(p1,pos);
                     double dist = vc.abs();
                     U += cdata.q/dist;
+                    if(U!=U) {
+                        int* a = 0;
+                        *a = 0;
+                    }
 
 
                 }
@@ -62,7 +86,13 @@ namespace field {
                         for(auto& [vvec,atom]:*pchunk->second) {
                             if(vvec!=pos) {
                                 auto vc = grid->getMinDist(vvec,pos);
-                                U+=0.1*atom->Q()/(vc).abs();
+                                double mod = vc.abs();
+                                U+=atom->Q()/mod;
+                                if(U!=U) {
+                                    int* a = 0;
+                                    *a = 0;
+                                }
+                                
                                
                             }
                         }
@@ -73,12 +103,21 @@ namespace field {
         };
 
         inline void calc_all() {
+            data.clear();
+            data.reserve(10000);
+            data.max_load_factor(0.25);
             calc_c();
             for(auto iter = grid->begin();!(iter==grid->end());) {
                 auto& vec = iter.aiter->first;
                 auto& atom = iter.aiter->second;
                 ++iter;
-                atom->U(atom->U()+calc_a(vec));
+                double du = calc_a(vec);
+                if(du!=du) {
+
+                    int* a = 0;
+                    *a = 0;
+                }
+                atom->U(atom->U()+du);
 
 
 

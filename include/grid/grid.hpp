@@ -67,8 +67,8 @@ namespace grid
             GridIteratorOnceSinglePass &operator++();
 
 
-            inline bool operator!=(const Grid::GridIteratorOnceSinglePass &g) const {return g!=*this;};
-
+            inline bool operator!=(const Grid::GridIteratorOnceSinglePass &g) const {return !(g==*this);};
+            inline bool Finished() {return (aiter == aiterend && citer == citerend);};
 
             void end();
         };
@@ -141,6 +141,15 @@ namespace grid
             a.end();
             return a;
         }
+
+        inline std::shared_ptr<grid::chunk::CubicChunk> getChunk(const Vector& pos) {
+            auto posc = calcChunkPos(pos);
+            auto i = chunks.find(posc);
+            if(i!=chunks.end()) {
+                return i->second;
+            }
+            return nullptr;
+        };
         inline auto beginFilterDistance(double dist, const Vector &p) { return GridIteratorDistLimSinglePass(*this, dist, p); }; // WARNING!!!! UNSAFE
         inline void setPeriod(const Vector &v) { rlim = llim + v; };
 

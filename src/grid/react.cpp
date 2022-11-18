@@ -4,6 +4,7 @@
 namespace grid {
     namespace react {
         bool React::AreAtomsOk(std::shared_ptr<grid::atom::Atom> f, std::shared_ptr<grid::atom::Atom> s)const {
+            if(s==f) return false;
             if(f->Material()!=first) {return false;}
             if(s->Material()!=second) {return false;}
 
