@@ -6,9 +6,9 @@
 #include <memory>
 #include <unordered_map>
 
-#include <geometry/Vector.hpp>
+#include "../geometry/vector.hpp"
 
-#include <math/modulo.hpp>
+#include "../math/modulo.hpp"
 
 #include "cubicchunk.hpp"
 #include "atom/atom.hpp"

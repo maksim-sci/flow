@@ -1,4 +1,4 @@
-#include <grid/lattice.hpp>
+#include "lattice.hpp"
 
 namespace grid {
     void Lattice::add(Vector pos, std::shared_ptr<Type> atype)

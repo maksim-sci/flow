@@ -1,6 +1,6 @@
 #pragma once
 
-#include <grid/grid.hpp>
+#include "../grid/grid.hpp"
 
 namespace field {
     using grid::Grid;

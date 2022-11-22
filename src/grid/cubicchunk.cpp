@@ -1,4 +1,4 @@
-#include <grid/cubicchunk.hpp>
+#include "cubicchunk.hpp"
 #include <algorithm>
 
 using geometry::Vector;

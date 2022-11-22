@@ -158,7 +158,7 @@ int vector_cmp() {
 
 int cubic_chunk_creation() {
     CubicChunk a(0,0,0,1.);
-    CubicChunk b();
+    CubicChunk b;
     CubicChunk c(Vector(0.,0.,0.),128);
 
     return 0;

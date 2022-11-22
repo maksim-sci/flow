@@ -1,6 +1,6 @@
 
-#include <grid/react/react.hpp>
-#include <sgs.hpp>
+#include "react/react.hpp"
+#include "../sgs.hpp"
 namespace grid {
     namespace react {
         bool React::AreAtomsOk(std::shared_ptr<grid::atom::Atom> f, std::shared_ptr<grid::atom::Atom> s)const {

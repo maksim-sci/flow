@@ -1,5 +1,5 @@
 #pragma once
-#include "geometry/vector.hpp"
+#include "vector.hpp"
 
 namespace geometry {
     class Geometry {

@@ -2,8 +2,8 @@
 #include <memory>
 #include <string>
 
-#include <grid/atom/type.hpp>
-#include <grid/atom/atom.hpp>
+#include "../atom/type.hpp"
+#include "../atom/atom.hpp"
 namespace grid {
     namespace react {
 

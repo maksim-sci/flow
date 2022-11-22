@@ -1,6 +1,6 @@
 #include <math.h>
 #include <fmt/format.h>
-#include <geometry/vector.hpp>
+#include "../geometry/vector.hpp"
 
 namespace geometry
 {

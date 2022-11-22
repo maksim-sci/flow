@@ -4,7 +4,7 @@
 
 #include "type.hpp"
 
-#include <sgs.hpp>
+#include "../../sgs.hpp"
 
 namespace grid {
     namespace atom {

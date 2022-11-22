@@ -2,9 +2,9 @@
 #include <memory>
 #include <sstream>
 
-#include <grid/grid.hpp>
-#include <grid/atom/atom.hpp>
-#include <grid/react/react.hpp>
+#include "grid.hpp"
+#include "atom/atom.hpp"
+#include "react/react.hpp"
 
 namespace grid
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <grid/grid.hpp>
+#include "../grid/grid.hpp"
+#include "../geometry/vector.hpp"
 #include <unordered_map>
-#include <geometry/vector.hpp>
 
 namespace field {
     using geometry::Vector;

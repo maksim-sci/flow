@@ -3,8 +3,8 @@
 #include <map>
 #include <set>
 
-#include <geometry/vector.hpp>
-#include <geometry/geometry.hpp>
+#include "../geometry/vector.hpp"
+#include "../geometry/geometry.hpp"
 #include "atom/type.hpp"
 
 namespace grid
