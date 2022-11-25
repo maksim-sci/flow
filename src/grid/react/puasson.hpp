@@ -17,7 +17,7 @@ namespace grid {
                     double su = s->U();
                     double fu = f->U();
                     double dE = fu*fq+su*sq-su*to2->Q()-fu*to1->Q();
-                    dE*=sgs::ELVOLT;
+                    dE*=sgs::ELVOLT*10;
                     double E = -barrier+dE;
                     //double freqq = freq*(E)/((sgs::PLANCK)*(1-exp(-E/(sgs::BOLZMAN*f->T()))));
          

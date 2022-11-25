@@ -370,7 +370,7 @@ public:
         outfile /= fmt::format("counts.txt", step);
         printrcnt(outfile);
     }
-    grid_runner(double _chunk_size, double uelectrodes) : chunk_size(_chunk_size), g(_chunk_size), U_Between_Electrodes(uelectrodes), types(), reacts(), struct_end(0), step(0), maxstep(500), printstep(100), recalc_step(100), statef(""), outfolder(""), kmk(), recieved_reaction(), kmk_sum(0), Zero_field(0, 0, 0), Cond_field(0, 0, 0), EWALD(g),react_cnt(0),elsum(0),el_dist(0),dt(0){};
+    grid_runner(double _chunk_size, double uelectrodes) : chunk_size(_chunk_size), g(_chunk_size), U_Between_Electrodes(uelectrodes), types(), reacts(), struct_end(0), step(0), maxstep(500), printstep(100), recalc_step(100), statef(""), outfolder(""), kmk(), recieved_reaction(), kmk_sum(0), Zero_field(0, 0, 0), Cond_field(uelectrodes, 0, 0), EWALD(g),react_cnt(0),elsum(0),el_dist(0),dt(0){};
 
     //меняет типы положительному и отрицательному электроду, чтобы с ними было проще указывать реакции.
 
