@@ -104,7 +104,7 @@ class grid_runner
     field::ewald_hack EWALD;
 
     double kmk_sum;
-    double el_dist;
+    double el_begin;
 
     size_t step;
 
@@ -175,22 +175,28 @@ public:
         double size_x = 30 * sgs::ANGSTROM;
         double size_y = 30 * sgs::ANGSTROM;
 
-        double electrode_z = 3 * sgs::ANGSTROM;
+        double dist_electrode = 0.3 * sgs::ANGSTROM;
 
-        double oxyde_z = 15 * sgs::ANGSTROM + electrode_z;
+        double electrode_end = 1 * sgs::ANGSTROM;
 
-        el_dist = oxyde_z;
+        double oxyde_begin = electrode_end + dist_electrode;
 
-        double electrode2_z = 3 * sgs::ANGSTROM + oxyde_z;
+        double oxyde_end = 14 * sgs::ANGSTROM + oxyde_begin;
 
-        g.AddLattice({0., 0, 0}, Vector(size_x, size_y, electrode_z), lElectrode);
-        g.AddLattice({0, 0, electrode_z}, Vector(size_x, size_y, oxyde_z), lHfO2);
-        g.AddLattice({0, 0, oxyde_z}, Vector(size_x, size_y, electrode2_z), lElectrode);
+
+        el_begin = oxyde_end+dist_electrode;
+
+
+        double electrode2_end = 2 * sgs::ANGSTROM + el_begin;
+
+        g.AddLattice({0., 0, 0}, Vector(size_x, size_y, electrode_end), lElectrode);
+        g.AddLattice({0, 0, oxyde_begin}, Vector(size_x, size_y, oxyde_end), lHfO2);
+        g.AddLattice({0, 0, el_begin}, Vector(size_x, size_y, electrode2_end), lElectrode);
 
         double size_electrode = sgs::ANGSTROM * 5;
         double size_electrode_z = sgs::ANGSTROM * 4;
         double electrode_begin_xy = sgs::ANGSTROM * 7;
-        double electrode_begin_z = electrode_z;
+        double electrode_begin_z = electrode_end;
 
         Vector ElCube_s(electrode_begin_xy, electrode_begin_xy, electrode_begin_z);
         Vector ElCube_e(electrode_begin_xy + size_electrode, electrode_begin_xy + size_electrode, electrode_begin_z + size_electrode_z);
@@ -201,7 +207,7 @@ public:
 
         g.AddLattice(ElCube_s, ElCube_e, lElectrode);
 
-        struct_end = electrode2_z;
+        struct_end = electrode2_end;
     };
 
     void init_reacts()
@@ -364,7 +370,7 @@ public:
         outfile /= fmt::format("counts.txt", step);
         printrcnt(outfile);
     }
-    grid_runner(double _chunk_size, double uelectrodes) : chunk_size(_chunk_size), g(_chunk_size), U_Between_Electrodes(uelectrodes), types(), reacts(), struct_end(0), step(0), maxstep(500), printstep(100), recalc_step(100), statef(""), outfolder(""), kmk(), recieved_reaction(), kmk_sum(0), Zero_field(0, 0, 0), Cond_field(uelectrodes, 0, 0), EWALD(g),react_cnt(0),elsum(0),el_dist(0),dt(0){};
+    grid_runner(double _chunk_size, double uelectrodes) : chunk_size(_chunk_size), g(_chunk_size), U_Between_Electrodes(uelectrodes), types(), reacts(), struct_end(0), step(0), maxstep(500), printstep(100), recalc_step(100), statef(""), outfolder(""), kmk(), recieved_reaction(), kmk_sum(0), Zero_field(0, 0, 0), Cond_field(uelectrodes, 0, 0), EWALD(g),react_cnt(0),elsum(0),el_begin(0),dt(0){};
 
     //меняет типы положительному и отрицательному электроду, чтобы с ними было проще указывать реакции.
 
@@ -469,7 +475,7 @@ public:
 
         double delta1 = a1->Q() - q1;
         double delta2 = a2->Q() - q2;
-        dq = (delta1*(p2 - p1).z + delta2*(p1 - p2).z) / el_dist;
+        dq = (delta1*(p2 - p1).z + delta2*(p1 - p2).z) / el_begin;
         //обновляем напряжения
         if (delta1 == 0 && delta2 == 0)
         {

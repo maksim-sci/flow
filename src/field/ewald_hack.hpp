@@ -107,21 +107,26 @@ namespace field {
             data.reserve(10000);
             data.max_load_factor(0.25);
             calc_c();
+            //double max_du = 0;
+            //double max_U = 0;
             for(auto iter = grid->begin();!(iter==grid->end());) {
                 auto& vec = iter.aiter->first;
                 auto& atom = iter.aiter->second;
                 ++iter;
-                double du = calc_a(vec);
+                double du = 1e+4*calc_a(vec);
+                //max_du = std::max(du,max_du);
                 if(du!=du) {
 
                     int* a = 0;
                     *a = 0;
                 }
+                //max_U = std::max(atom->U(),max_U);
                 atom->U(atom->U()+du);
 
 
 
-            }        
+            }   
+            //fmt::print("du: U: {} {} \n",max_du,max_U);     
         }
     };
 }
