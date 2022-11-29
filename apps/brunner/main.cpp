@@ -169,25 +169,19 @@ public:
         lHfO2.add({0.067849, 0.830122, 0.847094}, Oxygen);
         lHfO2.add({0.067849, 0.669878, 0.347094}, Oxygen);
         lHfO2.add({0.932151, 0.169878, 0.152906}, Oxygen);
-        lHfO2.add({0.522616, 0.110041, 0.782365}, OxygenVacancy_Neutral_Intersitial);
-        lHfO2.add({0.500000, 0.639959, 0.250000}, OxygenVacancy_Neutral_Intersitial);
-        lHfO2.add({0.833333, 0.000000, 0.500000}, OxygenVacancy_Neutral_Intersitial);
-        lHfO2.add({0.747211, 0.514587, 0.862533}, OxygenVacancy_Neutral_Intersitial);
-        lHfO2.add({0.666667, 0.000000, 0.166667}, OxygenVacancy_Neutral_Intersitial);
-        lHfO2.add({0.086123, 0.152080, 0.470800}, OxygenVacancy_Neutral_Intersitial);
-        lHfO2.add({0.283925, 0.625000, 0.048547}, OxygenVacancy_Neutral_Intersitial);
-        lHfO2.add({0.904740, 0.646880, 0.592346}, OxygenVacancy_Neutral_Intersitial);
+        lHfO2.add({0.78284, 0.43966, 0.7821}, OxygenVacancy_Neutral_Intersitial);
+        lHfO2.add({0.21066, 0.5392, 0.22844}, OxygenVacancy_Neutral_Intersitial);
 
         double size_x = 30 * sgs::ANGSTROM;
         double size_y = 30 * sgs::ANGSTROM;
 
-        double electrode_z = 5 * sgs::ANGSTROM;
+        double electrode_z = 3 * sgs::ANGSTROM;
 
         double oxyde_z = 15 * sgs::ANGSTROM + electrode_z;
 
         el_dist = oxyde_z;
 
-        double electrode2_z = 5 * sgs::ANGSTROM + oxyde_z;
+        double electrode2_z = 3 * sgs::ANGSTROM + oxyde_z;
 
         g.AddLattice({0., 0, 0}, Vector(size_x, size_y, electrode_z), lElectrode);
         g.AddLattice({0, 0, electrode_z}, Vector(size_x, size_y, oxyde_z), lHfO2);
