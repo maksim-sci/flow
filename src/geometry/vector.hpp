@@ -31,6 +31,7 @@ namespace geometry {
         bool operator== (const Vector& rhs) const;
         bool operator!= (const Vector& rhs) const;
 
+        friend Vector operator* (const double mul, const Vector& v)  {return v*mul;};
 
     };
 

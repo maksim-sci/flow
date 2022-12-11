@@ -12,7 +12,7 @@ namespace field {
         grid::Grid* grid;
 
         inline evald(grid::Grid& g):grid(&g),chunk_size(g.Chunk_Size()),translations({g.Chunk_Size(),g.Chunk_Size(),g.Chunk_Size()}){
-
+            
         };
 
         inline void apply() {
