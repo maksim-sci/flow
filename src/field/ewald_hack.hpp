@@ -86,7 +86,6 @@ namespace field {
                                 double mod = vc.abs();
                                 U+=atom->Q()/mod;
 
-                                fmt::print("cdata, dist ({}) ({})    ",atom->Q(),mod);
 
                                 
                                
