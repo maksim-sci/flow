@@ -72,8 +72,8 @@ auto R3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, Oxygen_I
 auto R4 = std::make_shared<grid::react::Puasson>(Oxygen_Intersittal, OxygenVacancy_Neutral, OxygenVacancy_Neutral, Oxygen_Intersittal, 4 * sgs::ANGSTROM, sgs::ELVOLT * 0.8, 1e+13);
 
 auto E1 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
-auto E3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
+auto E2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
+auto E3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
 
 namespace fs = std::filesystem;
 

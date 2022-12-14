@@ -17,13 +17,13 @@ namespace grid {
                     double su = s->U();
                     double fu = f->U();
                     double dE = fu*fq+su*sq-su*to2->Q()-fu*to1->Q();
-                    dE;
+                    dE*=-1;
 
-                    if(dE>sgs::BOLZMAN*100) {
-                        dE = sgs::BOLZMAN*100;
+                    if(dE>sgs::BOLZMAN*1000) {
+                        dE = sgs::BOLZMAN*1000;
                     }
 
-                    
+
                     double E = -barrier+dE;
 
                     //fmt::print("{} {} {}\n",barrier,dE,E);
