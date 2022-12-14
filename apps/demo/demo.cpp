@@ -550,13 +550,13 @@ void grid_like_final_ex() {
 
 }
 
-void grid_radius_iterator_exchecks() {
+void grid_radius_iterator_horizontal_x() {
     Grid g(10.);
     fmt::print("1\n");
     auto t = std::make_shared<Type>(1,1,"O");
     fmt::print("1\n");
 
-    g.insert(Vector(101.,1.,1.),std::make_shared<Atom>(t));
+    g.insert(Vector(100.,0.,1.),std::make_shared<Atom>(t));
 
     fmt::print("1\n");
 
@@ -578,8 +578,65 @@ void grid_radius_iterator_exchecks() {
 
 }
 
+void grid_radius_iterator_horizontal() {
+    Grid g(10.);
+    fmt::print("1\n");
+    auto t = std::make_shared<Type>(1,1,"O");
+    fmt::print("1\n");
+
+    g.insert(Vector(0.,100.,1.),std::make_shared<Atom>(t));
+
+    fmt::print("1\n");
+
+    Vector v(0,100,0);
+    auto iter = g.beginFilterDistance(10,v);
+    size_t cnt = 0;
+    fmt::print("1\n");
+
+    while(!iter.Finished()) {
+        assert_tst((iter.aiter->second->Material())==t);
+        fmt::print("2\n");
+
+        cnt++;
+        ++iter;
+    }
+    assert_eq(cnt,1);
+    fmt::print("3\n");
+
+
+}
+
+void grid_radius_iterator_horizontal_z() {
+    Grid g(10.);
+    fmt::print("1\n");
+    auto t = std::make_shared<Type>(1,1,"O");
+    fmt::print("1\n");
+
+    g.insert(Vector(0.,0.,100.),std::make_shared<Atom>(t));
+
+    fmt::print("1\n");
+
+    Vector v(0,0,100);
+    auto iter = g.beginFilterDistance(10,v);
+    size_t cnt = 0;
+    fmt::print("1\n");
+
+    while(!iter.Finished()) {
+        assert_tst((iter.aiter->second->Material())==t);
+        fmt::print("2\n");
+
+        cnt++;
+        ++iter;
+    }
+    assert_eq(cnt,1);
+    fmt::print("3\n");
+
+
+}
+
 int main() {
 
-    grid_radius_iterator_exchecks();
+    grid_radius_iterator_horizontal();
+    grid_radius_iterator_horizontal_z();
     return 0;
 }

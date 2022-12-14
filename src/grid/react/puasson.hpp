@@ -17,8 +17,16 @@ namespace grid {
                     double su = s->U();
                     double fu = f->U();
                     double dE = fu*fq+su*sq-su*to2->Q()-fu*to1->Q();
-                    dE*=1e-2;
+                    dE;
+
+                    if(dE>sgs::BOLZMAN*100) {
+                        dE = sgs::BOLZMAN*100;
+                    }
+
+                    
                     double E = -barrier+dE;
+
+                    //fmt::print("{} {} {}\n",barrier,dE,E);
                     //double freqq = freq*(E)/((sgs::PLANCK)*(1-exp(-E/(sgs::BOLZMAN*f->T()))));
          
                     double freqq = freq * exp( (E)/(sgs::BOLZMAN*f->T()) );

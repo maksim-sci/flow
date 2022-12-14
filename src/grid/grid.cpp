@@ -320,9 +320,9 @@ namespace grid
                     }
                     translation_x = -mtranslation_x;
                 }
-                z = pos.z - chunksAround * chunk_size;
+                z = -mz;
             }
-            y = pos.y - chunksAround * chunk_size;
+            y = - my;
         }
         finished = true;
     }

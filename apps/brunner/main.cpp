@@ -55,6 +55,8 @@ struct kmk_data
 };
 
 auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El");
+auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Er");
+auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "EL");
 auto Oxygen = std::make_shared<Type>(0, __COUNTER__, "O");
 auto Oxygen_Intersittal = std::make_shared<Type>(-2 * sgs::ELCHARGE, __COUNTER__, "OI");
 auto Hafnium = std::make_shared<Type>(0, __COUNTER__, "Hf");
@@ -64,14 +66,14 @@ auto OxygenVacancy_Charged = std::make_shared<Type>(+2 * sgs::ELCHARGE, __COUNTE
 auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Ep");
 auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Em");
 
-auto R1 = std::make_shared<grid::react::Puasson>(Oxygen, OxygenVacancy_Neutral_Intersitial, OxygenVacancy_Charged, Oxygen_Intersittal, 4 * sgs::ANGSTROM, sgs::ELVOLT * 0.83, 1e+13);
+auto R1 = std::make_shared<grid::react::Puasson>(Oxygen, OxygenVacancy_Neutral_Intersitial, OxygenVacancy_Charged, Oxygen_Intersittal, 4 * sgs::ANGSTROM, sgs::ELVOLT * 3, 1e+13);
 auto R2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen_Intersittal, OxygenVacancy_Neutral, 4 * sgs::ANGSTROM, sgs::ELVOLT * 0.8, 1e+13);
-auto R3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, Oxygen_Intersittal, Oxygen, OxygenVacancy_Neutral_Intersitial, 4 * sgs::ANGSTROM, sgs::ELVOLT * 0.83, 1e+13);
+auto R3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, Oxygen_Intersittal, Oxygen, OxygenVacancy_Neutral_Intersitial, 4 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
 auto R4 = std::make_shared<grid::react::Puasson>(Oxygen_Intersittal, OxygenVacancy_Neutral, OxygenVacancy_Neutral, Oxygen_Intersittal, 4 * sgs::ANGSTROM, sgs::ELVOLT * 0.8, 1e+13);
 
-auto E1 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.5, 1e+13);
-auto E2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Neutral, TElectrode, OxygenVacancy_Charged, TElectrode, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.5, 1e+13);
-auto E3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, TElectrode, OxygenVacancy_Neutral, TElectrode, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.5, 1e+13);
+auto E1 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
+auto E3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
 
 namespace fs = std::filesystem;
 
@@ -118,6 +120,8 @@ public:
     {
 
         types.push_back(TElectrode);
+        types.push_back(TElectrodeL);
+        types.push_back(TElectrodeR);
         types.push_back(Oxygen);
         types.push_back(Oxygen_Intersittal);
         types.push_back(Hafnium);
@@ -128,6 +132,8 @@ public:
         types.push_back(ElectrodeNegative);
 
         g.AddType(TElectrode);
+        g.AddType(TElectrodeR);
+        g.AddType(TElectrodeL);
         g.AddType(Oxygen);
         g.AddType(Oxygen_Intersittal);
         g.AddType(Hafnium);
@@ -146,6 +152,13 @@ public:
 
         Lattice lElectrode(geoElectrode);
         lElectrode.add(Vector(0, 0, 0), TElectrode);
+
+
+        Lattice lElectrodeR(geoElectrode);
+        lElectrodeR.add(Vector(0, 0, 0), TElectrodeR);
+
+        Lattice lElectrodeL(geoElectrode);
+        lElectrodeL.add(Vector(0, 0, 0), TElectrodeL);
 
         Vector HfO2A(5.069186, 0.000000, -0.864173);
         Vector HfO2B(0.000000, 5.195148, 0.000000);
@@ -195,7 +208,7 @@ public:
         g.AddLattice({0, 0, el_begin}, Vector(size_x, size_y, electrode2_end), lElectrode);
 
         double size_electrode = sgs::ANGSTROM * 5;
-        double size_electrode_z = sgs::ANGSTROM * 4;
+        double size_electrode_z = sgs::ANGSTROM * 5;
         double electrode_begin_xy = sgs::ANGSTROM * 10;
         double electrode_begin_z = electrode_end;
 
@@ -403,11 +416,13 @@ public:
                 atom->fixU(false);
                 if (vec.z < lel_end)
                 {
+                    atom->Material(TElectrodeL);
                     atom->U(lu);
                 }
                 else
                 {
 
+                    atom->Material(TElectrodeR);
                     atom->U(ru);
                 }
                 atom->fixU(true);
@@ -665,10 +680,10 @@ void grid_like_final_ex()
     INIReader settings("./settings.ini");
 
     if(settings.ParseError()!=0) {
-        fmt::print("error when parsing settings file: settings.ini");
+        fmt::print("error when parsing settings file: settings.ini\n");
     }
     else {
-        fmt::print("settings file loaded: settings.ini");
+        fmt::print("settings file loaded: settings.ini\n");
     }
 
     double U_between_electrodes = settings.GetReal("model","U_between_electrodes",0);

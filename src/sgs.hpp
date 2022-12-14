@@ -21,5 +21,5 @@ namespace sgs {
     
     constexpr double ELCHARGE = 4.80320427e-10;//TODO   *f64::powf(CENTIMETER, 1.5)*GRAM.powf(0.5)/SECOND;
 
-    constexpr double BOLZMAN = 1.380649e-16*ERG;//TODO   *f64::powf(CENTIMETER, 1.5)*GRAM.powf(0.5)/SECOND;
+    constexpr double BOLZMAN = 1.380649e-14*ERG;//TODO   *f64::powf(CENTIMETER, 1.5)*GRAM.powf(0.5)/SECOND;
 }
