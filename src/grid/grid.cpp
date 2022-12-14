@@ -292,7 +292,7 @@ namespace grid
                             for (; translation_z <= mtranslation_z; translation_z++)
                             {
                                 //fmt::print("x,y,z: ({} {} {})  tx,ty,tz: ({} {} {})\n",x,y,z,translation_x,translation_y,translation_z);
-                                if (delta.abs()-chunk_size < distance)
+                                if ((delta).abs()-chunk_size < distance)
                                 {
                                     Vector ptrans = pos + translations.coord_mul(Vector((double)(translation_x), (double)(translation_y), (double)(translation_z)));
                                     Vector p1 = ptrans+ delta;
@@ -370,12 +370,13 @@ namespace grid
             return;
         }
         chunksAround = std::floor(dist / chunk_size) + 1;
-        x = pos.x - chunksAround * chunk_size;
-        z = pos.z - chunksAround * chunk_size;
-        y = pos.y - chunksAround * chunk_size;
-        mx = pos.x + chunksAround * chunk_size;
-        my = pos.y + chunksAround * chunk_size;
-        mz = pos.z + chunksAround * chunk_size;
+
+        mx = chunksAround * chunk_size;
+        my = chunksAround * chunk_size;
+        mz = chunksAround * chunk_size;
+        x = -mx;
+        z = -my;
+        y = -mz;
 
         if (g.Cyclic<'x'>())
         {

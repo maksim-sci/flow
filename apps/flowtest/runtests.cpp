@@ -696,6 +696,38 @@ void grid_radius_iterator() {
 
 }
 
+void grid_radius_iterator_exchecks() {
+    Grid g(10.);
+    fmt::print("1\n");
+    auto t = std::make_shared<Type>(1,1,"O");
+    fmt::print("1\n");
+
+    g.insert(Vector(1.,1.,1.),std::make_shared<Atom>(t));
+    g.insert(Vector(10.,1.,1.),std::make_shared<Atom>(t));
+    g.insert(Vector(100.,1.,1.),std::make_shared<Atom>(t));
+    g.insert(Vector(101.,1.,1.),std::make_shared<Atom>(t));
+    g.insert(Vector(101.,5.,1.),std::make_shared<Atom>(t));
+
+    fmt::print("1\n");
+
+    Vector v(100,0,0);
+    auto iter = g.beginFilterDistance(10,v);
+    size_t cnt = 0;
+    fmt::print("1\n");
+
+    while(!iter.Finished()) {
+        assert_tst((iter.aiter->second->Material())==t);
+        fmt::print("2\n");
+
+        cnt++;
+        ++iter;
+    }
+    assert_eq(cnt,3);
+    fmt::print("3\n");
+
+
+}
+
 void grid_radius_iterator_simple() {
     Grid g(10.);
 
@@ -958,6 +990,7 @@ int main(int argc, char** argv) {
     Test_case(grid_radius_iterator_simple,"gris");
     Test_case(grid_radius_iter_filtered,"grif");
     Test_case(grid_radius_iterator_ex,"grie");
+    Test_case(grid_radius_iterator_exchecks,"griecss");
     Test_case(grid_cyclic_set,"gcs");
     Test_case(grid_cyclic_set_get,"gcsg");
     Test_case(grid_radius_iterator_cyclic,"gric");

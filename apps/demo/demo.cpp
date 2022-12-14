@@ -550,81 +550,36 @@ void grid_like_final_ex() {
 
 }
 
+void grid_radius_iterator_exchecks() {
+    Grid g(10.);
+    fmt::print("1\n");
+    auto t = std::make_shared<Type>(1,1,"O");
+    fmt::print("1\n");
+
+    g.insert(Vector(101.,1.,1.),std::make_shared<Atom>(t));
+
+    fmt::print("1\n");
+
+    Vector v(100,0,0);
+    auto iter = g.beginFilterDistance(10,v);
+    size_t cnt = 0;
+    fmt::print("1\n");
+
+    while(!iter.Finished()) {
+        assert_tst((iter.aiter->second->Material())==t);
+        fmt::print("2\n");
+
+        cnt++;
+        ++iter;
+    }
+    assert_eq(cnt,1);
+    fmt::print("3\n");
+
+
+}
+
 int main() {
 
-    Vector v(1.,5.,6.);
-    Vector v1(1e-7,5.,6.);
-
-    // fmt::print("vector: {}\n",v);
-    // fmt::print("vector: {:e}\n",v1);
-
-    //printex(math::modulo(10.,1.1));
-    //printex(math::modulo(-10.,1.1));
-    //printex(math::modulo(-1.0,1.1));
-    ////grid_addLattice();
-    //grid_save_load();
-
-    //grid_save_load_big();
-
-    //grid_like_final();
-
-    //grid_radius_iterator_ex();
-
-    //grid_radius_iterator_cyclic();
-
-    //grid_radius_iterator_ex();
-
-
-    //grid_radius_iter_filtered();
-
-    Vector o1(0.551113, 0.742603, 0.022292);
-    Vector o2(0.448887, 0.242603, 0.477708);
-    Vector o3(0.448887, 0.257397, 0.977708);
-    Vector o4(0.551113, 0.757397, 0.522292);
-    Vector o5(0.932151, 0.330122, 0.652906);
-    Vector o6(0.067849, 0.830122, 0.847094);
-    Vector o7(0.067849, 0.669878, 0.347094);
-    Vector o8(0.932151, 0.169878, 0.152906);
-
-    // Vector i1((o4+o7+o2+o1)/4);
-    // Vector i2((o2+o3+o4+o5)/4);
-    // Vector i3((o8+o7+o1+o5)/4);
-    // Vector i4((o1+o5+o8+o3)/4);
-    // Vector i5((o1+o6+o3+o4)/4);
-    // Vector i6((o2+o4+o6+o7)/4);
-    // Vector i7((o1+o6+o3+o7)/4);
-
-
-    
-    // pr(i1);
-    // pr(i2);
-    // pr(i3);
-    // pr(i4);
-    // pr(i5);
-    // pr(i6);
-    // pr(i7);
-
-    Vector Hf1(0.724041, 0.457319, 0.292109);
-    Vector Hf2(0.275959, 0.957319, 0.207891);
-    Vector Hf3(0.275959, 0.542681, 0.707891);
-    Vector Hf4(0.724041, 0.042681, 0.792109);
-
-
-    //pr((ov(1,0,0,1)+ov(2,0,1,0)+ov(4,0,0,0)+ov(3,0,1,0)+ov(6,0,0,0)+ov(6,1,1,0))/6);
-    //pr((ov(4,0,0,0)+ov(7,0,0,0)+ov(2,0,0,0)+ov(1,0,0,0)+ov(3,0,0,-1)+ov(8,0,1,0))/6);
-    //pr((ov(5,0,0,0)+ov(6,1,-1,0)+ov(4,0,-1,0)+ov(7,1,-1,0)+ov(8,0,0,0)+ov(2,0,0,0))/6);
-    //pr((ov(6,1,0,0)+ov(1,0,0,1)+ov(3,0,0,0)+ov(8,0,0,1)+ov(5,0,0,0)+ov(4,0,0,0))/6);
-    //pr((ov(4,0,0,0)+ov(1,0,0,0)+ov(3,0,1,-1)+ov(8,0,1,0)+ov(2,0,1,0)+ov(6,1,0,-1))/6);
-    //pr((ov(7,1,-1,1)+ov(6,1,-1,1)+ov(8,0,0,1)+ov(5,0,0,1)+ov(2,1,0,1)+ov(7,1,0,1))/6);
-    //pr((ov(7,1,-1,1)+ov(6,1,-1,1)+ov(8,0,0,1)+ov(5,0,0,1)+ov(2,1,0,1)+ov(7,1,0,1))/6);
-    //pr((ov(6,0,1,0)+ov(7,0,1,1)+ov(3,0,1,0)+ov(1,0,1,1))/4);
-    //pr((ov(5,0,0,0)+ov(7,1,0,0)+ov(6,1,0,0)+ov(4,0,0,0))/4);
-
-    //grid_radius_iterator();
-    //grid_ewald_hack_simple_demo();
-
-    //grid_like_final_ex();
-
-    grid_clear_parallelep_tst();
+    grid_radius_iterator_exchecks();
     return 0;
 }

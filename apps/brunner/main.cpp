@@ -64,19 +64,20 @@ auto OxygenVacancy_Charged = std::make_shared<Type>(+2 * sgs::ELCHARGE, __COUNTE
 auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Ep");
 auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Em");
 
-auto R1 = std::make_shared<grid::react::Puasson>(Oxygen, OxygenVacancy_Neutral_Intersitial, OxygenVacancy_Charged, Oxygen_Intersittal, 7 * sgs::ANGSTROM, sgs::ELVOLT * 0.83, 1e+13);
-auto R2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen_Intersittal, OxygenVacancy_Neutral, 7 * sgs::ANGSTROM, sgs::ELVOLT * 0.8, 1e+13);
-auto R3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, Oxygen_Intersittal, Oxygen, OxygenVacancy_Neutral_Intersitial, 7 * sgs::ANGSTROM, sgs::ELVOLT * 0.83, 1e+13);
-auto R4 = std::make_shared<grid::react::Puasson>(Oxygen_Intersittal, OxygenVacancy_Neutral, OxygenVacancy_Neutral, Oxygen_Intersittal, 7 * sgs::ANGSTROM, sgs::ELVOLT * 0.8, 1e+13);
+auto R1 = std::make_shared<grid::react::Puasson>(Oxygen, OxygenVacancy_Neutral_Intersitial, OxygenVacancy_Charged, Oxygen_Intersittal, 4 * sgs::ANGSTROM, sgs::ELVOLT * 0.83, 1e+13);
+auto R2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen_Intersittal, OxygenVacancy_Neutral, 4 * sgs::ANGSTROM, sgs::ELVOLT * 0.8, 1e+13);
+auto R3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, Oxygen_Intersittal, Oxygen, OxygenVacancy_Neutral_Intersitial, 4 * sgs::ANGSTROM, sgs::ELVOLT * 0.83, 1e+13);
+auto R4 = std::make_shared<grid::react::Puasson>(Oxygen_Intersittal, OxygenVacancy_Neutral, OxygenVacancy_Neutral, Oxygen_Intersittal, 4 * sgs::ANGSTROM, sgs::ELVOLT * 0.8, 1e+13);
 
-auto E1 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 7 * sgs::ANGSTROM, sgs::ELVOLT * 0.5, 1e+13);
-auto E2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Neutral, TElectrode, OxygenVacancy_Charged, TElectrode, 7 * sgs::ANGSTROM, sgs::ELVOLT * 0.5, 1e+13);
-auto E3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, TElectrode, OxygenVacancy_Neutral, TElectrode, 7 * sgs::ANGSTROM, sgs::ELVOLT * 0.5, 1e+13);
+auto E1 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.5, 1e+13);
+auto E2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Neutral, TElectrode, OxygenVacancy_Charged, TElectrode, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.5, 1e+13);
+auto E3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, TElectrode, OxygenVacancy_Neutral, TElectrode, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.5, 1e+13);
 
 namespace fs = std::filesystem;
 
 class grid_runner
 {
+    public:
     double U_Between_Electrodes;
     double chunk_size;
     Grid g;
@@ -195,7 +196,7 @@ public:
 
         double size_electrode = sgs::ANGSTROM * 5;
         double size_electrode_z = sgs::ANGSTROM * 4;
-        double electrode_begin_xy = sgs::ANGSTROM * 7;
+        double electrode_begin_xy = sgs::ANGSTROM * 10;
         double electrode_begin_z = electrode_end;
 
         Vector ElCube_s(electrode_begin_xy, electrode_begin_xy, electrode_begin_z);
@@ -210,14 +211,8 @@ public:
         struct_end = electrode2_end;
     };
 
-    void init_reacts()
+    void init_reacts_E()
     {
-
-        R1->Name("R1");
-        R2->Name("R2");
-        R3->Name("R3");
-        R4->Name("R4");
-
         E1->Name("E1");
         E2->Name("E2");
         E3->Name("E3");
@@ -225,10 +220,31 @@ public:
         reacts.push_back(E1);
         reacts.push_back(E2);
         reacts.push_back(E3);
+    }
+
+    void init_reacts_R()
+    {
+        R1->Name("R1");
+        R2->Name("R2");
+        R3->Name("R3");
+        R4->Name("R4");
+
         reacts.push_back(R1);
         reacts.push_back(R2);
         reacts.push_back(R3);
         reacts.push_back(R4);
+    }
+
+    void init_reacts()
+    {
+
+       init_reacts_E();
+       init_reacts_R();
+
+        
+
+
+        
     };
 
     void init_folders(string out, string periodic_out)
@@ -428,10 +444,10 @@ public:
                         int *a = 0;
                         assert(*a == 0);
                     }
-
                     kmk.insert({atom1, kmk_data{r, atom1, atom2, iter.aiter->first, citer.aiter->first, chance}});
                     recieved_reaction.insert({atom2, atom1});
                 }
+                //fmt::print("{:e} {:e} {}\n",vec1,vec2,chance);
                 ++citer;
             }
             ++iter;
@@ -580,6 +596,7 @@ public:
                 EWALD.calc_all();
 
                 recalc_all_reactions();
+
             }
 
             fmt::print("step: {}\n", step);
@@ -604,6 +621,7 @@ public:
             size_t cccnt = 0;
             for (auto &[atom, data] : kmk)
             {
+                //fmt::print("{:e} {:e}\n",data.sp,data.fp);
                 cccnt++;
                 search_sum += data.chance;
                 if (search_sum >= rand_targ)
@@ -669,6 +687,24 @@ void grid_like_final_ex()
     run_this_thing_please.recalc_step = settings.GetInteger("calculation","recalc_step",100);
     run_this_thing_please.printstep = settings.GetInteger("calculation","printstep",100);
 
+    std::unordered_map<std::shared_ptr<Type>,int> cts;
+    for(auto a = run_this_thing_please.g.begin();!a.Finished();) {
+        auto atom = a.aiter->second;
+
+        auto materail = atom->Material();
+        auto pp = cts.find(materail);
+        if(pp!=cts.end()) {
+            pp->second++;
+        }
+        else
+        {
+            cts[materail] = 1;
+        }
+        ++a;
+    }
+    for(auto& [material,cnt]:cts) {
+        fmt::print("structure generated, type: {}: {}\n",material->Name(),cnt);
+    }
     run_this_thing_please.run();
 }
 
