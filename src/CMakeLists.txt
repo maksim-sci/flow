@@ -11,8 +11,10 @@ set(HEADER_LIST "geometry/vector.hpp"
                 "math/modulo.hpp"
                 "field/condenser.hpp"
                 "field/equal.hpp"
-                "field/evald.hpp"
                 "field/ewald_hack.hpp"
+                "field/basic_electrode.hpp"
+                "field/field.hpp"
+                "field/evald.hpp"
 )
 
 # Make an automatic library - will be static or dynamic based on user setting

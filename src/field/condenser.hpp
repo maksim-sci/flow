@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../grid/grid.hpp"
+#include "field.hpp"
 
 namespace field {
     using grid::Grid;
-    class ZCondenser {
+    class ZCondenser: public Field{
         double Uf;
 
         double start, end;

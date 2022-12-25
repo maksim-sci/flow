@@ -55,6 +55,7 @@ add_subdirectory(apps/flowtest)
 add_subdirectory(apps/demo)
 add_subdirectory(apps/brunner)
 add_subdirectory(apps/evald_test)
+add_subdirectory(apps/charged_electrodes_check)
 
 
 enable_testing()

@@ -24,6 +24,7 @@ namespace grid {
             inline bool operator>(const Type& rhs) const {return id>rhs.id;};
 
             inline double Q() const {return baseq;};
+            inline void Q(double newQ) {baseq=newQ;};
             inline string Name() const {return name;};
 
             inline TypeId Id() const {return id;};

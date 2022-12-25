@@ -34,7 +34,10 @@
 #include <chrono>
 
 
+
 #include "IniReader.hpp"
+
+
 
 using geometry::Geometry;
 using geometry::Vector;
@@ -55,8 +58,8 @@ struct kmk_data
 };
 
 auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El");
-auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Er");
-auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "EL");
+auto TElectrodeR = std::make_shared<Type>(1*sgs::ELCHARGE, __COUNTER__, "Er");
+auto TElectrodeL = std::make_shared<Type>(-1*sgs::ELCHARGE, __COUNTER__, "EL");
 auto Oxygen = std::make_shared<Type>(0, __COUNTER__, "O");
 auto Oxygen_Intersittal = std::make_shared<Type>(-2 * sgs::ELCHARGE, __COUNTER__, "OI");
 auto Hafnium = std::make_shared<Type>(0, __COUNTER__, "Hf");
@@ -207,8 +210,8 @@ public:
         g.AddLattice({0, 0, oxyde_begin}, Vector(size_x, size_y, oxyde_end), lHfO2);
         g.AddLattice({0, 0, el_begin}, Vector(size_x, size_y, electrode2_end), lElectrode);
 
-        double size_electrode = sgs::ANGSTROM * 5;
-        double size_electrode_z = sgs::ANGSTROM * 5;
+        double size_electrode = sgs::ANGSTROM * 8;
+        double size_electrode_z = sgs::ANGSTROM * 8;
         double electrode_begin_xy = sgs::ANGSTROM * 10;
         double electrode_begin_z = electrode_end;
 
@@ -405,42 +408,27 @@ public:
 
     void change_electrodes(double lel_end)
     {
-        size_t cnt_left = 0;
-        size_t cnt_right = 0;
+        double lu = 0;
+        double ru = U_Between_Electrodes;
+
         for (auto iter = g.begin(); !iter.Finished();)
         {
             auto &[vec, atom] = *iter.aiter;
             if (atom->Material() == TElectrode)
             {
-                if (vec.z < lel_end)
-                {
-                    cnt_left++;
-                }
-                else
-                {
-                    cnt_right++;
-                }
-            }
-            ++iter;
-        }
-        auto size_vector = g.Rlim()-g.Llim();
-        auto area = size_vector.x*size_vector.y;
-        double dist_between_electrodes = size_vector.z;
-        TElectrodeL->Q(area*U_Between_Electrodes/(cnt_left*dist_between_electrodes));
-        TElectrodeR->Q(area*U_Between_Electrodes/(cnt_right*dist_between_electrodes));
-        for (auto iter = g.begin(); !iter.Finished();)
-        {
-            auto &[vec, atom] = *iter.aiter;
-            if (atom->Material() == TElectrode)
-            {
+                //atom->fixU(false);
                 if (vec.z < lel_end)
                 {
                     atom->Material(TElectrodeL);
+                    //atom->U(lu);
                 }
                 else
                 {
+
                     atom->Material(TElectrodeR);
+                    //atom->U(ru);
                 }
+                //atom->fixU(true);
             }
             ++iter;
         }
@@ -541,7 +529,7 @@ public:
                 for (auto [pos, atom] : *chunk1)
                 {
                     Zero_field.Apply(pos, atom);
-                    //Cond_field.Apply(pos, atom);
+                    Cond_field.Apply(pos, atom);
                     atom->U(atom->U() + EWALD.calc_a(pos));
                 }
             }
@@ -554,7 +542,7 @@ public:
                     for (auto [pos, atom] : *chunk1)
                     {
                         Zero_field.Apply(pos, atom);
-                        //Cond_field.Apply(pos, atom);
+                        Cond_field.Apply(pos, atom);
                         atom->U(atom->U() + EWALD.calc_a(pos));
                     }
                 }
@@ -565,7 +553,7 @@ public:
                     for (auto [pos, atom] : *chunk1)
                     {
                         Zero_field.Apply(pos, atom);
-                        //Cond_field.Apply(pos, atom);
+                        Cond_field.Apply(pos, atom);
                         atom->U(atom->U() + EWALD.calc_a(pos));
                     }
                 }
@@ -605,89 +593,19 @@ public:
     void run()
     {
         Zero_field = field::Equal(0, 0, struct_end);
-        Cond_field = field::ZCondenser(U_Between_Electrodes, 0, struct_end);
         EWALD = field::ewald_hack(g);
 
         change_electrodes(struct_end / 2);
 
-        static std::random_device dev;
-        static std::mt19937 rng(dev());
 
-        for (; step <= maxstep; step++)
-        {
-            
+        Zero_field.Apply(g);
 
-            if (step % recalc_step == 0)
-            {
-                Zero_field.Apply(g);
+        EWALD.calc_all();
 
-                //Cond_field.Apply(g);
+        printvoltage("voltage.txt");
 
-                EWALD.calc_all();
+};
 
-                recalc_all_reactions();
-
-            }
-
-            fmt::print("step: {}\n", step);
-            if (step % printstep == 0)
-            {
-                auto outfile = statef;
-                outfile /= (std::to_string(step) + ".xyz");
-                fmt::print("step {} finished, printing grid to file {} \n", step, outfile.string());
-                printgrid(outfile);
-                printvoltage();
-                printcharges();
-                printrcnt();
-                printcurrent();
-            }
-
-            std::uniform_real_distribution<double> dist(0, kmk_sum);
-            fmt::print("step: {} sum: {}\n", step, kmk_sum);
-
-            double rand_targ = dist(rng);
-            double search_sum = 0;
-            kmk_data react_info;
-            size_t cccnt = 0;
-            for (auto &[atom, data] : kmk)
-            {
-                //fmt::print("{:e} {:e}\n",data.sp,data.fp);
-                cccnt++;
-                search_sum += data.chance;
-                if (search_sum >= rand_targ)
-                {
-                    react_info = data;
-                    break;
-                }
-            }
-            auto &react = react_info.react;
-
-            double dq = ChangeAtoms(react_info.fp, react_info.sp, react->to1, react->to2, true);
-
-            auto name = react->Name();
-
-            auto iels = elsum.find(name);
-            if (iels == elsum.end())
-            {
-                elsum[name] = dq;
-            }
-            else
-            {
-                iels->second += dq;
-            }
-
-            auto iels2 = react_cnt.find(name);
-            if (iels2 == react_cnt.end())
-            {
-                react_cnt[name] = 1;
-            }
-            else
-            {
-                iels2->second += 1;
-            }
-            dt += 1/react_info.chance;
-        }
-    }
 };
 
 void grid_like_final_ex()
@@ -702,7 +620,6 @@ void grid_like_final_ex()
     }
 
     double U_between_electrodes = settings.GetReal("model","U_between_electrodes",0);
-
     double Chunk_size = settings.GetReal("calculation","chunk_size",1);
     class grid_runner run_this_thing_please(Chunk_size, U_between_electrodes);
 
