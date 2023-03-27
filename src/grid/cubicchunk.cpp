@@ -72,5 +72,13 @@ namespace grid {
             return true;
         
         };
+
+        void CubicChunk::for_each(std::function<void(const Vector&,std::shared_ptr<atom::Atom>&)> callback)
+        {
+            for(auto data:atoms) {
+                auto& [pos,atom] = data;
+                callback(pos,atom);
+            }
+        };
     }
 }

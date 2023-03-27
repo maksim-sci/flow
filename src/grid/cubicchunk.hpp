@@ -1,10 +1,13 @@
 #pragma once
 
+#include <functional>
+
 #include "../geometry/vector.hpp"
 #include <unordered_map>
 
 #include <memory>
 #include "atom/atom.hpp"
+
 
 namespace grid
 {
@@ -49,11 +52,15 @@ namespace grid
 
             InsertionResults insert(Vector pos, std::shared_ptr<atom::Atom> atom);
             bool erase(const Vector &pos);
+
+            void for_each(std::function<void(const Vector&,std::shared_ptr<atom::Atom>&)> callback);
         };
 
         inline auto CubicChunk::begin() const { return atoms.begin(); };
 
         inline auto CubicChunk::end() const { return atoms.end(); };
     }
+
+    
 
 }
