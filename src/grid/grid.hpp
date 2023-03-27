@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include <vector>
 #include <string>
 #include <tuple>
@@ -211,6 +213,11 @@ namespace grid
 
             return Vector(dx,dy,dz);
         };
+
+        void for_each(std::function<void(const Vector&,std::shared_ptr<atom::Atom>&)> callback);
+
+        void for_each(Vector& pos, double dist, std::function<void(const Vector&,std::shared_ptr<atom::Atom>&)> callback);
+
     };
 
     inline const auto &grid::Grid::Reacts() const { return reacts; };

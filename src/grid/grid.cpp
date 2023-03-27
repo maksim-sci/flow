@@ -435,4 +435,116 @@ namespace grid
         return *this;
     };
 
+    void Grid::for_each(std::function<void(const Vector&,std::shared_ptr<atom::Atom>&)> callback)
+    {
+        for(auto& [pos,chunk]:chunks) 
+        {
+            chunk->for_each(callback);
+        }
+    };
+
+    void Grid::for_each(Vector& pos, double dist, std::function<void(const Vector&,std::shared_ptr<atom::Atom>&)> callback)
+    {
+        int translation_x, translation_y, translation_z;
+        int mtranslation_x, mtranslation_y, mtranslation_z;
+
+        Vector translations;
+
+        size_t chunksAround;
+
+        double x, y, z;
+        double mx, my, mz;
+
+        Vector c0 = calcChunkPos(pos);
+
+        Vector cllim = c0;
+        Vector crlim = c0 + Vector(size_chunk, size_chunk, size_chunk);
+
+        Vector rp = pos + Vector(dist, dist, dist);
+        Vector lp = pos - Vector(dist, dist, dist);
+
+        translation_x = 0;
+        mtranslation_x = 0;
+        translation_y = 0;
+        mtranslation_y = 0;
+        translation_z = 0;
+        mtranslation_z = 0;
+
+        chunksAround = std::floor(dist / size_chunk) + 1;
+
+        mx = chunksAround * size_chunk;
+        my = chunksAround * size_chunk;
+        mz = chunksAround * size_chunk;
+        x = -mx;
+        z = -my;
+        y = -mz;
+
+        if (geometry::IsVectorInCube(rp, cllim, crlim) && geometry::IsVectorInCube(lp, cllim, crlim))
+        {
+            mx = 0;
+            x = 0;
+            y = 0;
+            my = 0;
+            z = 0;
+            mz = 0;
+        }
+
+        if (Cyclic<'x'>())
+        {
+            translation_x = -1;
+            mtranslation_x = 1;
+        }
+        if (Cyclic<'y'>())
+        {
+            translation_y = -1;
+            mtranslation_y = 1;
+        }
+        if (Cyclic<'z'>())
+        {
+            translation_z = -1;
+            mtranslation_z = 1;
+        }
+
+
+        for (; x <= mx; x += size_chunk)
+        {
+            for (; y <= my; y += size_chunk)
+            {
+                for (; z <= mz; z += size_chunk)
+                {
+                    Vector delta(x,y,z);
+
+                    for (; translation_x <= mtranslation_x; translation_x++)
+                    {
+                        for (; translation_y <= mtranslation_y; translation_y++)
+                        {
+                            for (; translation_z <= mtranslation_z; translation_z++)
+                            {
+                                //fmt::print("x,y,z: ({} {} {})  tx,ty,tz: ({} {} {})\n",x,y,z,translation_x,translation_y,translation_z);
+                                if ((delta).abs()-size_chunk < dist)
+                                {
+                                    Vector ptrans = pos + translations.coord_mul(Vector((double)(translation_x), (double)(translation_y), (double)(translation_z)));
+                                    Vector p1 = ptrans+ delta;
+
+                                    Vector p0 = calcChunkPos(p1);
+                                    auto data = chunks.find(p0);
+                                    if (data != chunks.end())
+                                    {
+                                        auto& chunk = data->second;
+                                        chunk->for_each(callback);
+                                    }
+                                }
+                            }
+                            translation_z = -mtranslation_z;
+                        }
+                        translation_y = -mtranslation_y;
+                    }
+                    translation_x = -mtranslation_x;
+                }
+                z = -mz;
+            }
+            y = - my;
+        }
+    }
+
 }
