@@ -102,16 +102,10 @@ namespace field {
             data.reserve(10000);
             data.max_load_factor(0.25);
             calc_c();
-            for(auto iter = grid->begin();!(iter==grid->end());) {
-                auto& vec = iter.aiter->first;
-                auto& atom = iter.aiter->second;
-                ++iter;
-                double du = calc_a(vec);
+            grid->for_each([this](const Vector& pos,std::shared_ptr<grid::atom::Atom> atom){
+                double du = this->calc_a(pos);
                 atom->U(atom->U()+du);
-
-
-
-            }      
+            });
         }
     };
 }
