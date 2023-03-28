@@ -475,6 +475,7 @@ public:
             });
         });
 
+        fmt::print("reactions found {} :{}\n", r->Name(), counts);
     };
 
     //пересчитывает поле по всему объему,
