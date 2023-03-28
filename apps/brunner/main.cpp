@@ -58,11 +58,11 @@ auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El");
 auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Er");
 auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "EL");
 auto Oxygen = std::make_shared<Type>(0, __COUNTER__, "O");
-auto Oxygen_Intersittal = std::make_shared<Type>(-2 * sgs::ELCHARGE, __COUNTER__, "OI");
+auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI");
 auto Hafnium = std::make_shared<Type>(0, __COUNTER__, "Hf");
 auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo");
 auto OxygenVacancy_Neutral_Intersitial = std::make_shared<Type>(0, __COUNTER__, "Vi");
-auto OxygenVacancy_Charged = std::make_shared<Type>(+2 * sgs::ELCHARGE, __COUNTER__, "Vp");
+auto OxygenVacancy_Charged = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Vp");
 auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Ep");
 auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Em");
 
