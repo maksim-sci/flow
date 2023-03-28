@@ -312,13 +312,11 @@ public:
     {
         std::ofstream out(pout);
         out << "x y z c\n";
-        for (auto iter = g.begin(); !(iter == g.end());)
+        g.for_each([&](auto& pos,auto atom) mutable
         {
-            auto &[vec, a] = *iter.aiter;
-            auto &[x, y, z] = vec;
-            out << fmt::format("{} {} {} {}\n", x, y, z, a->U());
-            ++iter;
-        }
+            auto &[x, y, z] = pos;
+            out << fmt::format("{} {} {} {}\n", x, y, z, atom->U());
+        });
         out.close();
     };
     void printvoltage()
@@ -333,13 +331,11 @@ public:
     {
         std::ofstream out(pout);
         out << "x y z c\n";
-        for (auto iter = g.begin(); !(iter == g.end());)
+        g.for_each([&](auto& pos,auto atom) mutable
         {
-            auto &[vec, a] = *iter.aiter;
-            auto &[x, y, z] = vec;
-            out << fmt::format("{} {} {} {}\n", x, y, z, a->Q());
-            ++iter;
-        }
+            auto &[x, y, z] = pos;
+            out << fmt::format("{} {} {} {}\n", x, y, z, atom->Q());
+        });
         out.close();
     };
 
@@ -407,12 +403,11 @@ public:
     {
         size_t cnt_left = 0;
         size_t cnt_right = 0;
-        for (auto iter = g.begin(); !iter.Finished();)
+        g.for_each([&](auto& pos,auto atom) mutable
         {
-            auto &[vec, atom] = *iter.aiter;
             if (atom->Material() == TElectrode)
             {
-                if (vec.z < lel_end)
+                if (pos.z < lel_end)
                 {
                     cnt_left++;
                 }
@@ -421,19 +416,17 @@ public:
                     cnt_right++;
                 }
             }
-            ++iter;
-        }
+        });
         auto size_vector = g.Rlim()-g.Llim();
         auto area = size_vector.x*size_vector.y;
         double dist_between_electrodes = size_vector.z;
         TElectrodeL->Q(area*U_Between_Electrodes/(cnt_left*dist_between_electrodes));
         TElectrodeR->Q(area*U_Between_Electrodes/(cnt_right*dist_between_electrodes));
-        for (auto iter = g.begin(); !iter.Finished();)
+        g.for_each([&](auto& pos,auto atom) mutable
         {
-            auto &[vec, atom] = *iter.aiter;
             if (atom->Material() == TElectrode)
             {
-                if (vec.z < lel_end)
+                if (pos.z < lel_end)
                 {
                     atom->Material(TElectrodeL);
                 }
@@ -442,8 +435,8 @@ public:
                     atom->Material(TElectrodeR);
                 }
             }
-            ++iter;
-        }
+
+        });
     };
 
     //просчитывает все вероятности для кинетического монте-карло с одной реакции
@@ -452,18 +445,11 @@ public:
         int counts = 0;
         double mdist = r->Distance();
         int cnt = 0;
-        for (auto iter = g.begin(); !iter.Finished();)
+        g.for_each([&](const auto& pos1,auto atom1) mutable
         {
-            auto &vec1 = iter.aiter->first;
-            auto atom1 = iter.aiter->second;
-            auto citer = g.beginFilterDistance(mdist, vec1);
-
-            for (; !citer.Finished();)
+            g.for_each(pos1,mdist,[&](const auto& pos2,auto atom2) mutable
             {
-
-                auto &vec2 = citer.aiter->first;
-                auto atom2 = citer.aiter->second;
-                double chance = r->Chance(atom1, atom2, (vec2 - vec1).abs());
+                double chance = r->Chance(atom1, atom2, (pos2 - pos1).abs());
                 if (chance > std::abs(kmk_sum*1e-16))
                 {
                     counts++;
@@ -474,15 +460,12 @@ public:
                         int *a = 0;
                         assert(*a == 0);
                     }
-                    kmk.insert({atom1, kmk_data{r, atom1, atom2, iter.aiter->first, citer.aiter->first, chance}});
+                    kmk.insert({atom1, kmk_data{r, atom1, atom2, pos1, pos2, chance}});
                     recieved_reaction.insert({atom2, atom1});
                 }
-                //fmt::print("{:e} {:e} {}\n",vec1,vec2,chance);
-                ++citer;
-            }
-            ++iter;
-        }
-        fmt::print("finded reactions {} :{}\n", r->Name(), counts);
+            });
+        });
+
     };
 
     //пересчитывает поле по всему объему,
@@ -719,9 +702,8 @@ void grid_like_final_ex()
     run_this_thing_please.printstep = settings.GetInteger("calculation","printstep",100);
 
     std::unordered_map<std::shared_ptr<Type>,int> cts;
-    for(auto a = run_this_thing_please.g.begin();!a.Finished();) {
-        auto atom = a.aiter->second;
-
+    run_this_thing_please.g.for_each([&](auto& pos,auto atom) mutable
+    {
         auto materail = atom->Material();
         auto pp = cts.find(materail);
         if(pp!=cts.end()) {
@@ -731,8 +713,8 @@ void grid_like_final_ex()
         {
             cts[materail] = 1;
         }
-        ++a;
-    }
+    });
+    
     for(auto& [material,cnt]:cts) {
         fmt::print("structure generated, type: {}: {}\n",material->Name(),cnt);
     }
