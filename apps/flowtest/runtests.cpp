@@ -679,17 +679,14 @@ void grid_radius_iterator() {
     fmt::print("1\n");
 
     Vector v(0,0,0);
-    auto iter = g.beginFilterDistance(100,v);
     size_t cnt = 0;
     fmt::print("1\n");
 
-    while(!iter.Finished()) {
-        assert_tst((iter.aiter->second->Material())==t);
-        fmt::print("2\n");
-
+    g.for_each(v,100,[t,&cnt](const Vector&,std::shared_ptr<Atom> atom) mutable
+    {
+        assert_tst((atom->Material())==t);
         cnt++;
-        ++iter;
-    }
+    });
     assert_eq(cnt,1);
     fmt::print("3\n");
 
@@ -711,17 +708,15 @@ void grid_radius_iterator_exchecks() {
     fmt::print("1\n");
 
     Vector v(100,0,0);
-    auto iter = g.beginFilterDistance(10,v);
     size_t cnt = 0;
     fmt::print("1\n");
 
-    while(!iter.Finished()) {
-        assert_tst((iter.aiter->second->Material())==t);
-        fmt::print("2\n");
 
+    g.for_each(v,10,[t,&cnt](const Vector&,std::shared_ptr<Atom> atom) mutable
+    {
+        assert_tst((atom->Material())==t);
         cnt++;
-        ++iter;
-    }
+    });
     assert_eq(cnt,3);
     fmt::print("3\n");
 
@@ -744,17 +739,14 @@ void grid_radius_iterator_horizontal() {
     fmt::print("1\n");
 
     Vector v(0,100,0);
-    auto iter = g.beginFilterDistance(10,v);
     size_t cnt = 0;
     fmt::print("1\n");
 
-    while(!iter.Finished()) {
-        assert_tst((iter.aiter->second->Material())==t);
-        fmt::print("2\n");
-
+    g.for_each(v,10,[t,&cnt](const Vector&,std::shared_ptr<Atom> atom) mutable
+    {
+        assert_tst((atom->Material())==t);
         cnt++;
-        ++iter;
-    }
+    });
     assert_eq(cnt,2);
     fmt::print("3\n");
 
@@ -776,18 +768,15 @@ void grid_radius_iterator_horizontal_z() {
     fmt::print("1\n");
 
     Vector v(0,0,100);
-    auto iter = g.beginFilterDistance(10,v);
     size_t cnt = 0;
     fmt::print("1\n");
 
-    while(!iter.Finished()) {
-        assert_tst((iter.aiter->second->Material())==t);
-        fmt::print("2\n");
-
+    g.for_each(v,100,[t,&cnt](const Vector&,std::shared_ptr<Atom> atom) mutable
+    {
+        assert_tst((atom->Material())==t);
         cnt++;
-        ++iter;
-    }
-    assert_eq(cnt,2);
+    });
+    assert_eq(cnt,5);
     fmt::print("3\n");
 
 
@@ -796,19 +785,18 @@ void grid_radius_iterator_horizontal_z() {
 void grid_radius_iterator_simple() {
     Grid g(10.);
 
-    auto t=make_shared<Type>(1,1,"O");
+    auto t=make_shared<Type>(1.,1.,"O");
 
-    g.insert(Vector(5.,5.,5.),std::make_shared<Atom>(std::make_shared<grid::atom::Type>(1.,1.,"O")));
+    g.insert(Vector(5.,5.,5.),std::make_shared<Atom>(t));
 
 
     Vector v(5,5,5);
-    auto iter = g.beginFilterDistance(3,v);
     size_t cnt = 0;
-    while(!iter.Finished()) {
-        assert_eq(*(iter.aiter->second->Material()),grid::atom::Type(1.,1.,"O"));
-        cnt++;
-        ++iter;
-    }
+    g.for_each(v,3,[t,&cnt](const Vector&,std::shared_ptr<Atom> atom) mutable
+    {
+        assert_tst(atom->Material()==t);
+        cnt+=1;
+    });
     assert_eq(cnt,1);
 }
 
@@ -822,13 +810,12 @@ void grid_radius_iter_filtered() {
 
 
     Vector v(0,0,0);
-    auto iter = g.beginFilterDistance(100,v);
     size_t cnt = 0;
-    while(!iter.Finished()) {
-        assert_eq(iter.aiter->first,Vector(1,1,1));
+    g.for_each(v,100,[&cnt](const Vector& pos,std::shared_ptr<Atom> atom) mutable
+    {
+        assert_tst(pos==Vector(1,1,1));
         cnt++;
-        ++iter;
-    }
+    });
     assert_eq(cnt,1);
 
 
@@ -846,12 +833,11 @@ void grid_radius_iterator_ex() {
 
 
     Vector v(0,0,0);
-    auto iter = g.beginFilterDistance(150,v);
     size_t cnt = 0;
-    while(!iter.Finished()) {
+    g.for_each(v,150,[&cnt](const Vector& pos,std::shared_ptr<Atom> atom) mutable
+    {
         cnt++;
-        ++iter;
-    }
+    });
     assert_eq(cnt,b_cnt);
 
 
@@ -871,13 +857,13 @@ void grid_radius_iterator_cyclic() {
     
 
     Vector v(0,0,0);
-    auto iter = g.beginFilterDistance(0.1,v);
     size_t cnt = 0;
-    while(!iter.Finished()) {
+    g.for_each(v,0.04,[&cnt](const Vector& pos,std::shared_ptr<Atom> atom) mutable
+    {
         cnt++;
-        ++iter;
-    }
-    assert_eq(cnt,1);
+        std::cout<<atom<<std::endl;
+    });
+    assert_eq(cnt,1)
 
 
 }
@@ -969,14 +955,7 @@ void grid_ewald_hack_simple_demo() {
 
     hh.calc_all();
 
-    auto iend = g.end();
-    auto iter = g.begin();
-   // std::ofstream out("c:/users/sci/desktop/dataomg1");
-    for(;!(iter==iend);) {
-        //out<<fmt::format("{} {} {}\n",iter.aiter->first.x,iter.aiter->first.y,iter.aiter->second->U());
-        ++iter;
-    }
-    //out.close();
+   g.for_each([](const Vector& pos,std::shared_ptr<Atom> atom) mutable{});
 
     exit(0);
 
@@ -984,6 +963,26 @@ void grid_ewald_hack_simple_demo() {
 }
 
 void grid_ewald_hack_simple() {
+    
+    Grid g(10.);
+
+    auto t1 = make_shared<Type>(1.,1,"O");
+
+    g.insert({0,0,0},make_shared<Atom>(t1));
+
+    field::ewald_hack hh(g);
+
+
+
+    field::ZCondenser cond(1,0,10);
+
+    cond.Apply(g);
+
+    hh.calc_all();
+
+}
+
+void grid_check_reacts_calc() {
     
     Grid g(10.);
 
