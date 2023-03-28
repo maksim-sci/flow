@@ -11,6 +11,8 @@
 
 namespace grid
 {
+    using for_each_callbak = std::function<void(const geometry::Vector&,std::shared_ptr<atom::Atom>&)>;
+    using for_each_const_callbak = std::function<void(const geometry::Vector&,std::shared_ptr<atom::Atom>&)>;//TODO shared ptr must be const
 
     enum InsertionResults
     {
@@ -53,7 +55,7 @@ namespace grid
             InsertionResults insert(Vector pos, std::shared_ptr<atom::Atom> atom);
             bool erase(const Vector &pos);
 
-            void for_each(std::function<void(const Vector&,std::shared_ptr<atom::Atom>&)> callback);
+            void for_each(for_each_const_callbak callback) const;
         };
 
         inline auto CubicChunk::begin() const { return atoms.begin(); };

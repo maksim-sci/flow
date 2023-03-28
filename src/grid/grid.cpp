@@ -188,15 +188,13 @@ namespace grid
     {
         std::stringstream ss(std::ios_base::out);
         ss << count() << "\n\n";
-        for (auto a = begin(); !a.Finished();)
+
+        for_each([&ss,mult](const Vector& pos, const std::shared_ptr<atom::Atom>& atom)mutable
         {
-            auto& atom = a.aiter->second;
-            auto pos = a.aiter->first;
-            pos *= mult;
+            Vector multiplied = pos * mult;
             const auto &material = atom->Material();
-            ss << material->Name() << " " << pos.x << " " << pos.y << " " << pos.z << "\n";
-            ++a;
-        };
+            ss << material->Name() << " " << multiplied.x << " " << multiplied.y << " " << multiplied.z << "\n";
+        });
 
         return ss.str();
     }
@@ -243,199 +241,8 @@ namespace grid
         from_xyz(s, 1);
     }
 
-    Grid::GridIteratorOnceSinglePass::GridIteratorOnceSinglePass(const Grid &g)
-    {
-        citer = g.chunks.begin();
-        citerend = g.chunks.end();
-        aiter = citer->second->begin();
-        aiterend = citer->second->end();
-    };
     
-    Grid::GridIteratorOnceSinglePass &Grid::GridIteratorOnceSinglePass::operator++()
-    {
-        if (aiter != aiterend)
-        {
-            aiter++;
-        }
-        while(aiter==aiterend && (++citer)!=citerend) {
-            aiter = citer->second->begin();
-        }
-        return *this;
-    };
-
-    void Grid::GridIteratorOnceSinglePass::end()
-    
-    {
-    
-        citer = citerend;
-    
-        aiter = aiterend;
-    
-    };
-
-    void Grid::GridIteratorDistLimSinglePass::iterateTillCorrectOrEnd()
-    {
-        // what the hell?
-        //Да, это самая уродливая функция, которую вы видели, мне тоже очень нравится.
-        for (; x <= mx; x += chunk_size)
-        {
-            for (; y <= my; y += chunk_size)
-            {
-                for (; z <= mz; z += chunk_size)
-                {
-                    Vector delta(x,y,z);
-
-                    for (; translation_x <= mtranslation_x; translation_x++)
-                    {
-                        for (; translation_y <= mtranslation_y; translation_y++)
-                        {
-                            for (; translation_z <= mtranslation_z; translation_z++)
-                            {
-                                //fmt::print("x,y,z: ({} {} {})  tx,ty,tz: ({} {} {})\n",x,y,z,translation_x,translation_y,translation_z);
-                                if ((delta).abs()-chunk_size < distance)
-                                {
-                                    Vector ptrans = pos + translations.coord_mul(Vector((double)(translation_x), (double)(translation_y), (double)(translation_z)));
-                                    Vector p1 = ptrans+ delta;
-
-                                    Vector p0 = grid->calcChunkPos(p1);
-                                    auto chunk = chunks->find(p0);
-                                    if (chunk != chunks->end())
-                                    {
-
-                                        aiter = chunk->second->begin();
-                                        aiterend = chunk->second->end();
-                                        while(aiter!=aiterend) {
-                                            auto& Vectorp = aiter->first;
-                                            if((Vectorp - ptrans).abs() < distance) {
-                                                return;
-                                            }
-                                            aiter++;
-                                        }
-                                    }
-                                }
-                            }
-                            translation_z = -mtranslation_z;
-                        }
-                        translation_y = -mtranslation_y;
-                    }
-                    translation_x = -mtranslation_x;
-                }
-                z = -mz;
-            }
-            y = - my;
-        }
-        finished = true;
-    }
-
-    Grid::GridIteratorDistLimSinglePass::GridIteratorDistLimSinglePass(Grid &g, double dist, const Vector &p) : chunks(&g.chunks), finished(false), pos(p)
-    {
-        // check 1 chunk
-        c0 = g.calcChunkPos(p);
-
-        chunk_size = g.Chunk_Size();
-
-        chunks = &g.chunks;
-
-        grid = &g;
-
-        distance = dist;
-
-        Vector cllim = c0;
-        Vector crlim = c0 + Vector(chunk_size, chunk_size, chunk_size);
-
-        Vector rp = p + Vector(dist, dist, dist);
-        Vector lp = p - Vector(dist, dist, dist);
-
-        translation_x = 0;
-        mtranslation_x = 0;
-        translation_y = 0;
-        mtranslation_y = 0;
-        translation_z = 0;
-        mtranslation_z = 0;
-
-        if (geometry::IsVectorInCube(rp, cllim, crlim) && geometry::IsVectorInCube(lp, cllim, crlim))
-        {
-            mx = 0;
-            x = 0;
-            y = 0;
-            my = 0;
-            z = 0;
-            mz = 0;
-            auto chunk = grid->chunks.find(c0);
-
-            aiter = chunk->second->begin();
-            aiterend = chunk->second->end();
-            if (aiter == aiterend)
-                finished = true;
-            return;
-        }
-        chunksAround = std::floor(dist / chunk_size) + 1;
-
-        mx = chunksAround * chunk_size;
-        my = chunksAround * chunk_size;
-        mz = chunksAround * chunk_size;
-        x = -mx;
-        z = -my;
-        y = -mz;
-
-        if (g.Cyclic<'x'>())
-        {
-            translation_x = -1;
-            mtranslation_x = 1;
-        }
-        if (g.Cyclic<'y'>())
-        {
-            translation_y = -1;
-            mtranslation_y = 1;
-        }
-        if (g.Cyclic<'z'>())
-        {
-            translation_z = -1;
-            mtranslation_z = 1;
-        }
-
-        translations = g.Sizes();
-
-        iterateTillCorrectOrEnd();
-    };
-    bool Grid::GridIteratorDistLimSinglePass::operator==(const Grid::GridIteratorDistLimSinglePass &g) const
-    {
-        if (x == mx && y == my && z == mz)
-            if (aiter == aiterend)
-                return true;
-        return false;
-    };
-
-    Grid::GridIteratorDistLimSinglePass &Grid::GridIteratorDistLimSinglePass::operator++()
-    {
-        aiter++;
-        if (aiter == aiterend)
-        {
-            //cringe
-            if(translation_x==mtranslation_x) {
-                if(translation_y==mtranslation_y) 
-                    if(translation_z==mtranslation_z)
-                        if(z==mz)
-                            if(y==my)
-                                if(x==mx) {
-                                    finished = true;
-                                    return *this;
-                                }
-                                else x+=chunk_size;
-                            else y+=chunk_size;
-                        else z+=chunk_size;
-                    else translation_z++;
-                else translation_y++;
-            }
-            else {
-                translation_x++;
-            }
-            iterateTillCorrectOrEnd();
-        }
-        return *this;
-    };
-
-    void Grid::for_each(std::function<void(const Vector&,std::shared_ptr<atom::Atom>&)> callback)
+    void Grid::for_each(for_each_const_callbak callback) const
     {
         for(auto& [pos,chunk]:chunks) 
         {
@@ -443,7 +250,7 @@ namespace grid
         }
     };
 
-    void Grid::for_each(Vector& pos, double dist, std::function<void(const Vector&,std::shared_ptr<atom::Atom>&)> callback)
+    void Grid::for_each(const Vector& pos, double dist, for_each_const_callbak callback) const
     {
         int translation_x, translation_y, translation_z;
         int mtranslation_x, mtranslation_y, mtranslation_z;
