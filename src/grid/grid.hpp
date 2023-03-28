@@ -54,65 +54,6 @@ namespace grid
 
         geometry::Vector calcChunkPos(const geometry::Vector &pos) const;
 
-        class GridIteratorOnceSinglePass
-        {
-
-            grid::ChunkMap::const_iterator citer;
-            grid::ChunkMap::const_iterator citerend;
-            grid::AtomMap::const_iterator aiterend;
-
-        public:
-            grid::AtomMap::const_iterator aiter;
-
-            GridIteratorOnceSinglePass(const Grid &g);
-            inline bool operator==(const GridIteratorOnceSinglePass &g) const;
-            GridIteratorOnceSinglePass &operator++();
-
-
-            inline bool operator!=(const Grid::GridIteratorOnceSinglePass &g) const {return !(g==*this);};
-            inline bool Finished() {return (aiter == aiterend && citer == citerend);};
-
-            void end();
-        };
-
-        class GridIteratorDistLimSinglePass
-        {
-            double distance;
-            double chunk_size;
-
-            Vector pos;
-            Vector c0;
-
-            Grid *grid;
-
-            int translation_x, translation_y, translation_z;
-            int mtranslation_x, mtranslation_y, mtranslation_z;
-
-            Vector translations;
-
-            ChunkMap *chunks;
-
-            size_t chunksAround;
-
-            grid::AtomMap::const_iterator aiterend;
-
-            bool finished;
-
-            double x, y, z;
-            double mx, my, mz;
-
-            void iterateTillCorrectOrEnd();
-
-        public:
-            grid::AtomMap::const_iterator aiter;
-
-            GridIteratorDistLimSinglePass(Grid &g, double dist, const Vector &p);
-            bool operator==(const GridIteratorDistLimSinglePass &g) const;
-            GridIteratorDistLimSinglePass &operator++();
-
-            inline bool Finished() { return finished; };
-        };
-
     public:
         inline Grid(double chunkSize) : llim(0, 0, 0), rlim(0, 0, 0), reacts(), lattices(), size_chunk(chunkSize), cycle_x(false), cycle_y(false), cycle_z(false),delta(rlim-llim){};
 
@@ -136,14 +77,6 @@ namespace grid
 
         inline const ChunkMap &Chunks() const { return chunks; };
 
-        inline auto begin() const { return GridIteratorOnceSinglePass(*this); };
-        inline auto end() const
-        {
-            auto a = GridIteratorOnceSinglePass(*this);
-            a.end();
-            return a;
-        }
-
         inline std::shared_ptr<grid::chunk::CubicChunk> getChunk(const Vector& pos) {
             auto posc = calcChunkPos(pos);
             auto i = chunks.find(posc);
@@ -152,7 +85,7 @@ namespace grid
             }
             return nullptr;
         };
-        inline auto beginFilterDistance(double dist, const Vector &p) { return GridIteratorDistLimSinglePass(*this, dist, p); }; // WARNING!!!! UNSAFE
+
         inline void setPeriod(const Vector &v) { rlim = llim + v; };
 
         template <char coord>
@@ -214,9 +147,9 @@ namespace grid
             return Vector(dx,dy,dz);
         };
 
-        void for_each(std::function<void(const Vector&,std::shared_ptr<atom::Atom>&)> callback);
+        void for_each(for_each_const_callbak callback) const;
 
-        void for_each(Vector& pos, double dist, std::function<void(const Vector&,std::shared_ptr<atom::Atom>&)> callback);
+        void for_each(const Vector& pos, double dist, for_each_const_callbak callback) const;
 
     };
 
@@ -227,17 +160,5 @@ namespace grid
     inline const auto &Grid::Llim() const { return llim; };
 
     inline const auto &Grid::Rlim() const { return rlim; };
-
-    inline bool Grid::GridIteratorOnceSinglePass::operator==(const Grid::GridIteratorOnceSinglePass &g) const
-    
-    {
-    
-        if (aiter == aiterend && citer == citerend)
-    
-            return true;
-    
-        return false;
-    
-    };
 
 }
