@@ -287,6 +287,15 @@ public:
         out.close();
     };
 
+    auto printgrid_simple(fs::path prefix="") 
+    {
+        auto outfile = statef;
+        outfile /= (prefix.string()+(std::to_string(step) + ".xyz"));
+        fmt::print("step {} finished, printing grid to file {} \n", step, outfile.string());
+        printgrid(outfile);
+        return outfile;
+    }
+
     void pringgrid()
     {
         auto outfile = statef;
@@ -591,8 +600,9 @@ public:
         Cond_field = field::ZCondenser(U_Between_Electrodes, 0, struct_end);
         EWALD = field::ewald_hack(g);
 
+        printgrid_simple("initial_");
         change_electrodes(struct_end / 2);
-
+        printgrid_simple("electrodes_updated_");
         static std::random_device dev;
         static std::mt19937 rng(dev());
 
@@ -615,10 +625,8 @@ public:
             fmt::print("step: {}\n", step);
             if (step % printstep == 0)
             {
-                auto outfile = statef;
-                outfile /= (std::to_string(step) + ".xyz");
+                auto outfile = printgrid_simple();
                 fmt::print("step {} finished, printing grid to file {} \n", step, outfile.string());
-                printgrid(outfile);
                 printvoltage();
                 printcharges();
                 printrcnt();
