@@ -858,12 +858,12 @@ void grid_radius_iterator_cyclic() {
 
     Vector v(0,0,0);
     size_t cnt = 0;
-    g.for_each(v,0.04,[&cnt](const Vector& pos,std::shared_ptr<Atom> atom) mutable
+    g.for_each(v,0.06,[&cnt](const Vector& pos,std::shared_ptr<Atom> atom) mutable
     {
         cnt++;
         std::cout<<atom<<std::endl;
     });
-    assert_eq(cnt,1)
+    assert_eq(cnt,2)
 
 
 }
