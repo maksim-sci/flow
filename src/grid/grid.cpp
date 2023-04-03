@@ -255,7 +255,7 @@ namespace grid
         int translation_x, translation_y, translation_z;
         int mtranslation_x, mtranslation_y, mtranslation_z;
 
-        Vector translations;
+        Vector translations = Sizes();
 
         size_t chunksAround;
 
@@ -319,7 +319,8 @@ namespace grid
             {
                 for (; z <= mz; z += size_chunk)
                 {
-                    Vector delta(x,y,z);
+                    //Расстояние до следующего чанка
+                    Vector delta(x,y,z); 
 
                     for (; translation_x <= mtranslation_x; translation_x++)
                     {
@@ -327,18 +328,26 @@ namespace grid
                         {
                             for (; translation_z <= mtranslation_z; translation_z++)
                             {
-                                //fmt::print("x,y,z: ({} {} {})  tx,ty,tz: ({} {} {})\n",x,y,z,translation_x,translation_y,translation_z);
-                                if ((delta).abs()-size_chunk < dist)
+                                Vector ChunkTranslation = delta + translations.coord_mul({(double)(translation_x), (double)(translation_y), (double)(translation_z)});
+                                //Проверка, что хоть одна точка чанка достаточно близка к центру сферы поиска
+                                if ((ChunkTranslation).abs()-size_chunk < dist) 
                                 {
-                                    Vector ptrans = pos + translations.coord_mul(Vector((double)(translation_x), (double)(translation_y), (double)(translation_z)));
-                                    Vector p1 = ptrans+ delta;
+                                    Vector ChunkTranslated = pos + ChunkTranslation;
 
-                                    Vector p0 = calcChunkPos(p1);
-                                    auto data = chunks.find(p0);
-                                    if (data != chunks.end())
+                                    Vector ChunkPos = calcChunkPos(ChunkTranslated);
+                                    auto rChunk = chunks.find(ChunkPos);
+                                    if (rChunk != chunks.end())
                                     {
-                                        auto& chunk = data->second;
-                                        chunk->for_each(callback);
+                                        auto& pChunk = rChunk->second;
+                                        pChunk->for_each([&](const auto& PosAtom, auto& atom) mutable
+                                        {
+                                            auto deltaPos = ChunkTranslated+PosAtom-pos;
+                                            double distanceTranslated = deltaPos.abs();
+                                            if(distanceTranslated < dist) 
+                                            {
+                                                callback(pos,atom);
+                                            }
+                                        });
                                     }
                                 }
                             }
