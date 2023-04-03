@@ -66,10 +66,10 @@ auto OxygenVacancy_Charged = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTE
 auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Ep");
 auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Em");
 
-auto R1 = std::make_shared<grid::react::Puasson>(Oxygen, OxygenVacancy_Neutral_Intersitial, OxygenVacancy_Charged, Oxygen_Intersittal, 4 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
-auto R2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen_Intersittal, OxygenVacancy_Neutral, 4 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
-auto R3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, Oxygen_Intersittal, Oxygen, OxygenVacancy_Neutral_Intersitial, 4 * sgs::ANGSTROM, sgs::ELVOLT * 5.12, 1e+13);
-auto R4 = std::make_shared<grid::react::Puasson>(Oxygen_Intersittal, OxygenVacancy_Neutral, OxygenVacancy_Neutral, Oxygen_Intersittal, 4 * sgs::ANGSTROM, sgs::ELVOLT * 4.6, 1e+13);
+auto R1 = std::make_shared<grid::react::Puasson>(Oxygen, OxygenVacancy_Neutral_Intersitial, OxygenVacancy_Charged, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
+auto R2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen_Intersittal, OxygenVacancy_Neutral, 5 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
+auto R3 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, Oxygen_Intersittal, Oxygen, OxygenVacancy_Neutral_Intersitial, 5 * sgs::ANGSTROM, sgs::ELVOLT * 5.12, 1e+13);
+auto R4 = std::make_shared<grid::react::Puasson>(Oxygen_Intersittal, OxygenVacancy_Neutral, OxygenVacancy_Neutral, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 4.6, 1e+13);
 
 auto E1 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
 auto E2 = std::make_shared<grid::react::Puasson>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
@@ -251,8 +251,8 @@ public:
     void init_reacts()
     {
 
-       init_reacts_E();
        init_reacts_R();
+       init_reacts_E();
 
         
 
@@ -695,7 +695,7 @@ void grid_like_final_ex()
 
     double U_between_electrodes = settings.GetReal("model","U_between_electrodes",0);
 
-    double Chunk_size = settings.GetReal("calculation","chunk_size",1);
+    double Chunk_size = settings.GetReal("calculation","chunk_size",1e-8);
     class grid_runner run_this_thing_please(Chunk_size, U_between_electrodes);
 
     run_this_thing_please.init_types();
