@@ -317,24 +317,23 @@ namespace grid
                         {
                             for (translation_z = -mtranslation_z; translation_z <= mtranslation_z; translation_z++)
                             {
-                                Vector ChunkTranslation = delta + translations.coord_mul({(double)(translation_x), (double)(translation_y), (double)(translation_z)});
+                                //Вектор, для выбора чанка с учетом периодических границ и трансляций.
+                                Vector PeriodicTranslation = translations.coord_mul({(double)(translation_x), (double)(translation_y), (double)(translation_z)});
+                                Vector ChunkTranslation = delta+PeriodicTranslation;
                                 //Проверка, что хоть одна точка чанка достаточно близка к центру сферы поиска
-                                if ((ChunkTranslation).abs()-size_chunk < dist) 
+                                if ((ChunkTranslation).abs()-size_chunk < dist && getChunkSimple(pos+delta)) 
                                 {
                                     Vector ChunkTranslated = pos + ChunkTranslation;
 
-                                    Vector ChunkPos = calcChunkPos(ChunkTranslated);
-                                    auto rChunk = chunks.find(ChunkPos);
-                                    if (rChunk != chunks.end())
-                                    {
-                                        auto& pChunk = rChunk->second;
+                                    auto pChunk = getChunk(ChunkTranslated);
+                                    if(pChunk) {
                                         pChunk->for_each([&](const auto& PosAtom, auto& atom) mutable
                                         {
-                                            auto deltaPos = ChunkTranslated+PosAtom-pos;
+                                            auto deltaPos = PosAtom-pos+PeriodicTranslation;
                                             double distanceTranslated = deltaPos.abs();
                                             if(distanceTranslated < dist) 
                                             {
-                                                callback(pos,atom);
+                                                callback(PosAtom,atom);
                                             }
                                         });
                                     }
