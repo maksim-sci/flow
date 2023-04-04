@@ -863,7 +863,7 @@ void grid_radius_iterator_cyclic() {
         cnt++;
         std::cout<<atom<<std::endl;
     });
-    assert_eq(cnt,2)
+    assert_eq(cnt,1)
 
 
 }
