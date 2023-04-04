@@ -77,13 +77,17 @@ namespace grid
 
         inline const ChunkMap &Chunks() const { return chunks; };
 
-        inline std::shared_ptr<grid::chunk::CubicChunk> getChunk(const Vector& pos) {
+        inline std::shared_ptr<grid::chunk::CubicChunk> getChunkSimple(const Vector& pos) const {
             auto posc = calcChunkPos(pos);
             auto i = chunks.find(posc);
             if(i!=chunks.end()) {
                 return i->second;
             }
             return nullptr;
+        };
+
+        inline std::shared_ptr<grid::chunk::CubicChunk> getChunk(const Vector& pos) const {
+            return getChunkSimple(getCycledVector(pos));
         };
 
         inline void setPeriod(const Vector &v) { rlim = llim + v; };
