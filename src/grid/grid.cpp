@@ -270,11 +270,8 @@ namespace grid
         Vector rp = pos + Vector(dist, dist, dist);
         Vector lp = pos - Vector(dist, dist, dist);
 
-        translation_x = 0;
         mtranslation_x = 0;
-        translation_y = 0;
         mtranslation_y = 0;
-        translation_z = 0;
         mtranslation_z = 0;
 
         chunksAround = std::floor(dist / size_chunk) + 1;
@@ -282,51 +279,43 @@ namespace grid
         mx = chunksAround * size_chunk;
         my = chunksAround * size_chunk;
         mz = chunksAround * size_chunk;
-        x = -mx;
-        z = -my;
-        y = -mz;
 
         if (geometry::IsVectorInCube(rp, cllim, crlim) && geometry::IsVectorInCube(lp, cllim, crlim))
         {
             mx = 0;
-            x = 0;
-            y = 0;
             my = 0;
-            z = 0;
             mz = 0;
         }
 
         if (Cyclic<'x'>())
         {
-            translation_x = -1;
             mtranslation_x = 1;
         }
         if (Cyclic<'y'>())
         {
-            translation_y = -1;
             mtranslation_y = 1;
         }
         if (Cyclic<'z'>())
         {
-            translation_z = -1;
             mtranslation_z = 1;
         }
 
 
-        for (; x <= mx; x += size_chunk)
+        for (x=-mx; x <= mx; x += size_chunk)
         {
-            for (; y <= my; y += size_chunk)
+            for (y=-my; y <= my; y += size_chunk)
             {
-                for (; z <= mz; z += size_chunk)
+                for (z=-mz; z <= mz; z += size_chunk)
                 {
-                    //Расстояние до следующего чанка
+                    //Вектор переноса к следующему чанку.
                     Vector delta(x,y,z); 
 
-                    for (; translation_x <= mtranslation_x; translation_x++)
+
+                    for (translation_x = -mtranslation_x; translation_x <= mtranslation_x; translation_x++)
                     {
-                        for (; translation_y <= mtranslation_y; translation_y++)
+                        for (translation_y = -mtranslation_y; translation_y <= mtranslation_y; translation_y++)
                         {
-                            for (; translation_z <= mtranslation_z; translation_z++)
+                            for (translation_z = -mtranslation_z; translation_z <= mtranslation_z; translation_z++)
                             {
                                 Vector ChunkTranslation = delta + translations.coord_mul({(double)(translation_x), (double)(translation_y), (double)(translation_z)});
                                 //Проверка, что хоть одна точка чанка достаточно близка к центру сферы поиска
@@ -351,15 +340,10 @@ namespace grid
                                     }
                                 }
                             }
-                            translation_z = -mtranslation_z;
                         }
-                        translation_y = -mtranslation_y;
                     }
-                    translation_x = -mtranslation_x;
                 }
-                z = -mz;
             }
-            y = - my;
         }
     }
 
