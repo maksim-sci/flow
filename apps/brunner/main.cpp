@@ -654,6 +654,13 @@ public:
             }
             auto &react = react_info.react;
 
+            if(!react) {
+                char buffer[512];
+                sprintf_s(buffer,"assertion failed: %s:%d\n",__FILE__,__LINE__);
+                printf(buffer);
+                exit(-1);
+            }
+
             double dq = ChangeAtoms(react_info.fp, react_info.sp, react->to1, react->to2, true);
 
             auto name = react->Name();
