@@ -380,6 +380,9 @@ public:
     void printcurrent_reacts(fs::path pout)
     {
         std::ofstream out(pout, std::ios_base::app);
+        double factora=1e+16;
+        double factorb=1/(64e+2);
+        double factorc=1e-20;
         out << step << " ";
         double sum = 0;
         for (auto& a:reacts) {
@@ -389,8 +392,10 @@ public:
                 sum+=dq;
             }
         }
-        double pf = calc_PF();
-        double shottky = calc_Shottky();
+        double area = g.Sizes().x*g.Sizes().y;
+        sum*=(factorc/area);
+        double pf = factorb*calc_PF()/area;
+        double shottky = factora*calc_Shottky()/area;
         double direct = calc_Direct();
         double sum_all = sum+pf+shottky+direct;
         out <<pf<<" "<<shottky<<" "<< sum<<" "<<sum_all<<" "<<direct<<std::endl;
