@@ -491,11 +491,7 @@ public:
                     counts++;
                     auto hiter = kmk.find(atom1);
                     kmk_sum += chance;
-                    if (!(kmk_sum == kmk_sum))
-                    {
-                        int *a = 0;
-                        assert(*a == 0);
-                    }
+                    assert_simple(kmk_sum);
                     kmk.insert({atom1, kmk_data{r, atom1, atom2, pos1, pos2, chance}});
                     recieved_reaction.insert({atom2, atom1});
                 }
@@ -743,12 +739,7 @@ public:
             }
             auto &react = react_info.react;
 
-            if(!react) {
-                char buffer[512];
-                sprintf_s(buffer,"assertion failed: %s:%d\n",__FILE__,__LINE__);
-                printf(buffer);
-                exit(-1);
-            }
+            assert_simple(react);
 
             double dq = ChangeAtoms(react_info.fp, react_info.sp, react->to1, react->to2, true);
 
