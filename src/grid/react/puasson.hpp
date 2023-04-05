@@ -19,7 +19,7 @@ namespace grid {
                     double su = s->U();
                     double fu = f->U();
                     double dE = fu*fq+su*sq-su*to2->Q()-fu*to1->Q();
-                    dE*=-0.01;
+
 
                     if(dE>sgs::BOLZMAN*100) {
                         dE = sgs::BOLZMAN*100;
