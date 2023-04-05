@@ -15,14 +15,14 @@
 #include <grid/atom/atom.hpp>
 #include <grid/lattice.hpp>
 #include <grid/react/react.hpp>
-#include <grid/react/puasson.hpp>
+#include <grid/react/standart.hpp>
 #include <grid/grid.hpp>
 #include <math/modulo.hpp>
 #include <field/condenser.hpp>
 #include <field/equal.hpp>
 #include <field/ewald_hack.hpp>
 
-#include <grid/react/puasson.hpp>
+#include <grid/react/standart.hpp>
 
 using std::string;
 using geometry::Vector;
@@ -385,7 +385,7 @@ void react_puasson() {
     auto t3 = make_shared<Type>(0,__COUNTER__,"Y");
     auto t4 = make_shared<Type>(0,__COUNTER__,"Z");
 
-    grid::react::Puasson p1(t1,t2,t3,t4,10,10,10);
+    grid::react::Standart p1(t1,t2,t3,t4,10,10,10);
 
     g.insert({1,2,3},make_shared<Atom>(t1));
     g.insert({1,3,3},make_shared<Atom>(t2));
