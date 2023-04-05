@@ -15,6 +15,8 @@
 #include <cstdlib>
 #include <random>
 
+#define M_PI 3.1415
+
 #include <fmt/format.h>
 
 #include <geometry/vector.hpp>
