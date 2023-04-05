@@ -12,7 +12,7 @@ namespace grid {
 
                 inline virtual double Chance(std::shared_ptr<grid::atom::Atom> f, std::shared_ptr<grid::atom::Atom> s, double distance) const {
                     if(!AreAtomsOk(f,s)) return 0;
-                    if(distance<this->maxdist) return 0;
+                    if(distance>this->maxdist) return 0;
                     double dq = s->Q()-f->Q();
                     double sq = s->Q();
                     double fq = f->Q();
