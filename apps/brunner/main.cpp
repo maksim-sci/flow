@@ -274,6 +274,11 @@ public:
         }
         {
             auto outfile = outfolder;
+            outfile /= fmt::format("current_reacts.txt", step);
+            if(fs::exists(outfile)) fs::remove(outfile);
+        }
+        {
+            auto outfile = outfolder;
             outfile /= fmt::format("counts.txt", step);
             if(fs::exists(outfile)) fs::remove(outfile);
         }
