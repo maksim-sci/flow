@@ -479,20 +479,58 @@ public:
         fmt::print("reactions found {} :{}\n", r->Name(), counts);
     };
 
-    double calc_PF() {
-        double j;
+    double calc_Shottky() {
+        double j = 0;
+        constexpr double E_FERMI = sgs::ELVOLT*3.7;
+        double size_x = sgs::ANGSTROM*1.74;
+        double size_y = sgs::ANGSTROM*1.74;
 
-        g.for_each([&](const auto& pos,const auto& atom){
+        double height;
+        if(U_Between_Electrodes>0){
+            height = g.Rlim().z-g.Chunk_Size()/2;
+        }
+        else{
+            height = g.Llim().z+g.Chunk_Size()/2;
+        }
 
+        g.for_each([&](const auto& pos, const auto& atom) mutable
+        {
+            j+=sgs::ELCHARGE*powf(sgs::BOLZMAN,2)/(2*powf(M_PI,2)+powf(sgs::PLANCK,3))*powf(atom->T(),2)*exp(-sgs::ELCHARGE/(sgs::BOLZMAN*atom->T())*(E_FERMI-sqrt(sgs::ELCHARGE*(fabs(U_Between_Electrodes-atom->U())))/(M_PI)))*size_x*size_y;
+            if(j!=j) {
+                __debugbreak();
+            }
         });
         return j; 
-    }
+    };
 
-    double calc_Shottky() {
-        double j;
-        double E_FERMI = sgs::ELVOLT*0.84;
-        g.for_each([&](const auto& pos,const auto& atom){
-            j+=sgs::ELCHARGE*1*powf(sgs::BOLZMAN,2)/(2*powf(3.1415,2)+powf(sgs::PLANCK,3))*powf(atom->T(),2)*exp(-sgs::ELCHARGE/(sgs::BOLZMAN*atom->T()*(E_FERMI-sqrt(sgs::ELCHARGE*ATOM_E)/(3.1415*1))));
+    double calc_PF() {
+        double size_x = sgs::ANGSTROM*1.74;
+        double size_y = sgs::ANGSTROM*1.74;
+        double j = 0;
+        constexpr double E_FERMI = sgs::ELVOLT*3.7;
+
+        double height;
+        if(U_Between_Electrodes>0){
+            height = g.Rlim().z-g.Chunk_Size()/2;
+        }
+        else{
+            height = g.Llim().z+g.Chunk_Size()/2;
+        }
+        g.for_each([&](const auto& pos, const auto& atom) mutable {
+            
+            double factor = 0;
+            g.for_each([&](const auto& pos2, const auto& atom2) mutable
+            {
+                double ua = atom2->U();
+
+                factor+=exp(-sgs::ELCHARGE/(sgs::BOLZMAN*atom->T())*(E_FERMI-sqrt(sgs::ELCHARGE*(fabs(U_Between_Electrodes-ua)))/(M_PI)));
+                if(factor!=factor) {
+                    __debugbreak();
+    }
+            });
+            j+=sgs::ELCHARGE*factor*size_x*size_y;
+
+
         });
         return j; 
     }
