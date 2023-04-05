@@ -721,6 +721,7 @@ public:
                 printcharges();
                 printrcnt();
                 printcurrent();
+                printcurrent_reacts();
             }
 
             std::uniform_real_distribution<double> dist(0, kmk_sum);
