@@ -534,7 +534,7 @@ public:
                 __debugbreak();
             }
         });
-        return j; 
+        return j;
     };
 
     double calc_PF() {
@@ -560,13 +560,13 @@ public:
                 factor+=exp(-sgs::ELCHARGE/(sgs::BOLZMAN*atom->T())*(E_FERMI-sqrt(sgs::ELCHARGE*(fabs(U_Between_Electrodes-ua)))/(M_PI)));
                 if(factor!=factor) {
                     __debugbreak();
-    }
+                }
             });
             j+=sgs::ELCHARGE*factor*size_x*size_y;
 
 
         });
-        return j; 
+        return j;
     };
 
     double calc_Direct() {
