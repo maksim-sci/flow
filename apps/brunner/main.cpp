@@ -379,6 +379,34 @@ public:
         out.close();
     }
 
+    void printcurrent_reacts(fs::path pout)
+    {
+        std::ofstream out(pout, std::ios_base::app);
+        out << step << " ";
+        double sum = 0;
+        for (auto& a:reacts) {
+            auto ai = elsum.find(a->Name());
+            if(ai!=elsum.end()) {
+                double dq = ai->second/dt;
+                sum+=dq;
+            }
+        }
+        double pf = calc_PF();
+        double shottky = calc_Shottky();
+        double direct = calc_Direct();
+        double sum_all = sum+pf+shottky+direct;
+        out <<pf<<" "<<shottky<<" "<< sum<<" "<<sum_all<<" "<<direct<<std::endl;
+        elsum.clear();
+        dt = 0;
+        out.close();
+    }
+
+    void printcurrent_reacts() {
+        auto outfile = outfolder;
+        outfile /= fmt::format("current_reacts.txt", step);
+        printcurrent_reacts(outfile);
+    }
+
     void printrcnt(fs::path pout)
     {
         std::ofstream out(pout, std::ios_base::app);
