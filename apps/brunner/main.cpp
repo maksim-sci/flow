@@ -33,6 +33,8 @@
 #include <field/equal.hpp>
 #include <chrono>
 
+#include <assertions.h>
+
 
 #include "IniReader.hpp"
 
