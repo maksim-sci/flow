@@ -75,6 +75,7 @@ auto E1 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, OxygenV
 auto E2 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
 auto E3 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
 
+double ATOM_E = 0;
 namespace fs = std::filesystem;
 
 class grid_runner
@@ -476,6 +477,28 @@ public:
         });
 
         fmt::print("reactions found {} :{}\n", r->Name(), counts);
+    };
+
+    double calc_PF() {
+        double j;
+
+        g.for_each([&](const auto& pos,const auto& atom){
+
+        });
+        return j; 
+    }
+
+    double calc_Shottky() {
+        double j;
+        double E_FERMI = sgs::ELVOLT*0.84;
+        g.for_each([&](const auto& pos,const auto& atom){
+            j+=sgs::ELCHARGE*1*powf(sgs::BOLZMAN,2)/(2*powf(3.1415,2)+powf(sgs::PLANCK,3))*powf(atom->T(),2)*exp(-sgs::ELCHARGE/(sgs::BOLZMAN*atom->T()*(E_FERMI-sqrt(sgs::ELCHARGE*ATOM_E)/(3.1415*1))));
+        });
+        return j; 
+    }
+
+    void calc_effects() {
+        
     };
 
     //пересчитывает поле по всему объему,
