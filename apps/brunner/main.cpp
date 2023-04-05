@@ -374,7 +374,6 @@ public:
             }
         }
         out << sum<<std::endl;
-        elsum.clear();
         out.close();
     }
 
@@ -395,7 +394,6 @@ public:
         double direct = calc_Direct();
         double sum_all = sum+pf+shottky+direct;
         out <<pf<<" "<<shottky<<" "<< sum<<" "<<sum_all<<" "<<direct<<std::endl;
-        elsum.clear();
         out.close();
     }
 
@@ -717,6 +715,7 @@ public:
                 printcurrent();
                 printcurrent_reacts();
                 dt = 0;
+                elsum.clear();
             }
 
             std::uniform_real_distribution<double> dist(0, kmk_sum);
