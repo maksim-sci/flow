@@ -565,10 +565,10 @@ public:
 
         });
         return j; 
-    }
+    };
 
-    void calc_effects() {
-        
+    double calc_Direct() {
+        return 0; //TODO
     };
 
     //пересчитывает поле по всему объему,
