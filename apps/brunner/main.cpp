@@ -390,7 +390,7 @@ public:
     {
         std::ofstream out(pout, std::ios_base::app);
         double factora=1e+16;
-        double factorb=1/(64e+2);
+        double factorb=1/(64);
         double factorc=1e-20;
         out << step << " ";
         double sum = 0;
