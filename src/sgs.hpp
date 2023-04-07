@@ -20,6 +20,7 @@ namespace sgs {
     constexpr double VOLT  = 100000000; //TODO fix it
     
     constexpr double ELCHARGE = 4.80320427e-10;//TODO   *f64::powf(CENTIMETER, 1.5)*GRAM.powf(0.5)/SECOND;
+    constexpr double ELMASS = 9.109383e-31*KILOGRAM;//TODO   *f64::powf(CENTIMETER, 1.5)*GRAM.powf(0.5)/SECOND;
 
     constexpr double BOLZMAN = 5.380649e-15*ERG;//TODO   *f64::powf(CENTIMETER, 1.5)*GRAM.powf(0.5)/SECOND;
 }

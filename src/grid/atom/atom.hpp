@@ -14,7 +14,7 @@ namespace grid {
             bool fixu;
             double q;
             double u;
-            doube v;
+            double v;
         public:
             inline Atom(pType_t t):material(t),q(material->Q()),u(0),v(0),fixu(false) {};
 
@@ -24,8 +24,8 @@ namespace grid {
             inline double U() const {return u;};
             inline void U(double _u) {if(fixu) return; u=_u;};
 
-            inline double V() const {return v;};
-            inline void V(double _v) {v=_v};
+            inline double V() const {return material->V();};
+            //inline void V(double _v) {v=_v};
 
             inline double T() const {return 300*sgs::KELVIN;/*TODO*/};
             inline void T(double _t) const {/*TODO*/};

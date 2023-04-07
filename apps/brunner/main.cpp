@@ -58,17 +58,17 @@ struct kmk_data
     double chance;
 };
 
-auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El");
-auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Er");
-auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "EL");
-auto Oxygen = std::make_shared<Type>(0, __COUNTER__, "O");
-auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI");
-auto Hafnium = std::make_shared<Type>(0, __COUNTER__, "Hf");
-auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo");
-auto OxygenVacancy_Neutral_Intersitial = std::make_shared<Type>(0, __COUNTER__, "Vi");
-auto OxygenVacancy_Charged = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Vp");
-auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Ep");
-auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Em");
+auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El",0);
+auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Er",0);
+auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "EL",0);
+auto Oxygen = std::make_shared<Type>(0, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
+auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
+auto Hafnium = std::make_shared<Type>(0, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
+auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
+auto OxygenVacancy_Neutral_Intersitial = std::make_shared<Type>(0, __COUNTER__, "Vi",6.4*powf(sgs::ANGSTROM,3));
+auto OxygenVacancy_Charged = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Vp",6.4*powf(sgs::ANGSTROM,3));
+auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Ep",0);
+auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Em",0);
 
 auto R1 = std::make_shared<grid::react::Standart>(Oxygen, OxygenVacancy_Neutral_Intersitial, OxygenVacancy_Charged, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
 auto R2 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen_Intersittal, OxygenVacancy_Neutral, 5 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
@@ -389,8 +389,6 @@ public:
     void printcurrent_reacts(fs::path pout)
     {
         std::ofstream out(pout, std::ios_base::app);
-        double factora=1e+16;
-        double factorb=1/(64);
         double factorc=1e-20;
         out << step << " ";
         double sum = 0;
@@ -403,8 +401,8 @@ public:
         }
         double area = g.Sizes().x*g.Sizes().y;
         sum*=(factorc/area);
-        double pf = factorb*calc_PF()/area;
-        double shottky = factora*calc_Shottky()/area;
+        double pf = calc_PF();
+        double shottky = calc_Shottky();
         double direct = calc_Direct();
         double sum_all = sum+pf+shottky+direct;
         out <<pf<<" "<<shottky<<" "<< sum<<" "<<sum_all<<" "<<direct<<std::endl;
@@ -513,58 +511,64 @@ public:
         fmt::print("reactions found {} :{}\n", r->Name(), counts);
     };
 
+    Vector getF(const Vector& pos){
+        Vector f{0,0,0};
+        g.for_each(pos,3*sgs::ANGSTROM,[&](const auto& pA, const auto& atom) mutable{
+            Vector delta = pA-pos;
+
+            Vector deltam = {1/delta.x,1/delta.y,1/delta.z};
+
+            f+=deltam*atom->U();
+
+        });
+
+        return f;
+    }
+
     double calc_Shottky() {
         double j = 0;
-        constexpr double E_FERMI = sgs::ELVOLT*3.7;
-        double size_x = sgs::ANGSTROM*1.74;
-        double size_y = sgs::ANGSTROM*1.74;
-
-        double height;
-        if(U_Between_Electrodes>0){
-            height = g.Rlim().z-g.Chunk_Size()/2;
-        }
-        else{
-            height = g.Llim().z+g.Chunk_Size()/2;
-        }
+        constexpr double E_bandgap = sgs::ELVOLT*3.5;
 
         g.for_each([&](const auto& pos, const auto& atom) mutable
         {
-            j+=sgs::ELCHARGE*powf(sgs::BOLZMAN,2)/(2*powf(M_PI,2)+powf(sgs::PLANCK,3))*powf(atom->T(),2)*exp(-sgs::ELCHARGE/(sgs::BOLZMAN*atom->T())*(E_FERMI-sqrt(sgs::ELCHARGE*(fabs(U_Between_Electrodes-atom->U())))/(M_PI)))*size_x*size_y;
-            if(j!=j) {
-                __debugbreak();
-            }
+            double E_r = 0.35*sgs::ELVOLT;
+            double e_opt = 4;
+            double j = 0;
+            auto sizes = g.Sizes();
+            double volume = sizes.x*sizes.y*sizes.z;
+            g.for_each([&](const auto& pos,const auto& atom) mutable{
+                double prefactor = sgs::ELCHARGE*sgs::ELMASS*powf(sgs::BOLZMAN,2)*atom->T()/(sgs::PLANCK/(4*M_PI));
+
+                double field_prot = getF(pos).x;
+                double sign = fabs(field_prot)/field_prot;
+                j+=sign*prefactor*exp(-1/(sgs::BOLZMAN*atom->T())*(E_r-sqrt(powf(sgs::ELCHARGE,3)*fabs(field_prot))/(4*M_PI*e_opt)))*atom->V()/volume;
+            });
+            
         });
         return j;
     };
 
     double calc_PF() {
-        double size_x = sgs::ANGSTROM*1.74;
-        double size_y = sgs::ANGSTROM*1.74;
         double j = 0;
-        constexpr double E_FERMI = sgs::ELVOLT*3.7;
+        constexpr double E_bandgap = sgs::ELVOLT*3.5;
 
-        double height;
-        if(U_Between_Electrodes>0){
-            height = g.Rlim().z-g.Chunk_Size()/2;
-        }
-        else{
-            height = g.Llim().z+g.Chunk_Size()/2;
-        }
-        g.for_each([&](const auto& pos, const auto& atom) mutable {
-            
-            double factor = 0;
-            g.for_each([&](const auto& pos2, const auto& atom2) mutable
-            {
-                double ua = atom2->U();
+        g.for_each([&](const auto& pos, const auto& atom) mutable
+        {
+            double E_f = 3.5*sgs::ELVOLT;
+            double e_opt = 4;
+            double mu = 0.1*sgs::METER/sgs::VOLT;
+            double cf = 3/(Hafnium->V()+2*Oxygen->V());
+            double j = 0;
+            auto sizes = g.Sizes();
+            double volume = sizes.x*sizes.y*sizes.z;
+            g.for_each([&](const auto& pos,const auto& atom){
+                double prefactor = sgs::ELCHARGE*mu*cf;
 
-                factor+=exp(-sgs::ELCHARGE/(sgs::BOLZMAN*atom->T())*(E_FERMI-sqrt(sgs::ELCHARGE*(fabs(U_Between_Electrodes-ua)))/(M_PI)));
-                if(factor!=factor) {
-                    __debugbreak();
-                }
+                double field_prot = getF(pos).x;
+                double sign = fabs(field_prot)/field_prot;
+                j+=sign*prefactor*exp(-1/(sgs::BOLZMAN*atom->T())*(E_f-sqrt(sgs::ELCHARGE*fabs(field_prot))/(M_PI*e_opt)))*atom->V()/volume;
             });
-            j+=sgs::ELCHARGE*factor*size_x*size_y;
-
-
+            
         });
         return j;
     };
