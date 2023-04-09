@@ -60,16 +60,16 @@ struct kmk_data
 };
 
 auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El",0);
-auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Er",0);
-auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "EL",0);
+auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "El",0);
+auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "El",0);
 auto Oxygen = std::make_shared<Type>(0, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
 auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
 auto Hafnium = std::make_shared<Type>(0, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
-auto VacancyPosition = std::make_shared<Type>(0, __COUNTER__, "Vi",6.4*powf(sgs::ANGSTROM,3));
+auto VacancyPosition = std::make_shared<Type>(0, __COUNTER__, "Vac",6.4*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Charged = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Vp",6.4*powf(sgs::ANGSTROM,3));
-auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Ep",0);
-auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Em",0);
+auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "El",0);
+auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "El",0);
 
 auto R1 = std::make_shared<grid::react::Standart>(Oxygen, VacancyPosition, OxygenVacancy_Charged, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
 auto R2 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen_Intersittal, OxygenVacancy_Neutral, 5 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
