@@ -66,14 +66,14 @@ auto Oxygen = std::make_shared<Type>(0, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,
 auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
 auto Hafnium = std::make_shared<Type>(0, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
-auto OxygenVacancy_Neutral_Intersitial = std::make_shared<Type>(0, __COUNTER__, "Vi",6.4*powf(sgs::ANGSTROM,3));
+auto VacancyPosition = std::make_shared<Type>(0, __COUNTER__, "Vi",6.4*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Charged = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Vp",6.4*powf(sgs::ANGSTROM,3));
 auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Ep",0);
 auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Em",0);
 
-auto R1 = std::make_shared<grid::react::Standart>(Oxygen, OxygenVacancy_Neutral_Intersitial, OxygenVacancy_Charged, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
+auto R1 = std::make_shared<grid::react::Standart>(Oxygen, VacancyPosition, OxygenVacancy_Charged, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
 auto R2 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen_Intersittal, OxygenVacancy_Neutral, 5 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
-auto R3 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, Oxygen_Intersittal, Oxygen, OxygenVacancy_Neutral_Intersitial, 5 * sgs::ANGSTROM, sgs::ELVOLT * 5.12, 1e+13);
+auto R3 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, Oxygen_Intersittal, Oxygen, VacancyPosition, 5 * sgs::ANGSTROM, sgs::ELVOLT * 5.12, 1e+13);
 auto R4 = std::make_shared<grid::react::Standart>(Oxygen_Intersittal, OxygenVacancy_Neutral, OxygenVacancy_Neutral, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 4.6, 1e+13);
 
 auto E1 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
@@ -132,7 +132,7 @@ public:
         types.push_back(Oxygen_Intersittal);
         types.push_back(Hafnium);
         types.push_back(OxygenVacancy_Neutral);
-        types.push_back(OxygenVacancy_Neutral_Intersitial);
+        types.push_back(VacancyPosition);
         types.push_back(OxygenVacancy_Charged);
         types.push_back(ElectrodePositive);
         types.push_back(ElectrodeNegative);
@@ -144,7 +144,7 @@ public:
         g.AddType(Oxygen_Intersittal);
         g.AddType(Hafnium);
         g.AddType(OxygenVacancy_Neutral);
-        g.AddType(OxygenVacancy_Neutral_Intersitial);
+        g.AddType(VacancyPosition);
         g.AddType(OxygenVacancy_Charged);
         g.AddType(ElectrodePositive);
         g.AddType(ElectrodeNegative);
@@ -189,8 +189,8 @@ public:
         lHfO2.add({0.067849, 0.830122, 0.847094}, Oxygen);
         lHfO2.add({0.067849, 0.669878, 0.347094}, Oxygen);
         lHfO2.add({0.932151, 0.169878, 0.152906}, Oxygen);
-        lHfO2.add({0.78284, 0.43966, 0.7821}, OxygenVacancy_Neutral_Intersitial);
-        lHfO2.add({0.21066, 0.5392, 0.22844}, OxygenVacancy_Neutral_Intersitial);
+        lHfO2.add({0.78284, 0.43966, 0.7821}, VacancyPosition);
+        lHfO2.add({0.21066, 0.5392, 0.22844}, VacancyPosition);
 
         double size_x = 30 * sgs::ANGSTROM;
         double size_y = 30 * sgs::ANGSTROM;
