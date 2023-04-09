@@ -369,21 +369,20 @@ public:
     void printcurrent(fs::path pout)
     {
         std::ofstream out(pout, std::ios_base::app);
-        out << step << " ";
+        out << step;
+        out << std::setprecision(6);
         double sum = 0;
+        
         for (auto& a:reacts) {
             auto ai = elsum.find(a->Name());
+            double dq = 0;
             if(ai!=elsum.end()) {
-                double dq = ai->second/dt;
+                dq = ai->second/dt;
                 sum+=dq;
-                out << dq << " ";
             }
-            else
-            {
-                out<<"0 ";
-            }
+            out<<"\t"<<std::setw(11) << dq;
         }
-        out << sum<<std::endl;
+        out << "\t"<<std::setw(11)<<sum<<std::endl;
         out.close();
     }
 
@@ -391,7 +390,7 @@ public:
     {
         std::ofstream out(pout, std::ios_base::app);
         double factorc=1e-20;
-        out << step << " ";
+        out << step;
         double sum = 0;
         for (auto& a:reacts) {
             auto ai = elsum.find(a->Name());
@@ -407,7 +406,11 @@ public:
         double direct = calc_Direct();
         double fn = calc_FN();
         double sum_all = sum+pf+shottky+direct+fn;
-        out <<pf<<" "<<shottky<<" "<<fn<<" "<<direct<<" "<< sum<<" "<<sum_all<<std::endl;
+        out<<std::setprecision(6);
+        for (auto& current:{pf,shottky,fn,direct,sum,sum_all}) {
+            out<<"\t"<<std::setw(10)<<current;
+        }
+        out<<std::endl;
         out.close();
     }
 
@@ -420,10 +423,17 @@ public:
     void printrcnt(fs::path pout)
     {
         std::ofstream out(pout, std::ios_base::app);
-        out << step << " ";
-        for (auto &[name, cnt] : react_cnt)
+        out << fmt::format("{:6d}",step);
+        for (const auto &react : reacts)
         {
-            out << name << ":" << cnt << " ";
+            int cnt = 0;
+            auto& name = react->Name();
+
+            const auto& iterator = react_cnt.find(name);
+            if(iterator!=react_cnt.end()) {
+                cnt = iterator->second;
+            }
+            out << " " << fmt::format("{:6d}",cnt);
         }
         out << std::endl;
         react_cnt.clear();
