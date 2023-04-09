@@ -64,14 +64,14 @@ namespace field {
             double U = 0;
             auto cp = grid->calcChunkPos(pos);
 
-            for(auto& [vec,cdata]:data) {
+            for(auto& [vec,chunk_data]:data) {
                 
                 if(vec!=cp){
 
-                    auto p1 = vec+Vector(1,1,1)*chunk_size/2;
-                    auto vc = grid->getMinDist(p1,pos);
-                    double dist = vc.abs();
-                    U += cdata.q/dist;
+                    auto center = vec+Vector(1,1,1)*chunk_size/2;
+                    auto delta = grid->getMinDist(center,pos);
+                    double dist = delta.abs();
+                    U += chunk_data.q/dist;
 
 
 
