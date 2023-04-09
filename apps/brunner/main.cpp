@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <cstdlib>
 #include <random>
+#include <limits>
 
 #define M_PI 3.1415
 
@@ -404,8 +405,9 @@ public:
         double pf = calc_PF();
         double shottky = calc_Shottky();
         double direct = calc_Direct();
-        double sum_all = sum+pf+shottky+direct;
-        out <<pf<<" "<<shottky<<" "<< sum<<" "<<sum_all<<" "<<direct<<std::endl;
+        double fn = calc_FN();
+        double sum_all = sum+pf+shottky+direct+fn;
+        out <<pf<<" "<<shottky<<" "<<fn<<" "<<direct<<" "<< sum<<" "<<sum_all<<std::endl;
         out.close();
     }
 
@@ -513,10 +515,16 @@ public:
 
     Vector getF(const Vector& pos){
         Vector f{0,0,0};
-        g.for_each(pos,3*sgs::ANGSTROM,[&](const auto& pA, const auto& atom) mutable{
+        g.for_each(pos,2*sgs::ANGSTROM,[&](const auto& pA, const auto& atom) mutable{
             Vector delta = pA-pos;
 
-            Vector deltam = {1/delta.x,1/delta.y,1/delta.z};
+            const double cutoff = 1e-2*sgs::ANGSTROM;
+
+            Vector deltam = {
+                delta.x>cutoff?1/delta.x:0,
+                delta.y>cutoff?1/delta.y:0,
+                delta.z>cutoff?1/delta.z:0,
+            };
 
             f+=deltam*atom->U();
 
@@ -528,47 +536,88 @@ public:
     double calc_Shottky() {
         double j = 0;
         constexpr double E_bandgap = sgs::ELVOLT*3.5;
+        double E_r = 0.35*sgs::ELVOLT;
+        double e_o = 0;
+        double e_opt = 4;
+        auto sizes = g.Sizes();
+        double volume = sizes.x*sizes.y*sizes.z;
+        g.for_each([&](const auto& pos,const auto& atom) mutable{
+            double prefactor = sgs::ELCHARGE*sgs::ELMASS*powf(sgs::BOLZMAN,2)*atom->T()/(sgs::PLANCK/(4*M_PI));
 
-        g.for_each([&](const auto& pos, const auto& atom) mutable
-        {
-            double E_r = 0.35*sgs::ELVOLT;
-            double e_opt = 4;
-            double j = 0;
-            auto sizes = g.Sizes();
-            double volume = sizes.x*sizes.y*sizes.z;
-            g.for_each([&](const auto& pos,const auto& atom) mutable{
-                double prefactor = sgs::ELCHARGE*sgs::ELMASS*powf(sgs::BOLZMAN,2)*atom->T()/(sgs::PLANCK/(4*M_PI));
+            double field_prot = getF(pos).z;
+            
+            const double cutoff = 1e-5*sgs::VOLT/sgs::METER;
 
-                double field_prot = getF(pos).x;
+            if(field_prot>cutoff) {
                 double sign = fabs(field_prot)/field_prot;
                 j+=sign*prefactor*exp(-1/(sgs::BOLZMAN*atom->T())*(E_r-sqrt(powf(sgs::ELCHARGE,3)*fabs(field_prot))/(4*M_PI*e_opt)))*atom->V()/volume;
-            });
-            
+            }
+
         });
+
+        
         return j;
     };
 
     double calc_PF() {
         double j = 0;
         constexpr double E_bandgap = sgs::ELVOLT*3.5;
+        double E_f = 3.5*sgs::ELVOLT;
+        double e_opt = 4;
+        double mu = 0.1*sgs::METER/sgs::VOLT;
+        double cf = 3/(Hafnium->V()+2*Oxygen->V());
+        auto sizes = g.Sizes();
+        double volume = sizes.x*sizes.y*sizes.z;
+        g.for_each([&](const auto& pos,const auto& atom){
+            double prefactor = sgs::ELCHARGE*mu*cf;
 
-        g.for_each([&](const auto& pos, const auto& atom) mutable
-        {
-            double E_f = 3.5*sgs::ELVOLT;
-            double e_opt = 4;
-            double mu = 0.1*sgs::METER/sgs::VOLT;
-            double cf = 3/(Hafnium->V()+2*Oxygen->V());
-            double j = 0;
-            auto sizes = g.Sizes();
-            double volume = sizes.x*sizes.y*sizes.z;
-            g.for_each([&](const auto& pos,const auto& atom){
-                double prefactor = sgs::ELCHARGE*mu*cf;
+            double field_prot = getF(pos).z;
 
-                double field_prot = getF(pos).x;
+            const double cutoff = 1e-5*sgs::VOLT/sgs::METER;
+
+            if(field_prot>cutoff) {
                 double sign = fabs(field_prot)/field_prot;
-                j+=sign*prefactor*exp(-1/(sgs::BOLZMAN*atom->T())*(E_f-sqrt(sgs::ELCHARGE*fabs(field_prot))/(M_PI*e_opt)))*atom->V()/volume;
-            });
+
+                double usqrt = powf(sgs::ELCHARGE,3)*fabs(field_prot)/(4*M_PI*e_opt);
+
+                double a = sgs::BOLZMAN*atom->T();
+                double b = sqrt(usqrt);
+                double c = E_f-b;
+                double d = c/a;
+
+                double uexp = -d;
+
+                j+=sign*prefactor*exp(uexp)*atom->V()/volume;
             
+
+
+            }
+
+        });
+        return j;
+    };
+
+    double calc_FN() {
+        double j = 0;
+        constexpr double E_bandgap = sgs::ELVOLT*3.5;
+        double E_f = 3.5*sgs::ELVOLT;
+        double e_opt = 4;
+        double mu = 0.1*sgs::METER/sgs::VOLT;
+        double sub_mass = sgs::ELMASS;
+        double E_b = 1.2*sgs::ELVOLT;
+        auto sizes = g.Sizes();
+        double volume = sizes.x*sizes.y*sizes.z;
+        g.for_each([&](const auto& pos,const auto& atom){
+
+            double field_prot = getF(pos).z;
+            double sign = fabs(field_prot)/field_prot;
+
+            double prefactor = powf(sgs::ELCHARGE,3)*powf(fabs(field_prot),2)/(8*M_PI*sgs::PLANCK*E_b);
+            const double cutoff = 1e-5*sgs::VOLT/sgs::METER;
+
+            if(field_prot>cutoff) {
+                j+=sign*prefactor*exp(-4*sqrt(sub_mass*2*powf(E_b,3)*2*M_PI/(3*sgs::PLANCK*sgs::ELCHARGE*fabs(field_prot))))*atom->V()/volume;
+            }
         });
         return j;
     };
