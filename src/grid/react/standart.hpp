@@ -21,8 +21,9 @@ namespace grid {
                     double dE = fu*fq+su*sq-su*to2->Q()-fu*to1->Q();
 
 
-                    if(dE>sgs::BOLZMAN*100) {
-                        dE = sgs::BOLZMAN*100;
+                    constexpr double cutoff = sgs::ELVOLT*10;
+                    if(dE>cutoff) {
+                        dE = cutoff;
                     }
 
                     double E = -barrier+dE;
