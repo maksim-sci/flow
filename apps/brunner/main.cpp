@@ -270,9 +270,7 @@ public:
     void init_folders(string out, string periodic_out)
     {
         outfolder = fs::absolute(out);
-        fs::create_directories(outfolder);
         statef = fs::absolute(periodic_out);
-        fs::create_directories(statef);
         {
             auto outfile = outfolder;
             outfile /= fmt::format("current.txt", step);
@@ -288,6 +286,11 @@ public:
             outfile /= fmt::format("counts.txt", step);
             if(fs::exists(outfile)) fs::remove(outfile);
         }
+        if(settings.GetBoolean("folder","removeout",false)) {
+            if(fs::exists(outfolder)) fs::remove_all(statef);
+        }
+        fs::create_directories(outfolder);
+        fs::create_directories(statef);
     }
 
     void printgrid(fs::path pout)
