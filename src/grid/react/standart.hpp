@@ -18,16 +18,16 @@ namespace grid {
                     double fq = f->Q();
                     double su = s->U();
                     double fu = f->U();
-                    double dE = -fu*fq-su*sq+su*to2->Q()+fu*to1->Q();
+                    double dE = -fu*fq-su*sq+su*to2->Q()+fu*to1->Q()*sgs::ELVOLT/(sgs::VOLT*sgs::ELCHARGE);
 
 
-                    constexpr double cutoff = sgs::ELVOLT*10;
+                    constexpr double cutoff = sgs::ELVOLT*20;
                     if(dE>cutoff) {
                         dE = cutoff;
                     }
 
                     double E = -barrier+dE;
-                    double freqq = freq * exp( (E)/(sgs::BOLZMAN*f->T()) );
+                    double freqq = freq * exp( (E)/(sgs::BOLZMAN*f->T()) ) *exp(-distance/maxdist);
 
                     if(freqq!=freqq) {
                         int* a = 0;
