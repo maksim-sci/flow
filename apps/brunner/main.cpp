@@ -776,11 +776,12 @@ public:
         static std::random_device dev;
         static std::mt19937 rng(dev());
 
+        bool recalc = true;
         for (; step <= maxstep; step++)
         {
             
 
-            if (step % recalc_step == 0)
+            if (step % recalc_step == 0 or recalc)
             {
                 Zero_field.Apply(g);
 
@@ -789,6 +790,8 @@ public:
                 EWALD.calc_all();
 
                 recalc_all_reactions();
+
+                recalc = false;
 
             }
 
@@ -823,6 +826,10 @@ public:
                     react_info = data;
                     break;
                 }
+            }
+            if(cccnt==0) {
+                recalc = true;
+                continue;
             }
             auto &react = react_info.react;
 
