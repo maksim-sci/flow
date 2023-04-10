@@ -827,13 +827,14 @@ public:
                     break;
                 }
             }
-            if(cccnt==0) {
-                recalc = true;
-                continue;
-            }
             auto &react = react_info.react;
 
             assert_simple(react);
+
+            if(cccnt==0 or react==nullptr) {
+                recalc = true;
+                continue;
+            }
 
             double dq = ChangeAtoms(react_info.fp, react_info.sp, react->to1, react->to2, true);
 
