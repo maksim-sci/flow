@@ -234,6 +234,10 @@ public:
         struct_end = electrode2_end;
     };
 
+    void loadstructure(std::string file) {
+        loadgrid(file,chunk_size);
+    }
+
     void init_reacts_E()
     {
         E1->Name("E1");
@@ -327,19 +331,13 @@ public:
         printgrid(outfile);
     }
 
-    // void loadgrid(fs::path pin, double chunk_size)
-    // {
-    //     std::ifstream in(pin);
-    //
-    //     std::stringstream buffer;
-    //     buffer << in.rdbuf();
-    //     in.close();
-    //
-    //     auto g = Grid(chunk_size);
-    //
-    //     return g.from_xyz(buffer.str(), 1 / sgs::ANGSTROM);
-    // };
-    //
+    void loadgrid(std::string& path, double chunk_size)
+    {
+        std::ifstream in(path);
+    
+        return g.from_xyz(in, 1 / sgs::ANGSTROM);
+    };
+    
 
     void printvoltage(fs::path pout)
     {
@@ -880,7 +878,16 @@ void grid_like_final_ex()
     string outfile_periodic = settings.Get("folders","periodic_output","./results/periodic");
     run_this_thing_please.init_folders(outfile,outfile_periodic);
 
-    run_this_thing_please.init_structure();
+    
+    if(settings.GetBoolean("init","load",false)) {
+        std::string file = settings.Get("init","loadfile","");
+        assert_simple(file!="");
+        run_this_thing_please.loadstructure(file);
+    }
+    else {
+        run_this_thing_please.init_structure();
+    }
+    
 
     run_this_thing_please.maxstep = settings.GetInteger("calculation","maxstep",10000);
     run_this_thing_please.recalc_step = settings.GetInteger("calculation","recalc_step",100);
