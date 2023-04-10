@@ -65,34 +65,12 @@ namespace field {
             auto cp = grid->calcChunkPos(pos);
 
             for(auto& [vec,chunk_data]:data) {
-                
-                if(vec!=cp){
+             
 
-                    auto center = vec+Vector(1,1,1)*chunk_size/2;
-                    auto delta = grid->getMinDist(center,pos);
-                    double dist = delta.abs();
-                    U += chunk_data.q/dist;
-
-
-
-                }
-                else {
-                    auto& chunks = grid->Chunks();
-                    auto pchunk = chunks.find(cp);
-                    if(pchunk!=chunks.end()) {
-                        for(auto& [vvec,atom]:*pchunk->second) {
-                            if(vvec!=pos) {
-                                auto vc = grid->getMinDist(vvec,pos);
-                                double mod = vc.abs();
-                                U+=atom->Q()/mod;
-
-
-                                
-                               
-                            }
-                        }
-                    }
-                }
+                auto center = vec+Vector(1,1,1)*chunk_size/2;
+                auto delta = grid->getMinDist(center,pos);
+                double dist = delta.abs();
+                U += chunk_data.q/dist;
             }
             return U;
         };
