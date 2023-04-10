@@ -2,6 +2,8 @@
 #include <memory>
 #include <sstream>
 
+#include <assertions.h>
+
 #include "grid.hpp"
 #include "atom/atom.hpp"
 #include "react/react.hpp"
@@ -187,7 +189,7 @@ namespace grid
     string Grid::to_xyz(double mult) const
     {
         std::stringstream ss(std::ios_base::out);
-        ss << count() << "\n\n";
+        ss << count() << "\n";
 
         for_each([&ss,mult](const Vector& pos, const std::shared_ptr<atom::Atom>& atom)mutable
         {
@@ -204,9 +206,8 @@ namespace grid
         return to_xyz(1);
     }
 
-    void Grid::from_xyz(const string &s, double div)
+    void Grid::from_xyz(std::istream& ss, double div)
     {
-        std::stringstream ss(s, std::ios_base::in);
         size_t count;
         ss >> count;
         auto tend = types.end();
@@ -216,7 +217,7 @@ namespace grid
             double x, y, z;
             ss >> name >> x >> y >> z;
             auto type = types.find(name);
-            assert(type != tend);
+            assert_tst(type!=tend);
             auto &T = type->second;
             Vector pos(x, y, z);
             pos /= div;
@@ -234,6 +235,12 @@ namespace grid
                 rlim.z = z;
             }
         }
+    }
+
+    void Grid::from_xyz(const string &s, double div)
+    {
+        std::stringstream ss(s, std::ios_base::in);
+        from_xyz(ss,div);
     }
 
     void Grid::from_xyz(const string &s)

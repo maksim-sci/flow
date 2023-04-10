@@ -62,25 +62,28 @@ struct kmk_data
 };
 
 auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El",0);
-auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "El",0);
-auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "El",0);
+auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Elr",0);
+auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "Ell",0);
 auto Oxygen = std::make_shared<Type>(0, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
 auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
 auto Hafnium = std::make_shared<Type>(0, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
-auto VacancyPosition = std::make_shared<Type>(0, __COUNTER__, "Vac",6.4*powf(sgs::ANGSTROM,3));
+auto IntersitialPosition = std::make_shared<Type>(0, __COUNTER__, "Ip",6.4*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Charged = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Vp",6.4*powf(sgs::ANGSTROM,3));
-auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "El",0);
-auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "El",0);
+auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Elp",0);
+auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Eln",0);
 
-auto R1 = std::make_shared<grid::react::Standart>(Oxygen, VacancyPosition, OxygenVacancy_Charged, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
-auto R2 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen_Intersittal, OxygenVacancy_Neutral, 5 * sgs::ANGSTROM, sgs::ELVOLT * 2, 1e+13);
-auto R3 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, Oxygen_Intersittal, Oxygen, VacancyPosition, 5 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
-auto R4 = std::make_shared<grid::react::Standart>(Oxygen_Intersittal, OxygenVacancy_Neutral, OxygenVacancy_Neutral, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 4.6, 1e+13);
+auto R1 = std::make_shared<grid::react::Standart>(Oxygen, IntersitialPosition, OxygenVacancy_Charged, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
+auto R2 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, Oxygen, Oxygen, OxygenVacancy_Neutral, 5 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
+auto R22 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, Oxygen, Oxygen, OxygenVacancy_Charged, 5 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
+auto R3 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, Oxygen_Intersittal, Oxygen, IntersitialPosition, 5 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
+auto R4 = std::make_shared<grid::react::Standart>(Oxygen_Intersittal, IntersitialPosition, IntersitialPosition, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 1, 1e+13);
 
 auto E1 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E2 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
-auto E3 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.2, 1e+13);
+auto E2 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E3 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E4 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, TElectrodeR, OxygenVacancy_Neutral, TElectrodeR, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E5 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, TElectrodeL, OxygenVacancy_Charged, TElectrodeL, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
 
 double ATOM_E = 0;
 namespace fs = std::filesystem;
@@ -135,7 +138,7 @@ public:
         types.push_back(Oxygen_Intersittal);
         types.push_back(Hafnium);
         types.push_back(OxygenVacancy_Neutral);
-        types.push_back(VacancyPosition);
+        types.push_back(IntersitialPosition);
         types.push_back(OxygenVacancy_Charged);
         types.push_back(ElectrodePositive);
         types.push_back(ElectrodeNegative);
@@ -147,7 +150,7 @@ public:
         g.AddType(Oxygen_Intersittal);
         g.AddType(Hafnium);
         g.AddType(OxygenVacancy_Neutral);
-        g.AddType(VacancyPosition);
+        g.AddType(IntersitialPosition);
         g.AddType(OxygenVacancy_Charged);
         g.AddType(ElectrodePositive);
         g.AddType(ElectrodeNegative);
@@ -192,8 +195,8 @@ public:
         lHfO2.add({0.067849, 0.830122, 0.847094}, Oxygen);
         lHfO2.add({0.067849, 0.669878, 0.347094}, Oxygen);
         lHfO2.add({0.932151, 0.169878, 0.152906}, Oxygen);
-        lHfO2.add({0.78284, 0.43966, 0.7821}, VacancyPosition);
-        lHfO2.add({0.21066, 0.5392, 0.22844}, VacancyPosition);
+        lHfO2.add({0.78284, 0.43966, 0.7821}, IntersitialPosition);
+        lHfO2.add({0.21066, 0.5392, 0.22844}, IntersitialPosition);
 
         double size_x = 30 * sgs::ANGSTROM;
         double size_y = 30 * sgs::ANGSTROM;
@@ -233,26 +236,36 @@ public:
         struct_end = electrode2_end;
     };
 
+    void loadstructure(std::string file) {
+        loadgrid(file,chunk_size);
+    }
+
     void init_reacts_E()
     {
         E1->Name("E1");
         E2->Name("E2");
         E3->Name("E3");
+        E4->Name("E4");
+        E5->Name("E5");
 
         reacts.push_back(E1);
         reacts.push_back(E2);
         reacts.push_back(E3);
+        reacts.push_back(E4);
+        reacts.push_back(E5);
     }
 
     void init_reacts_R()
     {
         R1->Name("R1");
         R2->Name("R2");
+        R22->Name("R22");
         R3->Name("R3");
         R4->Name("R4");
 
         reacts.push_back(R1);
         reacts.push_back(R2);
+        reacts.push_back(R22);
         reacts.push_back(R3);
         reacts.push_back(R4);
     }
@@ -320,19 +333,13 @@ public:
         printgrid(outfile);
     }
 
-    // void loadgrid(fs::path pin, double chunk_size)
-    // {
-    //     std::ifstream in(pin);
-    //
-    //     std::stringstream buffer;
-    //     buffer << in.rdbuf();
-    //     in.close();
-    //
-    //     auto g = Grid(chunk_size);
-    //
-    //     return g.from_xyz(buffer.str(), 1 / sgs::ANGSTROM);
-    // };
-    //
+    void loadgrid(std::string& path, double chunk_size)
+    {
+        std::ifstream in(path);
+    
+        return g.from_xyz(in, 1 / sgs::ANGSTROM);
+    };
+    
 
     void printvoltage(fs::path pout)
     {
@@ -771,11 +778,12 @@ public:
         static std::random_device dev;
         static std::mt19937 rng(dev());
 
+        bool recalc = true;
         for (; step <= maxstep; step++)
         {
             
 
-            if (step % recalc_step == 0)
+            if (step % recalc_step == 0 or recalc)
             {
                 Zero_field.Apply(g);
 
@@ -784,6 +792,8 @@ public:
                 EWALD.calc_all();
 
                 recalc_all_reactions();
+
+                recalc = false;
 
             }
 
@@ -818,6 +828,10 @@ public:
                     react_info = data;
                     break;
                 }
+            }
+            if(cccnt==0) {
+                recalc = true;
+                continue;
             }
             auto &react = react_info.react;
 
@@ -873,7 +887,16 @@ void grid_like_final_ex()
     string outfile_periodic = settings.Get("folders","periodic_output","./results/periodic");
     run_this_thing_please.init_folders(outfile,outfile_periodic);
 
-    run_this_thing_please.init_structure();
+    
+    if(settings.GetBoolean("init","load",false)) {
+        std::string file = settings.Get("init","loadfile","");
+        assert_simple(file!="");
+        run_this_thing_please.loadstructure(file);
+    }
+    else {
+        run_this_thing_please.init_structure();
+    }
+    
 
     run_this_thing_please.maxstep = settings.GetInteger("calculation","maxstep",10000);
     run_this_thing_please.recalc_step = settings.GetInteger("calculation","recalc_step",100);
