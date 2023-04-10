@@ -122,6 +122,7 @@ namespace grid
         string to_xyz(double mult) const;
         void from_xyz(const string &s);
         void from_xyz(const string &s, double div);
+        void from_xyz(std::istream& ss, double div);
 
 
         inline Vector getMinDist(const Vector& a, const Vector& b) {
