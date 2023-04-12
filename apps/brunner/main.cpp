@@ -208,7 +208,7 @@ public:
 
         double oxyde_begin = electrode_end + dist_electrode;
 
-        double oxyde_end = settings.GetReal("model","oxyde_height",14); * sgs::ANGSTROM + oxyde_begin;
+        double oxyde_end = settings.GetReal("model","oxyde_height",14)* sgs::ANGSTROM + oxyde_begin;
 
 
         el_begin = oxyde_end+dist_electrode;
