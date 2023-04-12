@@ -198,8 +198,9 @@ public:
         lHfO2.add({0.78284, 0.43966, 0.7821}, IntersitialPosition);
         lHfO2.add({0.21066, 0.5392, 0.22844}, IntersitialPosition);
 
-        double size_x = 30 * sgs::ANGSTROM;
-        double size_y = 30 * sgs::ANGSTROM;
+        double size_x = settings.GetReal("model","size_x",30) * sgs::ANGSTROM;
+        double size_y = settings.GetReal("model","size_y",30) * sgs::ANGSTROM;
+        double size_z = settings.GetReal("model","size_z",20) * sgs::ANGSTROM;
 
         double dist_electrode = 0.3 * sgs::ANGSTROM;
 
@@ -207,7 +208,7 @@ public:
 
         double oxyde_begin = electrode_end + dist_electrode;
 
-        double oxyde_end = 14 * sgs::ANGSTROM + oxyde_begin;
+        double oxyde_end = settings.GetReal("model","oxyde_height",14); * sgs::ANGSTROM + oxyde_begin;
 
 
         el_begin = oxyde_end+dist_electrode;
@@ -219,9 +220,9 @@ public:
         g.AddLattice({0, 0, oxyde_begin}, Vector(size_x, size_y, oxyde_end), lHfO2);
         g.AddLattice({0, 0, el_begin}, Vector(size_x, size_y, electrode2_end), lElectrode);
 
-        double size_electrode = sgs::ANGSTROM * 5;
-        double size_electrode_z = sgs::ANGSTROM * 5;
-        double electrode_begin_xy = sgs::ANGSTROM * 10;
+        double size_electrode = sgs::ANGSTROM * settings.GetReal("model","size_electrode",5);
+        double size_electrode_z = sgs::ANGSTROM * settings.GetReal("model","size_electrode_z",5);
+        double electrode_begin_xy = sgs::ANGSTROM * settings.GetReal("model","electrode_begin_xy",10);
         double electrode_begin_z = electrode_end;
 
         Vector ElCube_s(electrode_begin_xy, electrode_begin_xy, electrode_begin_z);
