@@ -64,7 +64,7 @@ struct kmk_data
 auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El",0);
 auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Elr",0);
 auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "Ell",0);
-auto Oxygen = std::make_shared<Type>(0, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
+auto Oxygen = std::make_shared<Type>(-1, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
 auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
 auto Hafnium = std::make_shared<Type>(0, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
@@ -73,10 +73,10 @@ auto OxygenVacancy_Charged = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTE
 auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Elp",0);
 auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Eln",0);
 
-auto R1 = std::make_shared<grid::react::Standart>(Oxygen, IntersitialPosition, OxygenVacancy_Charged, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
+auto R1 = std::make_shared<grid::react::Standart>(Oxygen, IntersitialPosition, OxygenVacancy_Neutral, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
 auto R2 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, Oxygen, Oxygen, OxygenVacancy_Neutral, 5 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
 auto R22 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, Oxygen, Oxygen, OxygenVacancy_Charged, 5 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
-auto R3 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, Oxygen_Intersittal, Oxygen, IntersitialPosition, 5 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
+auto R3 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen, IntersitialPosition, 5 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
 auto R4 = std::make_shared<grid::react::Standart>(Oxygen_Intersittal, IntersitialPosition, IntersitialPosition, Oxygen_Intersittal, 5 * sgs::ANGSTROM, sgs::ELVOLT * 1, 1e+13);
 
 auto E1 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 5 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
