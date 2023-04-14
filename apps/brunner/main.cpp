@@ -485,7 +485,7 @@ public:
     kmk_sum(0), 
     Zero_field(0, 0, 0), 
     Cond_field(uelectrodes, 0, 0), 
-    EWALD(_settings.GetReal("evald","real_cutoff",sgs::ANGSTROM*5),_settings.GetReal("evald","reciprocal_cutoff",sgs::ANGSTROM*5),_settings.GetInteger("evald","calc_size",1),,_settings.GetReal("evald","kappa",0.05),g),
+    EWALD(_settings.GetReal("evald","real_cutoff",sgs::ANGSTROM*5),_settings.GetReal("evald","reciprocal_cutoff",sgs::ANGSTROM*5),_settings.GetInteger("evald","calc_size",1),_settings.GetReal("evald","kappa",0.05),&g),
     react_cnt(0),
     elsum(0),
     el_begin(0),
