@@ -25,6 +25,7 @@ add_library(flow_library
         grid/react.cpp
         grid/grid.cpp
         grid/lattice.cpp
+        field/evald.cpp
         ${HEADER_LIST})
 
 
