@@ -1,4 +1,5 @@
 
+#define DEBUG_MY_VERSION
 
 #include <iostream>
 
