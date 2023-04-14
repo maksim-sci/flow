@@ -516,8 +516,8 @@ public:
         auto size_vector = g.Rlim()-g.Llim();
         auto area = size_vector.x*size_vector.y;
         double dist_between_electrodes = size_vector.z;
-        TElectrodeL->Q(area*U_Between_Electrodes/(cnt_left*dist_between_electrodes));
-        TElectrodeR->Q(area*U_Between_Electrodes/(cnt_right*dist_between_electrodes));
+        TElectrodeL->Q(U_Between_Electrodes/(cnt_left*dist_between_electrodes));
+        TElectrodeR->Q(U_Between_Electrodes/(cnt_right*dist_between_electrodes));
         g.for_each([&](auto& pos,auto atom) mutable
         {
             if (atom->Material() == TElectrode)
