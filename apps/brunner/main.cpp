@@ -414,7 +414,7 @@ public:
             }
         }
         double area = g.Sizes().x*g.Sizes().y;
-        sum*=(factorc/area);
+        sum*=(1/area);
         double pf = calc_PF();
         double shottky = calc_Shottky();
         double direct = calc_Direct();
