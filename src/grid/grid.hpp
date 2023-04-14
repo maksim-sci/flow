@@ -69,7 +69,7 @@ namespace grid
         double Chunk_Size() const;
         size_t count() const;
 
-        inline geometry::Vector Sizes() const { return rlim - llim; };
+        inline const geometry::Vector& Sizes() const { return delta; };
 
         InsertionResults insert(const geometry::Vector &pos, std::shared_ptr<atom::Atom> a);
         const std::shared_ptr<atom::Atom> get(const geometry::Vector &pos) const;
@@ -90,7 +90,7 @@ namespace grid
             return getChunkSimple(getCycledVector(pos));
         };
 
-        inline void setPeriod(const Vector &v) { rlim = llim + v; };
+        inline void setPeriod(const Vector &v) { rlim = llim + v; delta = v;};
 
         template <char coord>
         inline bool Cyclic() const
