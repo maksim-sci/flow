@@ -1,23 +1,21 @@
 #pragma once
 #include "../grid/grid.hpp"
 #include "../geometry/vector.hpp"
-#include <unordered_map>
+
 namespace field {
-    class ChunkProperties {
-        double u;
-    };
+
     class evald {
-        double chunk_size;
-        geometry::Vector translations;
-        grid::Grid* grid;
+        double real_cutoff;
+        double reciprocal_cutoff;
+        int calc_cnt;
+        double kappa;
+        grid::Grid* g;
 
-        inline evald(grid::Grid& g):grid(&g),chunk_size(g.Chunk_Size()),translations({g.Chunk_Size(),g.Chunk_Size(),g.Chunk_Size()}){
-            
-        };
 
-        inline void apply() {
+        evald(double _real_cutoff, double _reciprocal_cutoff, int _calc_cnt, double _kappa,grid::Grid* _g):real_cutoff(_real_cutoff),reciprocal_cutoff(_reciprocal_cutoff),calc_cnt(_calc_cnt),kappa(_kappa),g(_g){};
 
-        };
+        void apply();
+        
 
     };
 }
