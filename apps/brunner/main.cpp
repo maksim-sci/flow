@@ -391,12 +391,12 @@ public:
             auto ai = elsum.find(a->Name());
             double dq = 0;
             if(ai!=elsum.end()) {
-                dq = ai->second/dt;
+                dq = ai->second;
                 sum+=dq;
             }
-            out<<"\t"<<std::setw(11) << dq;
+            out<<"\t"<<std::setw(11) << dq/dt;
         }
-        out << "\t"<<std::setw(11)<<sum<<std::endl;
+        out << "\t"<<std::setw(11)<<sum/dt<<std::endl;
         out.close();
     }
 
