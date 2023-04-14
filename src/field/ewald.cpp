@@ -1,4 +1,4 @@
-#include "evald.hpp"
+#include "ewald.hpp"
 
 #include <unordered_map>
 #include "../m_pi.h"
@@ -14,7 +14,7 @@ namespace field {
         double u;
     };
 
-    void evald::apply() {
+    void ewald::apply() {
         std::vector<evald_atom_info> data;
         g->for_each([&](const auto& pos, const auto& atom) mutable {
             data.push_back({atom,pos,0});

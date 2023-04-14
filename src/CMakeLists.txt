@@ -14,7 +14,7 @@ set(HEADER_LIST "geometry/vector.hpp"
                 "field/ewald_hack.hpp"
                 "field/basic_electrode.hpp"
                 "field/field.hpp"
-                "field/evald.hpp"
+                "field/ewald.hpp"
 )
 
 # Make an automatic library - will be static or dynamic based on user setting
@@ -25,7 +25,7 @@ add_library(flow_library
         grid/react.cpp
         grid/grid.cpp
         grid/lattice.cpp
-        field/evald.cpp
+        field/ewald.cpp
         ${HEADER_LIST})
 
 

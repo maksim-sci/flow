@@ -33,7 +33,7 @@
 #include <grid/grid.hpp>
 #include <sgs.hpp>
 #include <math/modulo.hpp>
-#include <field/ewald_hack.hpp>
+#include <field/ewald.hpp>
 #include <field/condenser.hpp>
 #include <field/equal.hpp>
 #include <chrono>
@@ -116,7 +116,7 @@ class grid_runner
 
     field::Equal Zero_field;
     field::ZCondenser Cond_field;
-    field::ewald_hack EWALD;
+    field::ewald EWALD;
 
     double kmk_sum;
     double el_begin;
@@ -467,7 +467,30 @@ public:
         outfile /= fmt::format("counts.txt", step);
         printrcnt(outfile);
     }
-    grid_runner(double _chunk_size, double uelectrodes,INIReader _settings) : chunk_size(_chunk_size), g(_chunk_size), U_Between_Electrodes(uelectrodes), types(), reacts(), struct_end(0), step(0), maxstep(500), printstep(100), recalc_step(100), statef(""), outfolder(""), kmk(), recieved_reaction(), kmk_sum(0), Zero_field(0, 0, 0), Cond_field(uelectrodes, 0, 0), EWALD(g),react_cnt(0),elsum(0),el_begin(0),dt(0),settings(_settings){};
+    grid_runner(double _chunk_size, double uelectrodes,INIReader _settings) : 
+    chunk_size(_chunk_size), 
+    g(_chunk_size), 
+    U_Between_Electrodes(uelectrodes), 
+    types(), 
+    reacts(), 
+    struct_end(0), 
+    step(0), 
+    maxstep(500), 
+    printstep(100), 
+    recalc_step(100), 
+    statef(""), 
+    outfolder(""), 
+    kmk(), 
+    recieved_reaction(), 
+    kmk_sum(0), 
+    Zero_field(0, 0, 0), 
+    Cond_field(uelectrodes, 0, 0), 
+    EWALD(_settings.GetReal("evald","real_cutoff",sgs::ANGSTROM*5),_settings.GetReal("evald","reciprocal_cutoff",sgs::ANGSTROM*5),_settings.GetInteger("evald","calc_size",1),,_settings.GetReal("evald","kappa",0.05),g),
+    react_cnt(0),
+    elsum(0),
+    el_begin(0),
+    dt(0),
+    settings(_settings){};
 
     //меняет типы положительному и отрицательному электроду, чтобы с ними было проще указывать реакции.
 
@@ -688,54 +711,54 @@ public:
         double delta2 = a2->Q() - q2;
         dq = (delta1*(p2 - p1).z + delta2*(p1 - p2).z) / el_begin;
         //обновляем напряжения
-        if (delta1 == 0 && delta2 == 0)
-        {
-        }
-        else
-        {
+        // if (delta1 == 0 && delta2 == 0)
+        // {
+        // }
+        // else
+        // {
 
-            auto chunk1 = g.getChunk(p1);
-            auto chunk2 = g.getChunk(p2);
+        //     auto chunk1 = g.getChunk(p1);
+        //     auto chunk2 = g.getChunk(p2);
 
-            if (chunk1 == chunk2)
-            {
+        //     if (chunk1 == chunk2)
+        //     {
 
-                double delta = delta1 + delta2;
+        //         double delta = delta1 + delta2;
 
-                EWALD.add_chunk_q(p1, delta);
-                for (auto [pos, atom] : *chunk1)
-                {
-                    Zero_field.Apply(pos, atom);
-                    //Cond_field.Apply(pos, atom);
-                    atom->U(atom->U() + EWALD.calc_a(pos));
-                }
-            }
-            else
-            {
-                if (delta1 != 0)
-                {
+        //         EWALD.add_chunk_q(p1, delta);
+        //         for (auto [pos, atom] : *chunk1)
+        //         {
+        //             Zero_field.Apply(pos, atom);
+        //             //Cond_field.Apply(pos, atom);
+        //             atom->U(atom->U() + EWALD.calc_a(pos));
+        //         }
+        //     }
+        //     else
+        //     {
+        //         if (delta1 != 0)
+        //         {
 
-                    EWALD.add_chunk_q(p1, delta1);
-                    for (auto [pos, atom] : *chunk1)
-                    {
-                        Zero_field.Apply(pos, atom);
-                        //Cond_field.Apply(pos, atom);
-                        atom->U(atom->U() + EWALD.calc_a(pos));
-                    }
-                }
-                if (delta2 != 0)
-                {
+        //             EWALD.add_chunk_q(p1, delta1);
+        //             for (auto [pos, atom] : *chunk1)
+        //             {
+        //                 Zero_field.Apply(pos, atom);
+        //                 //Cond_field.Apply(pos, atom);
+        //                 atom->U(atom->U() + EWALD.calc_a(pos));
+        //             }
+        //         }
+        //         if (delta2 != 0)
+        //         {
 
-                    EWALD.add_chunk_q(p2, delta2);
-                    for (auto [pos, atom] : *chunk1)
-                    {
-                        Zero_field.Apply(pos, atom);
-                        //Cond_field.Apply(pos, atom);
-                        atom->U(atom->U() + EWALD.calc_a(pos));
-                    }
-                }
-            }
-        }
+        //             EWALD.add_chunk_q(p2, delta2);
+        //             for (auto [pos, atom] : *chunk1)
+        //             {
+        //                 Zero_field.Apply(pos, atom);
+        //                 //Cond_field.Apply(pos, atom);
+        //                 atom->U(atom->U() + EWALD.calc_a(pos));
+        //             }
+        //         }
+        //     }
+        // }
         //да, при перемещинии атомов предпологается просто менять им типы и менять температуры (если есть температура, которую можно менять).
         if (swap)
         {
@@ -771,7 +794,7 @@ public:
     {
         Zero_field = field::Equal(0, 0, struct_end);
         Cond_field = field::ZCondenser(U_Between_Electrodes, 0, struct_end);
-        EWALD = field::ewald_hack(g);
+        //EWALD = field::ewald_hack(g);
 
         printgrid_simple("initial_");
         change_electrodes(struct_end / 2);
@@ -790,7 +813,7 @@ public:
 
                 //Cond_field.Apply(g);
 
-                EWALD.calc_all();
+                EWALD.apply();
 
                 recalc_all_reactions();
 
