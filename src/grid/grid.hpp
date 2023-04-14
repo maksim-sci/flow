@@ -69,7 +69,7 @@ namespace grid
         double Chunk_Size() const;
         size_t count() const;
 
-        inline const geometry::Vector& Sizes() const { return delta; };
+        inline geometry::Vector Sizes() const { return rlim - llim; };
 
         InsertionResults insert(const geometry::Vector &pos, std::shared_ptr<atom::Atom> a);
         const std::shared_ptr<atom::Atom> get(const geometry::Vector &pos) const;
