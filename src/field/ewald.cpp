@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include "../m_pi.h"
 
+#include "../assertions.h"
+
 
 using geometry::Vector;
 
@@ -45,7 +47,9 @@ namespace field {
                             if(x==0&&y==0){}
                             else {
                                 if(dist<reciprocal_cutoff) {
-                                    u_reciprocal+=(atom1->Q()*atom2->Q())*(1/dist)*exp(-dist/(4.0*kappa*kappa))*cos(delta_rec.scalar_mul(delta));
+                                    double diff = (atom1->Q()*atom2->Q())*(1/dist)*exp(-dist/(4.0*kappa*kappa))*cos(delta_rec.scalar_mul(delta));
+                                    assert_tst(diff==diff);
+                                    u_reciprocal+= diff;
                                 }
                             }
                         }
@@ -59,7 +63,9 @@ namespace field {
                             double len = (delta+delta_real).abs();
                             if(dist<real_cutoff) {
                                 if(atom1!=atom2) {
-                                    u_real += (atom1->Q()*atom2->Q()) * erfc(kappa*len)/len;
+                                    double diff = (atom1->Q()*atom2->Q()) * erfc(kappa*len)/len;
+                                    assert_tst(diff==diff);
+                                    u_real += diff;
                                 }
                             }
                         }

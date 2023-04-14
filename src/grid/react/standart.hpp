@@ -1,5 +1,6 @@
 #pragma once
 #include "react.hpp"
+#include "../../assertions.h"
 
 namespace grid {
     namespace react {
@@ -29,10 +30,8 @@ namespace grid {
                     double E = -barrier+dE;
                     double freqq = freq * exp( (E)/(sgs::BOLZMAN*f->T()) ) *exp(-distance/maxdist);
 
-                    if(freqq!=freqq) {
-                        int* a = 0;
-                        *a = 0;
-                    }
+                    assert_tst(freqq==freqq);
+
                     return freqq;
                 };
 
