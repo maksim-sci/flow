@@ -1,4 +1,5 @@
 #include "ewald.hpp"
+#include "../sgs.hpp"
 
 #include <unordered_map>
 #include "../m_pi.h"
