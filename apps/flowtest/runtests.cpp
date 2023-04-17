@@ -334,13 +334,13 @@ void check_atom_create() {
     grid::atom::Atom a(t);
 }
 
-using grid::react::React;
+using grid::react::react;
 
 void check_reaction_create() {
     auto t1=make_shared<Type>(0.,1,"OXYGEN");
     auto t2=make_shared<Type>(0.,2,"ELECTRODE");
 
-    React r(t1,t2,t1,t2,100);
+    react r(t1,t2,t1,t2,100);
 }
 
 void check_reaction_check_atoms() {
@@ -352,10 +352,10 @@ void check_reaction_check_atoms() {
 
     auto a2=make_shared<Atom>(t2);
 
-    React r(t1,t2,t1,t2,100);
+    react r(t1,t2,t1,t2,100);
 
-    assert_tst(r.AreAtomsOk(a1,a2));
-    assert_tst(!r.AreAtomsOk(a1,a1));
+    assert_tst(r.AreAtomsOk(a1.get(),a2.get()));
+    assert_tst(!r.AreAtomsOk(a1.get(),a1.get()));
 
 
 }
@@ -370,8 +370,8 @@ void grid_add_Reaction() {
 
     auto t1 = std::make_shared<grid::atom::Type>(1.,1);
     auto t2 = std::make_shared<grid::atom::Type>(1.,2);
-    auto r1 = std::make_shared<React>(t1,t2,t1,t2,1);
-    auto r2 = std::make_shared<React>(t1,t2,t1,t2,1);
+    auto r1 = std::make_shared<react>(t1,t2,t1,t2,1);
+    auto r2 = std::make_shared<react>(t1,t2,t1,t2,1);
 
     g.AddReact(r1);
     g.AddReact(r2);
@@ -385,7 +385,7 @@ void react_puasson() {
     auto t3 = make_shared<Type>(0,__COUNTER__,"Y");
     auto t4 = make_shared<Type>(0,__COUNTER__,"Z");
 
-    grid::react::Standart p1(t1,t2,t3,t4,10,10,10);
+    grid::react::standart p1(t1,t2,t3,t4,10,10,10);
 
     g.insert({1,2,3},make_shared<Atom>(t1));
     g.insert({1,3,3},make_shared<Atom>(t2));
@@ -397,7 +397,10 @@ void react_puasson() {
     assert_eq(*a1->Material(),*t1);
     assert_eq(*a2->Material(),*t2);
 
-    p1.Apply(a1,a2);
+    p1.Apply(a1.get(),a2.get());
+
+    grid::react::react r(t1,t2,t3,t4,10);
+
 
     assert_eq(*a1->Material(),*t3);
     assert_eq(*a2->Material(),*t4);
