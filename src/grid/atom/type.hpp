@@ -13,10 +13,10 @@ namespace grid {
             string name;
 
         public:
-            inline Type():baseq(0),id(0),name(""),v(0) {};
-            inline Type(TypeId _id):baseq(0),id(_id),name(""),v(0) {};
-            inline Type(double q,TypeId _id):baseq(q),id(_id),name(""),v(0) {};
-            inline Type(double q,TypeId _id,string _name):baseq(q),id(_id),name(_name),v(0) {};
+            // inline Type():baseq(0),id(0),name(""),v(0) {};
+            // inline Type(TypeId _id):baseq(0),id(_id),name(""),v(0) {};
+            // inline Type(double q,TypeId _id):baseq(q),id(_id),name(""),v(0) {};
+            // inline Type(double q,TypeId _id,string _name):baseq(q),id(_id),name(_name),v(0) {};
             inline Type(double q=0,TypeId _id=0,string _name="",double _v=0):baseq(q),id(_id),name(_name),v(_v) {};
             
 
