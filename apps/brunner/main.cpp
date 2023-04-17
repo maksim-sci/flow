@@ -812,9 +812,10 @@ public:
             {
                 Zero_field.Apply(g);
 
+                EWALD.apply();
+
                 //Cond_field.Apply(g);
 
-                EWALD.apply();
 
                 recalc_all_reactions();
 
