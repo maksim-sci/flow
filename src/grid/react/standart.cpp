@@ -3,7 +3,7 @@
 namespace grid {
     namespace react {
 
-        double standart::calcDE(grid::atom::Atom* const f,  grid::atom::Atom* const s) const{
+        double standart::calcDE(const grid::atom::Atom* f,const grid::atom::Atom* s) const{
             double dq = s->Q()-f->Q();
             double sq = s->Q();
             double fq = f->Q();
@@ -14,13 +14,13 @@ namespace grid {
             return dE;
         }
 
-        double standart::getDEChecked(grid::atom::Atom* const f, grid::atom::Atom* const s) const {
+        double standart::getDEChecked(const grid::atom::Atom* f,const  grid::atom::Atom* s) const {
             double dE = calcDE(f,s);
 
             return dE;
         }
 
-        double standart::Chance(grid::atom::Atom* const f, grid::atom::Atom* const s, double distance) const {
+        double standart::Chance(const grid::atom::Atom* f,const grid::atom::Atom* s, double distance) const {
             if(!AreAtomsOk(f,s)) return 0;
             
             double dE = getDEChecked(f,s);
