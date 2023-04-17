@@ -513,7 +513,7 @@ public:
                 }
             }
         });
-        auto size_vector = g.Rlim()-g.Llim();
+        auto size_vector = g.Sizes();
         auto area = size_vector.x*size_vector.y;
         double dist_between_electrodes = size_vector.z;
         TElectrodeL->Q(U_Between_Electrodes/(cnt_left*dist_between_electrodes));
