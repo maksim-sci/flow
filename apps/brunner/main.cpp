@@ -65,9 +65,9 @@ struct kmk_data
 auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El",0);
 auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Elr",0);
 auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "Ell",0);
-auto Oxygen = std::make_shared<Type>(-1, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
+auto Oxygen = std::make_shared<Type>(-1* sgs::ELCHARGE, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
 auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
-auto Hafnium = std::make_shared<Type>(2, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
+auto Hafnium = std::make_shared<Type>(2* sgs::ELCHARGE, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
 auto IntersitialPosition = std::make_shared<Type>(0, __COUNTER__, "Ip",6.4*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Charged = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Vp",6.4*powf(sgs::ANGSTROM,3));
