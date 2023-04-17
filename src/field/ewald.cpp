@@ -74,7 +74,7 @@ namespace field {
                 }
                 double u = u_reciprocal*4.0*M_PI * 0.5/V+u_real/2;
 
-                atom2->U(u);
+                atom2->U(u/sgs::ELCHARGE);
             }
         }
 
