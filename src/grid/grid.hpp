@@ -43,7 +43,7 @@ namespace grid
 
         std::unordered_map<std::string, std::shared_ptr<atom::Type>> types;
 
-        std::vector<std::shared_ptr<grid::react::React>> reacts;
+        std::vector<std::shared_ptr<grid::react::react>> reacts;
         std::vector<LatticePos> lattices;
 
         double size_chunk;
@@ -57,7 +57,7 @@ namespace grid
     public:
         inline Grid(double chunkSize) : llim(0, 0, 0), rlim(0, 0, 0), reacts(), lattices(), size_chunk(chunkSize), cycle_x(false), cycle_y(false), cycle_z(false),delta(rlim-llim){};
 
-        inline void AddReact(std::shared_ptr<grid::react::React> r) { reacts.push_back(r); };
+        inline void AddReact(std::shared_ptr<grid::react::react> r) { reacts.push_back(r); };
         inline void AddType(std::shared_ptr<Type> t) { types[t->Name()] = t; };
         void AddLattice(const geometry::Vector &l, const geometry::Vector &r, grid::Lattice latt);
         void ClearParallelep(const geometry::Vector &l, const geometry::Vector &r);

@@ -15,6 +15,8 @@ set(HEADER_LIST "geometry/vector.hpp"
                 "field/basic_electrode.hpp"
                 "field/field.hpp"
                 "field/ewald.hpp"
+                "grid/react/ionic.hpp"
+                "grid/react/tat.hpp"
 )
 
 # Make an automatic library - will be static or dynamic based on user setting
@@ -22,7 +24,8 @@ add_library(flow_library
         geometry/vector.cpp
         geometry/geometry.cpp
         grid/cubicchunk.cpp
-        grid/react.cpp
+        grid/react/react.cpp
+        grid/react/standart.cpp
         grid/grid.cpp
         grid/lattice.cpp
         field/ewald.cpp
