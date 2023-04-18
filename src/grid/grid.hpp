@@ -126,10 +126,13 @@ namespace grid
 
 
         inline Vector getMinDist(const Vector& a, const Vector& b) {
-            auto p1 = getCycledVector(b);
-            Vector dist = (p1-a-llim);
-            auto& [dx,dy,dz] = dist;
-            auto& [sx,sy,sz] = delta;
+            auto ac = getCycledVector(a);
+            auto bc = getCycledVector(b);
+
+            auto delta = bc-ac;
+            const auto& [sx,sy,sz] =  Sizes();
+            auto& [dx,dy,dz] = delta;
+
             if(cycle_x) {
                 dx = std::abs(dx);
                 if(dx>sx/2) {
@@ -149,7 +152,7 @@ namespace grid
                 }
             }
 
-            return Vector(dx,dy,dz);
+            return delta;
         };
 
         void for_each(for_each_const_callbak callback) const;
