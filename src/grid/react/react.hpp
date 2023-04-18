@@ -34,7 +34,7 @@ namespace grid {
             //inline virtual bool AreAtomsOk(std::shared_ptr<grid::atom::Atom>& f, std::shared_ptr<grid::atom::Atom>& s)const {return AreAtomsOk(f.get(),s.get());};
             virtual double Chance(std::shared_ptr<grid::atom::Atom>& f, std::shared_ptr<grid::atom::Atom>& s, double distance) const;
             //inline virtual double Chance(std::shared_ptr<grid::atom::Atom>& f, std::shared_ptr<grid::atom::Atom>& s, double distance) const {return Chance(f.get(),s.get(),distance);};
-            inline virtual double Distance() {
+            inline virtual double Distance() const{
                 return maxdist;
             };
             virtual inline void Name(std::string n) {name = n;};
