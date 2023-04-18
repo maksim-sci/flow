@@ -102,7 +102,7 @@ namespace field {
             data.reserve(10000);
             data.max_load_factor(0.25);
             calc_c();
-            grid->for_each([this](const Vector& pos,std::shared_ptr<grid::atom::Atom> atom){
+            grid->for_each([this](const Vector& pos,std::shared_ptr<grid::atom::Atom>& atom){
                 double du = this->calc_a(pos);
                 atom->U(atom->U()+du);
             });

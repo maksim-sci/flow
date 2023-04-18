@@ -52,7 +52,7 @@ namespace grid
 
             std::shared_ptr<atom::Atom> get(const Vector &pos) const;
 
-            InsertionResults insert(Vector pos, std::shared_ptr<atom::Atom> atom);
+            InsertionResults insert(const Vector& pos, std::shared_ptr<atom::Atom>& atom);
             bool erase(const Vector &pos);
 
             void for_each(for_each_const_callbak callback) const;

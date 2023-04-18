@@ -3,7 +3,7 @@
 namespace grid {
     namespace react {
 
-        double standart::calcDE(std::shared_ptr<grid::atom::Atom> f,std::shared_ptr<grid::atom::Atom> s) const{
+        double standart::calcDE(std::shared_ptr<grid::atom::Atom>& f,std::shared_ptr<grid::atom::Atom>& s) const{
             double dq = s->Q()-f->Q();
             double sq = s->Q();
             double fq = f->Q();
@@ -14,13 +14,13 @@ namespace grid {
             return dE;
         }
 
-        double standart::getDEChecked(std::shared_ptr<grid::atom::Atom> f,std::shared_ptr<grid::atom::Atom> s) const {
+        double standart::getDEChecked(std::shared_ptr<grid::atom::Atom>& f,std::shared_ptr<grid::atom::Atom>& s) const {
             double dE = calcDE(f,s);
 
             return dE;
         }
 
-        double standart::Chance(std::shared_ptr<grid::atom::Atom> f,std::shared_ptr<grid::atom::Atom> s, double distance) const {
+        double standart::Chance(std::shared_ptr<grid::atom::Atom>& f,std::shared_ptr<grid::atom::Atom>& s, double distance) const {
             if(!AreAtomsOk(f,s)) return 0;
             
             double dE = getDEChecked(f,s);
@@ -33,7 +33,7 @@ namespace grid {
             return freqq;
         };
 
-        void standart::Apply(std::shared_ptr<grid::atom::Atom>f, std::shared_ptr<grid::atom::Atom> s) const {
+        void standart::Apply(std::shared_ptr<grid::atom::Atom>&f, std::shared_ptr<grid::atom::Atom>& s) const {
             if(!AreAtomsOk(f,s))return;
             f->Material(to1);
             s->Material(to2);

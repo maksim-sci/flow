@@ -13,7 +13,7 @@ namespace field {
 
         inline void Apply(const Grid& g) const {
             auto field = this;
-            g.for_each([field](const geometry::Vector& pos,std::shared_ptr<grid::atom::Atom> atom) {
+            g.for_each([field](const geometry::Vector& pos,std::shared_ptr<grid::atom::Atom>& atom) {
                 if(pos.z>=field->start && pos.z<=field->end) {
                     double dU = atom->U()+field->Uf*(pos.z-field->start);
                     atom->U(dU);
@@ -21,7 +21,7 @@ namespace field {
             });
         };
 
-        inline void Apply(const geometry::Vector& pos,const std::shared_ptr<grid::atom::Atom> patom) {
+        inline void Apply(const geometry::Vector& pos,const std::shared_ptr<grid::atom::Atom>& patom) {
             if(pos.z>=start && pos.z<=end) 
                 patom->U(patom->U()+Uf*(pos.z-start));
 

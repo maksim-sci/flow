@@ -20,7 +20,7 @@ namespace field {
             });
         };
 
-        inline void Apply(const geometry::Vector& pos,const std::shared_ptr<grid::atom::Atom> patom) {
+        inline void Apply(const geometry::Vector& pos,const std::shared_ptr<grid::atom::Atom>& patom) {
             if(pos.z>=start && pos.z<=end) 
                 patom->U(U);
         };

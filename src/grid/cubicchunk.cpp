@@ -55,7 +55,7 @@ namespace grid {
         
         };
 
-        InsertionResults CubicChunk::insert(Vector pos, std::shared_ptr<grid::atom::Atom> atom) {
+        InsertionResults CubicChunk::insert(const Vector& pos, std::shared_ptr<grid::atom::Atom>& atom) {
             auto a = atoms.find(pos);
             if(a!=atoms.end()){return InsertionResults::RepeatedInsertion;}
             if(!inPosIn(pos)) {return InsertionResults::InsertionOutOfBounds;}
