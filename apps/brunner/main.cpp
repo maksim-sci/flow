@@ -89,7 +89,7 @@ auto E3 = std::make_shared<grid::react::tat>(OxygenVacancy_Neutral, TElectrodeR,
 auto E4 = std::make_shared<grid::react::tat>(OxygenVacancy_Charged, TElectrodeR, OxygenVacancy_Neutral, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
 auto E5 = std::make_shared<grid::react::tat>(OxygenVacancy_Neutral, TElectrodeL, OxygenVacancy_Charged, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
 
-double ATOM_E = 0;
+
 namespace fs = std::filesystem;
 
 class grid_runner
