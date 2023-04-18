@@ -15,7 +15,7 @@ namespace grid {
                 double dE = getDEChecked(f,s);
 
                 double E = -barrier_height+dE;
-                double freqq = freq * exp(-distance/Distance());
+                double freqq = freq * exp(-distance/Distance()) * exp(-E/(sgs::BOLZMAN*f->T()));
 
                 assert_tst(freqq==freqq);
 
