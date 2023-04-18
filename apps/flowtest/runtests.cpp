@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 #include <fmt/format.h>
+#include <algorithm>
+#include <unordered_map>
 
 #include <sgs.hpp>
 #include "macro_switch.hpp"
@@ -182,11 +184,13 @@ int cubic_chunk_multy() {
     CubicChunk a(Vector(0.,0.,0.),128);
     auto t = std::make_shared<grid::atom::Type>(1,1,"");
 
+    auto aa = std::make_shared<Atom>(t);
 
-    assert_eq(a.insert({0.,0.,0.},std::make_shared<Atom>(t)),grid::InsertionResults::OK);
-    assert_eq(a.insert({.5,0.,0.},std::make_shared<Atom>(t)),grid::InsertionResults::OK);
-    assert_eq(a.insert({0,.5,0.},std::make_shared<Atom>(t)),grid::InsertionResults::OK);
-    assert_eq(a.insert({0,.5,0.},std::make_shared<Atom>(t)),grid::InsertionResults::RepeatedInsertion);
+
+    assert_eq(a.insert({0.,0.,0.},aa),grid::InsertionResults::OK);
+    assert_eq(a.insert({.5,0.,0.},aa),grid::InsertionResults::OK);
+    assert_eq(a.insert({0,.5,0.},aa),grid::InsertionResults::OK);
+    assert_eq(a.insert({0,.5,0.},aa),grid::InsertionResults::RepeatedInsertion);
 
     return 0;
 }
@@ -1005,70 +1009,102 @@ void grid_check_reacts_calc() {
 
 }
 
+#define add_test(fn) tests[#fn] = fn
 
-#define Test_case(fn,code) CASE(code): {fn();t_cnt++;break;}
+std::unordered_map<std::string,std::function<void()>> tests;
+
+void init_tests() {
+    add_test(all_work);
+    add_test(math_modulo_test_double);
+    add_test(test_basic_sgs);
+    add_test(test_vector_creation);
+    add_test(vector_add);
+    add_test(vector_cmp_check);
+    add_test(vector_hash);
+    add_test(vector_cmp);
+    add_test(test_must_crush);
+    add_test(geometry_create);
+    add_test(geometry_to);
+    add_test(geometry_from);
+    add_test(cubic_chunk_creation);
+    add_test(cubic_chunk_insert);
+    add_test(cubic_chunk_multy);
+    add_test(cubic_chunk_insert_get);
+    add_test(cubic_chunk_iterate);
+    add_test(cubic_chunk_count);
+    add_test(cubic_chunk_erase);
+    add_test(atom_type_creation_and_cmp);
+    add_test(lattice_creation_check);
+    add_test(lattice_creation_check_incorrect_add);
+    add_test(check_atom_create);
+    add_test(check_reaction_create);
+    add_test(check_reaction_check_atoms);
+    add_test(create_grid);
+    add_test(grid_add_Reaction);
+    add_test(grid_addLattice);
+    add_test(grid_add_Atom);
+    add_test(grid_get_Atom);
+    add_test(grid_cnt);
+    add_test(grid_add_lattive_ex);
+    add_test(grid_clear_parallelep);
+    add_test(grid_clear_parallelep_ex);
+    add_test(grid_erase);
+    add_test(grid_1m_insert_erase);
+    add_test(grid_save);
+    add_test(grid_save_load);
+    add_test(grid_save_load_big);
+    add_test(grid_radius_iterator);
+    add_test(grid_radius_iterator_simple);
+    add_test(grid_radius_iter_filtered);
+    add_test(grid_radius_iterator_ex);
+    add_test(grid_radius_iterator_exchecks);
+    add_test(grid_radius_iterator_horizontal);
+    add_test(grid_radius_iterator_horizontal_z);
+    add_test(grid_cyclic_set);
+    add_test(grid_cyclic_set_get);
+    add_test(grid_radius_iterator_cyclic);
+    add_test(grid_field_equal);
+    add_test(grid_field_condenser);
+    add_test(grid_ewald_hack_simple_demo);
+    add_test(react_puasson);
+}
+
+bool run_test(string s) {
+    auto itest = tests.find(s);
+    if(tests.end()!=itest) {
+        auto& [name,callback] = *itest;
+        
+        fmt::print("running test '{}'\n",s);
+        
+        try {
+            callback();
+        }
+        catch (std::exception e) {
+            fmt::print("exception happened: '{}'\n",e.what());
+            return false;
+        }
+        fmt::print("runned successfully\n");
+        return true;
+    }
+    else
+    {
+        fmt::print("test: '{}' not found\n",s);
+        return false;
+    }
+    return false;
+}
+
+
 
 int main(int argc, char** argv) {
     if(argc<=1) { std::printf("incorrect amount of arguments: {}",argc); return -1;}
-    auto arg1 = string(argv[1]);
-    std::cout<<"running test: "<<arg1<<std::endl;
+    auto test = string(argv[1]);
     size_t t_cnt = 0;
-    SWITCH (arg1) {
-    Test_case(all_work,"aw");
-    Test_case(math_modulo_test_double,"mmtd");
-    Test_case(test_basic_sgs,"bsgs");
-    Test_case(test_vector_creation,"vc");
-    Test_case(vector_add,"va");
-    Test_case(vector_cmp_check,"vcc");
-    Test_case(vector_hash,"vhash");
-    Test_case(vector_cmp,"vcmp");
-    Test_case(test_must_crush,"mf");
-    Test_case(geometry_create,"gt");
-    Test_case(geometry_to,"gtto");
-    Test_case(geometry_from,"gtfrom");
-    Test_case(cubic_chunk_creation,"ccc");
-    Test_case(cubic_chunk_insert,"cci");
-    Test_case(cubic_chunk_multy,"ccm");
-    Test_case(cubic_chunk_insert_get,"ccig");
-    Test_case(cubic_chunk_iterate,"cciter");
-    Test_case(cubic_chunk_count,"ccc1");
-    Test_case(cubic_chunk_erase,"cce");
-    Test_case(atom_type_creation_and_cmp,"atcr");
-    Test_case(lattice_creation_check,"lcc");
-    Test_case(lattice_creation_check_incorrect_add,"lccia");
-    Test_case(check_atom_create,"cac");
-    Test_case(check_reaction_create,"crc");
-    Test_case(check_reaction_check_atoms,"crca");
-    Test_case(create_grid,"cg");
-    Test_case(grid_add_Reaction,"gar");
-    Test_case(grid_addLattice,"gal");
-    Test_case(grid_add_Atom,"gaa");
-    Test_case(grid_get_Atom,"gga");
-    Test_case(grid_cnt,"gc");
-    Test_case(grid_add_lattive_ex,"gale");
-    Test_case(grid_clear_parallelep,"gcp");
-    Test_case(grid_clear_parallelep_ex,"gcpe");
-    Test_case(grid_erase,"ge");
-    Test_case(grid_1m_insert_erase,"g1mie");
-    Test_case(grid_save,"gs");
-    Test_case(grid_save_load,"gsl");
-    Test_case(grid_save_load_big,"gslb");
-    Test_case(grid_radius_iterator,"gri");
-    Test_case(grid_radius_iterator_simple,"gris");
-    Test_case(grid_radius_iter_filtered,"grif");
-    Test_case(grid_radius_iterator_ex,"grie");
-    Test_case(grid_radius_iterator_exchecks,"griecss");
-    Test_case(grid_radius_iterator_horizontal,"grieh");
-    Test_case(grid_radius_iterator_horizontal_z,"griehz");
-    Test_case(grid_cyclic_set,"gcs");
-    Test_case(grid_cyclic_set_get,"gcsg");
-    Test_case(grid_radius_iterator_cyclic,"gric");
-    Test_case(grid_field_equal,"gfe");
-    Test_case(grid_field_condenser,"gfc");
-    Test_case(grid_ewald_hack_simple_demo,"gehsd");
-    Test_case(react_puasson,"rp");
-    }
+    
+    init_tests();
 
-    if(t_cnt==1) {printf("done\n");return 0;}
+    if(run_test(test)) {
+        return 0;
+    }
     return -1;
 }
