@@ -1020,7 +1020,7 @@ void grid_check_min_dist() {
 
     auto t1 = make_shared<Type>(1.,1,"O");
 
-    assert_eq(g.getMinDist({1,1,1},{99,99,99}),Vector(2,2,2));
+    assert_eq(g.getMinDist({99,99,99},{1,1,1}),Vector(2,2,2));
 
 }
 
