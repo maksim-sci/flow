@@ -548,7 +548,7 @@ public:
         {
             g.for_each(pos1,mdist,[&](const auto& pos2,auto atom2) mutable
             {
-                double chance = r->Chance(atom1, atom2, (pos2 - pos1).abs());
+                double chance = r->Chance(atom1, atom2, g.getMinDist(pos2,pos1).abs());
                 if (chance > std::abs(kmk_sum*1e-16))
                 {
                     counts++;
