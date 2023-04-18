@@ -129,7 +129,7 @@ namespace grid
             auto ac = getCycledVector(a);
             auto bc = getCycledVector(b);
 
-            auto delta = bc-ac;
+            auto delta = ac-bc;
             const auto& [sx,sy,sz] =  Sizes();
             auto& [dx,dy,dz] = delta;
 
