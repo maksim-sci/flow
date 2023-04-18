@@ -354,8 +354,8 @@ void check_reaction_check_atoms() {
 
     react r(t1,t2,t1,t2,100);
 
-    assert_tst(r.AreAtomsOk(a1.get(),a2.get()));
-    assert_tst(!r.AreAtomsOk(a1.get(),a1.get()));
+    assert_tst(r.AreAtomsOk(a1,a2));
+    assert_tst(!r.AreAtomsOk(a1,a1));
 
 
 }
@@ -397,7 +397,7 @@ void react_puasson() {
     assert_eq(*a1->Material(),*t1);
     assert_eq(*a2->Material(),*t2);
 
-    p1.Apply(a1.get(),a2.get());
+    p1.Apply(a1,a2);
 
     grid::react::react r(t1,t2,t3,t4,10);
 
