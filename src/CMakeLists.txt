@@ -6,7 +6,7 @@ set(HEADER_LIST "geometry/vector.hpp"
                 "grid/atom/atom.hpp"
                 "grid/lattice.hpp"
                 "grid/react/react.hpp"
-                "grid/react/standart.hpp"
+                "grid/react/barrier.hpp"
                 "grid/grid.hpp"
                 "math/modulo.hpp"
                 "field/condenser.hpp"
@@ -26,7 +26,7 @@ add_library(flow_library
         geometry/geometry.cpp
         grid/cubicchunk.cpp
         grid/react/react.cpp
-        grid/react/standart.cpp
+        grid/react/barrier.cpp
         grid/grid.cpp
         grid/lattice.cpp
         field/ewald.cpp

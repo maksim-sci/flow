@@ -24,7 +24,7 @@
 #include <grid/atom/atom.hpp>
 #include <grid/lattice.hpp>
 #include <grid/react/react.hpp>
-#include <grid/react/barrier.hpp>
+#include <grid/react/standart.hpp>
 #include <grid/grid.hpp>
 #include <sgs.hpp>
 #include <math/modulo.hpp>

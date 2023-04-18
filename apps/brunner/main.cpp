@@ -30,7 +30,7 @@
 #include <grid/atom/atom.hpp>
 #include <grid/lattice.hpp>
 #include <grid/react/react.hpp>
-#include <grid/react/barrier.hpp>
+#include <grid/react/standart.hpp>
 #include <grid/react/ionic.hpp>
 #include <grid/react/tat.hpp>
 #include <grid/grid.hpp>
