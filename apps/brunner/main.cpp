@@ -906,7 +906,7 @@ void grid_like_final_ex()
         fmt::print("settings file loaded: settings.ini\n");
     }
 
-    double U_between_electrodes = settings.GetReal("model","U_between_electrodes",0);
+    double U_between_electrodes = settings.GetReal("model","U_between_electrodes",0)*sgs::VOLT;
 
     double Chunk_size = settings.GetReal("calculation","chunk_size",1e-8);
     class grid_runner run_this_thing_please(Chunk_size, U_between_electrodes,settings);
