@@ -17,7 +17,7 @@ namespace sgs {
     constexpr double PLANCK  = 1.0544e-27*ERG*SECOND;
     constexpr double ELVOLT  = 1.6e-12*ERG;
     
-    constexpr double VOLT  = 100000000; //TODO fix it
+    constexpr double VOLT  = 0.003335640484669; //TODO fix it
     
     constexpr double ELCHARGE = 4.80320427e-10;//TODO   *f64::powf(CENTIMETER, 1.5)*GRAM.powf(0.5)/SECOND;
     constexpr double ELMASS = 9.109383e-31*KILOGRAM;//TODO   *f64::powf(CENTIMETER, 1.5)*GRAM.powf(0.5)/SECOND;
