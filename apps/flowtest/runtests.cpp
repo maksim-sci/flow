@@ -381,7 +381,7 @@ void grid_add_Reaction() {
     g.AddReact(r2);
 }
 
-void react_puasson() {
+void react_standart() {
     Grid g(128.);
 
     auto t1 = make_shared<Type>(0,__COUNTER__,"O");

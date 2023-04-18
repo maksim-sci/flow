@@ -56,5 +56,5 @@ add_test(NAME grid_ewald_hack_simple_demo COMMAND flowtests grid_ewald_hack_simp
 add_test(NAME grid_radius_iterator_exchecks COMMAND flowtests grid_radius_iterator_exchecks)
 add_test(NAME grid_radius_iterator_horizontal COMMAND flowtests grid_radius_iterator_horizontal)
 add_test(NAME grid_radius_iterator_horizontal_z COMMAND flowtests grid_radius_iterator_horizontal_z)
-add_test(NAME react_puasson COMMAND flowtests react_puasson)
+add_test(NAME react_standart COMMAND flowtests react_standart)
 #add_test(NAME test_must_crush COMMAND flowtests mc)
