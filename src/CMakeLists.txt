@@ -17,6 +17,7 @@ set(HEADER_LIST "geometry/vector.hpp"
                 "field/ewald.hpp"
                 "grid/react/ionic.hpp"
                 "grid/react/tat.hpp"
+                "grid/react/tat_simple.hpp"
 )
 
 # Make an automatic library - will be static or dynamic based on user setting
