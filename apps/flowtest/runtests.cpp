@@ -1009,6 +1009,21 @@ void grid_check_reacts_calc() {
 
 }
 
+void grid_check_min_dist() {
+    
+    Grid g(10.);
+
+    g.setPeriod({100,100,100});
+    g.Cyclic<'x'>(true);
+    g.Cyclic<'y'>(true);
+    g.Cyclic<'z'>(true);
+
+    auto t1 = make_shared<Type>(1.,1,"O");
+
+    assert_eq(g.getMinDist({1,1,1},{99,99,99}),Vector(2,2,2));
+
+}
+
 #define add_test(fn) tests[#fn] = fn
 
 std::unordered_map<std::string,std::function<void()>> tests;
@@ -1066,7 +1081,8 @@ void init_tests() {
     add_test(grid_field_equal);
     add_test(grid_field_condenser);
     add_test(grid_ewald_hack_simple_demo);
-    add_test(react_puasson);
+    add_test(react_standart);
+    add_test(grid_check_min_dist);
 }
 
 bool run_test(string s) {

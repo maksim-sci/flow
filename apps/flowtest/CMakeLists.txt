@@ -57,4 +57,5 @@ add_test(NAME grid_radius_iterator_exchecks COMMAND flowtests grid_radius_iterat
 add_test(NAME grid_radius_iterator_horizontal COMMAND flowtests grid_radius_iterator_horizontal)
 add_test(NAME grid_radius_iterator_horizontal_z COMMAND flowtests grid_radius_iterator_horizontal_z)
 add_test(NAME react_standart COMMAND flowtests react_standart)
+add_test(NAME grid_check_min_dist COMMAND flowtests grid_check_min_dist)
 #add_test(NAME test_must_crush COMMAND flowtests mc)
