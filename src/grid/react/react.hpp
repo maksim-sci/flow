@@ -37,7 +37,7 @@ namespace grid {
             inline double Distance() {
                 return maxdist;
             };
-            virtual inline void Name(std::string& n) {name = n;};
+            virtual inline void Name(std::string n) {name = n;};
             virtual inline const std::string& Name() {return name;};
 
         };

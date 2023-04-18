@@ -31,6 +31,8 @@
 #include <grid/lattice.hpp>
 #include <grid/react/react.hpp>
 #include <grid/react/standart.hpp>
+#include <grid/react/ionic.hpp>
+#include <grid/react/tat.hpp>
 #include <grid/grid.hpp>
 #include <sgs.hpp>
 #include <math/modulo.hpp>
@@ -54,7 +56,7 @@ using std::string;
 
 struct kmk_data
 {
-    std::shared_ptr<grid::react::React> react;
+    std::shared_ptr<grid::react::react> react;
     std::shared_ptr<grid::atom::Atom> f;
     std::shared_ptr<grid::atom::Atom> s;
     geometry::Vector fp;
@@ -74,17 +76,17 @@ auto OxygenVacancy_Charged = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTE
 auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Elp",0);
 auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Eln",0);
 
-auto R1 = std::make_shared<grid::react::Standart>(Oxygen, IntersitialPosition, OxygenVacancy_Neutral, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
-auto R2 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, Oxygen, Oxygen, OxygenVacancy_Neutral, 3 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
-auto R22 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, Oxygen, Oxygen, OxygenVacancy_Charged, 3 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
-auto R3 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen, IntersitialPosition, 3 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
-auto R4 = std::make_shared<grid::react::Standart>(Oxygen_Intersittal, IntersitialPosition, IntersitialPosition, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 1, 1e+13);
+auto R1 = std::make_shared<grid::react::ionic>(Oxygen, IntersitialPosition, OxygenVacancy_Neutral, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
+auto R2 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, Oxygen, Oxygen, OxygenVacancy_Neutral, 3 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
+auto R22 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, Oxygen, Oxygen, OxygenVacancy_Charged, 3 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
+auto R3 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen, IntersitialPosition, 3 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
+auto R4 = std::make_shared<grid::react::ionic>(Oxygen_Intersittal, IntersitialPosition, IntersitialPosition, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 1, 1e+13);
 
-auto E1 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E2 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E3 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E4 = std::make_shared<grid::react::Standart>(OxygenVacancy_Charged, TElectrodeR, OxygenVacancy_Neutral, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E5 = std::make_shared<grid::react::Standart>(OxygenVacancy_Neutral, TElectrodeL, OxygenVacancy_Charged, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E1 = std::make_shared<grid::react::standart>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E2 = std::make_shared<grid::react::standart>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E3 = std::make_shared<grid::react::standart>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E4 = std::make_shared<grid::react::standart>(OxygenVacancy_Charged, TElectrodeR, OxygenVacancy_Neutral, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E5 = std::make_shared<grid::react::standart>(OxygenVacancy_Neutral, TElectrodeL, OxygenVacancy_Charged, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
 
 double ATOM_E = 0;
 namespace fs = std::filesystem;
@@ -98,7 +100,7 @@ class grid_runner
     INIReader settings;
 
     std::list<std::shared_ptr<Type>> types;
-    std::list<std::shared_ptr<grid::react::React>> reacts;
+    std::list<std::shared_ptr<grid::react::react>> reacts;
 
     // TODO move this into another class
     std::unordered_multimap<std::shared_ptr<Atom>, kmk_data> kmk;
@@ -536,7 +538,7 @@ public:
     };
 
     //просчитывает все вероятности для кинетического монте-карло с одной реакции
-    void calc_kmk_all(std::shared_ptr<grid::react::React> r)
+    void calc_kmk_all(std::shared_ptr<grid::react::react> r)
     {
         int counts = 0;
         double mdist = r->Distance();
