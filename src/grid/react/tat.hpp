@@ -4,10 +4,10 @@
 
 namespace grid {
     namespace react {
-        class tat_simple : public barrier{
+        class tat : public barrier{
             public:
                 
-            inline tat_simple(std::shared_ptr<atom::Type> f,std::shared_ptr<atom::Type> s,std::shared_ptr<atom::Type> _to1, std::shared_ptr<atom::Type> _to2,double _maxdist,double _barrier,double _freq):barrier(f,s,_to1,_to2,_maxdist,_barrier,_freq) {};
+            inline tat(std::shared_ptr<atom::Type> f,std::shared_ptr<atom::Type> s,std::shared_ptr<atom::Type> _to1, std::shared_ptr<atom::Type> _to2,double _maxdist,double _barrier,double _freq):barrier(f,s,_to1,_to2,_maxdist,_barrier,_freq) {};
 
             inline virtual double Chance(std::shared_ptr<grid::atom::Atom>& f, std::shared_ptr<grid::atom::Atom>& s, double distance) const {
                 if(!AreAtomsOk(f,s)) return 0;
