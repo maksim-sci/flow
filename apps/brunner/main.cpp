@@ -306,7 +306,7 @@ public:
             outfile /= fmt::format("counts.txt", step);
             if(fs::exists(outfile)) fs::remove(outfile);
         }
-        if(settings.GetBoolean("folder","removeout",false)) {
+        if(settings.GetBoolean("folders","removeout",false)) {
             if(fs::exists(outfolder)) fs::remove_all(statef);
         }
         fs::create_directories(outfolder);
