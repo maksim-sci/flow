@@ -19,65 +19,43 @@ namespace field {
 
     void ewald::apply() {
         std::vector<evald_atom_info> data;
-        g->for_each([&](const auto& pos, const auto& atom) mutable {
-            data.push_back({atom,pos,0});
-        });
 
         const auto sizes = g->Sizes();
         const auto begin = g->Llim();
-
+        const auto& [size_x,size_y,size_z] = sizes;
         double V = sizes.x*sizes.y*sizes.z;
 
-        Vector reciprocal_trans{1/sizes.x,1/sizes.y,1/sizes.z};
-        reciprocal_trans*=2*M_PI;
+        constexpr double sqrt_2 = std::sqrt(2);
+        constexpr double min_dist = sgs::ANGSTROM*0.1;
 
-        for(auto& atom_info_1:data) {
-            auto& atom1 = (atom_info_1.atom);
-            for(auto& atom_info_2:data) {
-                auto& atom2 = (atom_info_2.atom);
-                Vector delta = atom_info_2.real_pos-atom_info_1.real_pos;
-                double u_reciprocal = 0;
-                double u_real = 0;
+        g->for_each([&](const auto& pos1, const auto& atom1) mutable {
+            double u_nn = 0;
+
+            //real space
+            g->for_each(pos1,real_cutoff,[&](const auto& pos2, const auto& atom2) mutable {
+                if(atom1==atom2) return;
+                double delta = (pos1-pos2).abs();
+                if(delta<real_cutoff && delta > min_dist) {
+                    u_nn+=atom2->Q()/delta*erf(delta/(sqrt_2*sigma));
+                }
+            });
+
+            //reciprocal space
+            g->for_each([&](const auto& pos2, const auto& atom2) mutable {
                 for(int x = -calc_cnt;x <= calc_cnt;x++) {
                     for(int y = -calc_cnt;y <= calc_cnt;y++) {
-                        int z = 0;
-                        //reciprocal space
-                        {
-                            Vector delta_rec {x*reciprocal_trans.x,y*reciprocal_trans.y,0};
-                            double dist = delta_rec.abs();
-                            if(x==0&&y==0){}
-                            else {
-                                if(dist<reciprocal_cutoff) {
-                                    double diff = (atom1->Q()*atom2->Q())*(1/dist)*exp(-dist/(4.0*kappa*kappa))*cos(delta_rec.scalar_mul(delta));
-                                    assert_tst(diff==diff);
-                                    u_reciprocal+= diff;
-                                }
-                            }
+                        if(x==0&&y==0&&atom1==atom2) return;
+                        constexpr int z = 0;
+                        double delta = (pos1-pos2+Vector{x*size_x,y*size_y,z*size_z}).abs();
+                        if(delta<reciprocal_cutoff && delta > min_dist) {
+                            u_nn+=atom2->Q()/delta*erfc(delta/(sqrt_2*sigma));
                         }
-                        
-
-                        //real space
-                        {
-                            Vector delta_real {x*sizes.x,y*sizes.y,0};
-                            double dist = delta_real.abs();
-
-                            double len = (delta+delta_real).abs();
-                            if(dist<real_cutoff) {
-                                if(atom1!=atom2) {
-                                    double diff = (atom1->Q()*atom2->Q()) * erfc(kappa*len)/len;
-                                    assert_tst(diff==diff);
-                                    u_real += diff;
-                                }
-                            }
-                        }
-                        
                     }
                 }
-                double u = u_reciprocal*4.0*M_PI * 0.5/V+u_real/2;
+            });
 
-                atom2->U(u/sgs::ELCHARGE);
-            }
-        }
+            atom1->U(u_nn/(4*M_PI));
+        });
 
     };
 }

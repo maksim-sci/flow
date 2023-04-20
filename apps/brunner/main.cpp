@@ -291,7 +291,7 @@ public:
     {
         outfolder = fs::absolute(out);
         statef = fs::absolute(periodic_out);
-        {
+        try{
             auto outfile = outfolder;
             outfile /= fmt::format("current.txt", step);
             if(fs::exists(outfile)) fs::remove(outfile);
@@ -387,7 +387,7 @@ public:
         g.for_each([&](auto& pos,auto atom) mutable
         {
             auto &[x, y, z] = pos;
-            out << fmt::format("{} {} {} {}\n", x, y, z, atom->Q());
+            out << fmt::format("{} {} {} {} {}\n", x, y, z, atom->Q()/sgs::ELCHARGE,atom->Material()->Name());
         });
         out.close();
     };
@@ -504,7 +504,7 @@ public:
     kmk_sum(0), 
     Zero_field(0, 0, 0), 
     Cond_field(uelectrodes, 0, 0), 
-    EWALD(_settings.GetReal("ewald","real_cutoff",sgs::ANGSTROM*5),_settings.GetReal("ewald","reciprocal_cutoff",sgs::ANGSTROM*5),_settings.GetInteger("ewald","calc_size",1),_settings.GetReal("ewald","kappa",0.05),&g),
+    EWALD(_settings.GetReal("ewald","real_cutoff",sgs::ANGSTROM*5),_settings.GetReal("ewald","reciprocal_cutoff",sgs::ANGSTROM*5),_settings.GetInteger("ewald","calc_size",1),_settings.GetReal("ewald","sigma",1)*sgs::ANGSTROM,&g),
     react_cnt(0),
     elsum(0),
     el_begin(0),
@@ -534,8 +534,12 @@ public:
         auto size_vector = g.Sizes();
         auto area = size_vector.x*size_vector.y;
         double dist_between_electrodes = size_vector.z;
-        TElectrodeL->Q(U_Between_Electrodes/(cnt_left*dist_between_electrodes));
-        TElectrodeR->Q(U_Between_Electrodes/(cnt_right*dist_between_electrodes));
+        double charge = U_Between_Electrodes*area/dist_between_electrodes;
+
+        double charge_L = charge/(cnt_left);
+        double charge_R = charge/(cnt_right);
+        TElectrodeL->Q(charge_L);
+        TElectrodeR->Q(charge_R);
         g.for_each([&](auto& pos,auto atom) mutable
         {
             if (atom->Material() == TElectrode)
