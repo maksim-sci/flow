@@ -937,6 +937,10 @@ void grid_like_final_ex()
 
     run_this_thing_please.init_types();
     run_this_thing_please.init_reacts();
+
+    run_this_thing_please.g.Cyclic<'x'>(true);
+    run_this_thing_please.g.Cyclic<'y'>(true);
+    
     string outfile = settings.Get("folders","output","./results");
     string outfile_periodic = settings.Get("folders","periodic_output","./results/periodic");
     run_this_thing_please.init_folders(outfile,outfile_periodic);
