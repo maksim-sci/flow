@@ -220,7 +220,7 @@ public:
         el_begin = oxyde_end+dist_electrode;
 
 
-        double electrode2_end = 2 * sgs::ANGSTROM + el_begin;
+        double electrode2_end = 3 * sgs::ANGSTROM + el_begin;
 
         g.AddLattice({0., 0, 0}, Vector(size_x, size_y, electrode_end), lElectrode);
         g.AddLattice({0, 0, oxyde_begin}, Vector(size_x, size_y, oxyde_end), lHfO2);
