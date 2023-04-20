@@ -122,6 +122,8 @@ class grid_runner
     field::ZCondenser Cond_field;
     field::ewald EWALD;
 
+    double elcharge_factor;
+
     double kmk_sum;
     double el_begin;
 
@@ -506,6 +508,7 @@ public:
     Cond_field(uelectrodes, 0, 0), 
     EWALD(_settings.GetReal("ewald","real_cutoff",sgs::ANGSTROM*5),_settings.GetReal("ewald","reciprocal_cutoff",sgs::ANGSTROM*5),_settings.GetInteger("ewald","calc_size",1),_settings.GetReal("ewald","sigma",1)*sgs::ANGSTROM,&g),
     react_cnt(0),
+    elcharge_factor(_settings.GetReal("model","elcharge_factor",100)),
     elsum(0),
     el_begin(0),
     dt(0),
@@ -513,7 +516,7 @@ public:
 
     //меняет типы положительному и отрицательному электроду, чтобы с ними было проще указывать реакции.
 
-    void change_electrodes(double lel_end)
+    void change_electrodes(double lel_end,double elcharge_factor)
     {
         size_t cnt_left = 0;
         size_t cnt_right = 0;
@@ -535,6 +538,8 @@ public:
         auto area = size_vector.x*size_vector.y;
         double dist_between_electrodes = size_vector.z;
         double charge = U_Between_Electrodes*area/dist_between_electrodes;
+
+        charge*=elcharge_factor;
 
         double charge_L = charge/(cnt_left);
         double charge_R = charge/(cnt_right);
@@ -820,7 +825,7 @@ public:
         //EWALD = field::ewald_hack(g);
 
         printgrid_simple("initial_");
-        change_electrodes(struct_end / 2);
+        change_electrodes(struct_end / 2,elcharge_factor);
         printgrid_simple("electrodes_updated_");
         static std::random_device dev;
         static std::mt19937 rng(dev());
