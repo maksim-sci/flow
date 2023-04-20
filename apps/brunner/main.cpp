@@ -542,7 +542,7 @@ public:
         charge*=elcharge_factor;
 
         double charge_L = charge/(cnt_left);
-        double charge_R = charge/(cnt_right);
+        double charge_R = -charge/(cnt_right);
         TElectrodeL->Q(charge_L);
         TElectrodeR->Q(charge_R);
         g.for_each([&](auto& pos,auto atom) mutable
