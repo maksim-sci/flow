@@ -295,19 +295,34 @@ public:
             auto outfile = outfolder;
             outfile /= fmt::format("current.txt", step);
             if(fs::exists(outfile)) fs::remove(outfile);
+
+        } 
+        catch(std::exception e) {
+            fmt::print("{} :{},'{}'\n",__FILE__,__LINE__,e.what());
         }
-        {
+        try {
             auto outfile = outfolder;
             outfile /= fmt::format("current_reacts.txt", step);
             if(fs::exists(outfile)) fs::remove(outfile);
         }
-        {
+        catch(std::exception e) {
+            fmt::print("{} :{},'{}'\n",__FILE__,__LINE__,e.what());
+        }
+        try {
             auto outfile = outfolder;
             outfile /= fmt::format("counts.txt", step);
             if(fs::exists(outfile)) fs::remove(outfile);
         }
-        if(settings.GetBoolean("folders","removeout",false)) {
-            if(fs::exists(outfolder)) fs::remove_all(statef);
+        catch(std::exception e) {
+            fmt::print("{} :{},'{}'\n",__FILE__,__LINE__,e.what());
+        }
+        try {
+            if(settings.GetBoolean("folders","removeout",false)) {
+                if(fs::exists(outfolder)) fs::remove_all(statef);
+            }
+        }
+        catch(std::exception e) {
+            fmt::print("{} :{},'{}'\n",__FILE__,__LINE__,e.what());
         }
         fs::create_directories(outfolder);
         fs::create_directories(statef);
