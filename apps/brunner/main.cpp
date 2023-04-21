@@ -245,6 +245,15 @@ public:
 
     void loadstructure(std::string file) {
         loadgrid(file,chunk_size);
+
+        g.for_each([&](const auto& pos, const auto& atom){
+            if(atom->Material()==TElectrodeR       ||
+               atom->Material()==TElectrodeL       ||
+               atom->Material()==ElectrodePositive ||
+               atom->Material()==ElectrodeNegative ) {
+                atom->Material(TElectrode);
+               }
+        });
     }
 
     void init_reacts_E()
