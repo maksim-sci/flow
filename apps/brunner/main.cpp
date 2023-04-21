@@ -488,7 +488,7 @@ public:
         outfile /= fmt::format("counts.txt", step);
         printrcnt(outfile);
     }
-    grid_runner(double _chunk_size, double uelectrodes,INIReader _settings) : 
+    grid_runner(double _chunk_size, double uelectrodes,const char* _settings) : 
     chunk_size(_chunk_size), 
     g(_chunk_size), 
     U_Between_Electrodes(uelectrodes), 
@@ -506,13 +506,13 @@ public:
     kmk_sum(0), 
     Zero_field(0, 0, 0), 
     Cond_field(uelectrodes, 0, 0), 
-    EWALD(_settings.GetReal("ewald","real_cutoff",sgs::ANGSTROM*5),_settings.GetReal("ewald","reciprocal_cutoff",sgs::ANGSTROM*5),_settings.GetInteger("ewald","calc_size",1),_settings.GetReal("ewald","sigma",1)*sgs::ANGSTROM,&g),
+    settings(_settings),
+    EWALD(settings.GetReal("ewald","real_cutoff",sgs::ANGSTROM*5),settings.GetReal("ewald","reciprocal_cutoff",sgs::ANGSTROM*5),settings.GetInteger("ewald","calc_size",1),settings.GetReal("ewald","sigma",1)*sgs::ANGSTROM,&g),
     react_cnt(0),
-    elcharge_factor(_settings.GetReal("model","elcharge_factor",100)),
+    elcharge_factor(settings.GetReal("model","elcharge_factor",100)),
     elsum(0),
     el_begin(0),
-    dt(0),
-    settings(_settings){};
+    dt(0){};
 
     //меняет типы положительному и отрицательному электроду, чтобы с ними было проще указывать реакции.
 
@@ -922,7 +922,9 @@ public:
 
 void grid_like_final_ex()
 {
-    INIReader settings("./settings.ini");
+    const char* settings_path = "./settings.ini";
+
+    INIReader settings(settings_path);
 
     if(settings.ParseError()!=0) {
         fmt::print("error when parsing settings file: settings.ini\n");
@@ -934,7 +936,7 @@ void grid_like_final_ex()
     double U_between_electrodes = settings.GetReal("model","U_between_electrodes",0)*sgs::VOLT;
 
     double Chunk_size = settings.GetReal("calculation","chunk_size",1e-8);
-    class grid_runner run_this_thing_please(Chunk_size, U_between_electrodes,settings);
+    class grid_runner run_this_thing_please(Chunk_size, U_between_electrodes,settings_path);
 
     run_this_thing_please.init_types();
     run_this_thing_please.init_reacts();
