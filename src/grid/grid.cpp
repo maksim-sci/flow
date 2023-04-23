@@ -340,7 +340,7 @@ namespace grid
                                             double distanceTranslated = deltaPos.abs();
                                             if(distanceTranslated < dist) 
                                             {
-                                                callback(PosAtom,atom);
+                                                callback(PosAtom+PeriodicTranslation,atom);
                                             }
                                         });
                                     }
