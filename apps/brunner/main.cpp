@@ -203,6 +203,8 @@ public:
         lHfO2.add({0.932151, 0.169878, 0.152906}, Oxygen);
         lHfO2.add({0.78284, 0.43966, 0.7821}, IntersitialPosition);
         lHfO2.add({0.21066, 0.5392, 0.22844}, IntersitialPosition);
+        lHfO2.add({0.61202, 0.9786, 0.39605}, IntersitialPosition);
+        lHfO2.add({0.38798, 0.0213, 0.60394}, IntersitialPosition);
 
         double size_x = settings.GetReal("model","size_x",30) * sgs::ANGSTROM;
         double size_y = settings.GetReal("model","size_y",30) * sgs::ANGSTROM;
