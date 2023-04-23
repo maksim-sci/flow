@@ -319,7 +319,7 @@ public:
         {
             auto &[vec, a] = *iter.aiter;
             auto &[x, y, z] = vec;
-            out << fmt::format("{} {} {} {}\n", x, y, z, a->U());
+            out << fmt::format("{} {} {} {}\n", x, y, z, a->U()/sgs::VOLT);
             ++iter;
         }
         out.close();

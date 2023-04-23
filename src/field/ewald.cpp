@@ -18,43 +18,60 @@ namespace field {
     };
 
     void ewald::apply() {
-        std::vector<evald_atom_info> data;
 
         const auto sizes = g->Sizes();
         const auto begin = g->Llim();
         const auto& [size_x,size_y,size_z] = sizes;
         double V = sizes.x*sizes.y*sizes.z;
 
-        constexpr double sqrt_2 = std::sqrt(2);
-        constexpr double min_dist = sgs::ANGSTROM*0.1;
+        double recip_x,recip_y,recip_z;
+        recip_x = (2 * M_PI / V) * (size_y * size_z);
+        recip_y = (2 * M_PI / V) * (size_z * size_x);
+        recip_z = (2 * M_PI / V) * (size_x * size_y);
+
+        Vector recip_size{recip_x,recip_y,recip_z};
+
+        constexpr double cutoff = sgs::ANGSTROM*0.5;
 
         g->for_each([&](const auto& pos1, const auto& atom1) mutable {
-            double u_nn = 0;
+            double u1 = 0;
+            double u2 = 0;
+
+            constexpr double pi_4 = 1/(4*M_PI);
+            constexpr double sqrt_2 = std::sqrt(2);
 
             //real space
             g->for_each(pos1,real_cutoff,[&](const auto& pos2, const auto& atom2) mutable {
-                if(atom1==atom2) return;
-                double delta = (pos1-pos2).abs();
-                if(delta<real_cutoff && delta > min_dist) {
-                    u_nn+=atom2->Q()/delta*erf(delta/(sqrt_2*sigma));
+                Vector delta = pos2-pos1;
+                double dist = delta.abs();
+                if(dist>cutoff) {
+                    u1+=pi_4*atom2->Q()/dist*erfc(dist/(sqrt_2*sigma));
                 }
             });
 
             //reciprocal space
             g->for_each([&](const auto& pos2, const auto& atom2) mutable {
-                for(int x = -calc_cnt;x <= calc_cnt;x++) {
-                    for(int y = -calc_cnt;y <= calc_cnt;y++) {
-                        if(x==0&&y==0&&atom1==atom2) return;
+                Vector delta = pos2-pos1;
+
+                for(int i = -calc_cnt;i<calc_cnt;i++) {
+                    for(int j = -calc_cnt;j<calc_cnt;j++) {
                         constexpr int z = 0;
-                        double delta = (pos1-pos2+Vector{x*size_x,y*size_y,z*size_z}).abs();
-                        if(delta<reciprocal_cutoff && delta > min_dist) {
-                            u_nn+=atom2->Q()/delta*erfc(delta/(sqrt_2*sigma));
+
+                        if(i==0&j==0) {}
+                        else{
+                            Vector recip_translation{i*recip_x,j*recip_y,z*recip_z};
+                            double recip_dist = powf(recip_translation.abs(),2);
+                            u2+=atom2->Q()/recip_dist*cos(2*M_PI*recip_size.scalar_mul(delta))
+                            *exp(-sigma*sigma*recip_dist/2);
                         }
                     }
                 }
             });
 
-            atom1->U(u_nn/(4*M_PI));
+            u2/=V;
+
+            double u = u1+u2;
+            atom1->U(u2+u1);
         });
 
     };
