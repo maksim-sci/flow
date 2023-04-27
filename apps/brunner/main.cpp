@@ -84,10 +84,10 @@ auto R3 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, Oxygen_Int
 auto R4 = std::make_shared<grid::react::ionic>(Oxygen_Intersittal, IntersitialPosition, IntersitialPosition, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 1, 1e+13);
 
 auto E1 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E2 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E3 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E4 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeR, OxygenVacancy_Neutral, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E5 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeL, OxygenVacancy_Charged, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E21 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E31 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E22 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeR, OxygenVacancy_Neutral, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E32 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeL, OxygenVacancy_Charged, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
 
 
 namespace fs = std::filesystem;
@@ -261,16 +261,16 @@ public:
     void init_reacts_E()
     {
         E1->Name("E1");
-        E2->Name("E2");
-        E3->Name("E3");
-        E4->Name("E4");
-        E5->Name("E5");
+        E2->Name("E21");
+        E3->Name("E31");
+        E22->Name("E22");
+        E32->Name("E32");
 
         reacts.push_back(E1);
-        reacts.push_back(E2);
-        reacts.push_back(E3);
-        reacts.push_back(E4);
-        reacts.push_back(E5);
+        reacts.push_back(E21);
+        reacts.push_back(E31);
+        reacts.push_back(E22);
+        reacts.push_back(E32);
     }
 
     void init_reacts_R()
