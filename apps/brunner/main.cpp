@@ -78,7 +78,7 @@ auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__,
 auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Eln",0);
 
 auto R1 = std::make_shared<grid::react::ionic>(Oxygen, IntersitialPosition, OxygenVacancy_Neutral, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
-auto R2 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, Oxygen, Oxygen, OxygenVacancy_Neutral, 3 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
+auto R21 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, Oxygen, Oxygen, OxygenVacancy_Neutral, 3 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
 auto R22 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, Oxygen, Oxygen, OxygenVacancy_Charged, 3 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
 auto R3 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, Oxygen_Intersittal, Oxygen, IntersitialPosition, 3 * sgs::ANGSTROM, sgs::ELVOLT * 1.13, 1e+13);
 auto R4 = std::make_shared<grid::react::ionic>(Oxygen_Intersittal, IntersitialPosition, IntersitialPosition, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 1, 1e+13);
@@ -261,8 +261,8 @@ public:
     void init_reacts_E()
     {
         E1->Name("E1");
-        E2->Name("E21");
-        E3->Name("E31");
+        E21->Name("E21");
+        E31->Name("E31");
         E22->Name("E22");
         E32->Name("E32");
 
@@ -276,13 +276,13 @@ public:
     void init_reacts_R()
     {
         R1->Name("R1");
-        R2->Name("R2");
+        R21->Name("R21");
         R22->Name("R22");
         R3->Name("R3");
         R4->Name("R4");
 
         reacts.push_back(R1);
-        reacts.push_back(R2);
+        reacts.push_back(R21);
         reacts.push_back(R22);
         reacts.push_back(R3);
         reacts.push_back(R4);
