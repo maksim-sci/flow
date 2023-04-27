@@ -381,7 +381,7 @@ public:
         g.for_each([&](auto& pos,auto atom) mutable
         {
             auto &[x, y, z] = pos;
-            out << fmt::format("{} {} {} {}\n", x, y, z, atom->U());
+            out << fmt::format("{} {} {} {}\n", x, y, z, atom->U()/sgs::VOLT);
         });
         out.close();
     };
