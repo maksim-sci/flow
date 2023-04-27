@@ -576,9 +576,8 @@ public:
     //просчитывает все вероятности для кинетического монте-карло с одной реакции
     void calc_kmk_all(std::shared_ptr<grid::react::react> r)
     {
-        int counts = 0;
+        int size0 = kmk.size();
         double mdist = r->Distance();
-        int cnt = 0;
         g.for_each([&](const auto& pos1,auto atom1) mutable
         {
             g.for_each(pos1,mdist,[&](const auto& pos2,auto atom2) mutable
@@ -587,10 +586,7 @@ public:
                     double chance = r->Chance(atom1, atom2, g.getMinDist(pos2,pos1).abs());
                     if (chance > std::abs(kmk_sum*1e-16))
                     {
-                        counts++;
-                        auto hiter = kmk.find(atom1);
                         kmk_sum += chance;
-                        assert_simple(kmk_sum);
                         kmk.insert({atom1, kmk_data{r, atom1, atom2, pos1, pos2, chance}});
                         recieved_reaction.insert({atom2, atom1});
                     }
@@ -598,7 +594,7 @@ public:
             });
         });
 
-        fmt::print("reactions found {} :{}\n", r->Name(), counts);
+        fmt::print("reactions found {} :{}\n", r->Name(), kmk.size()-size0);
     };
 
     Vector getF(const Vector& pos){
