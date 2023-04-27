@@ -842,12 +842,16 @@ public:
         static std::mt19937 rng(dev());
 
         bool recalc = true;
-        for (; step <= maxstep; step++)
+        for (; step <= maxstep;)
         {
-            
+            if(kmk_sum<=0) {
+                recalc = true;
+            }
 
             if (step % recalc_step == 0 or recalc)
             {
+                fmt::print("recalculating field\n");
+
                 Zero_field.Apply(g);
 
                 EWALD.apply();
@@ -878,14 +882,19 @@ public:
             std::uniform_real_distribution<double> dist(0, kmk_sum);
             fmt::print("step: {} sum: {}\n", step, kmk_sum);
 
+                        
+            if(kmk.size()==0) {
+                fmt::print("no reacts found, recalculating\n");
+                recalc = true;
+                continue;
+            }
+
             double rand_targ = dist(rng);
             double search_sum = 0;
             kmk_data react_info;
-            size_t cccnt = 0;
+
             for (auto &[atom, data] : kmk)
             {
-                //fmt::print("{:e} {:e}\n",data.sp,data.fp);
-                cccnt++;
                 search_sum += data.chance;
                 if (search_sum >= rand_targ)
                 {
@@ -895,9 +904,9 @@ public:
             }
             auto &react = react_info.react;
 
-            assert_simple(react);
 
-            if(cccnt==0 or react==nullptr) {
+            if( react==nullptr) {
+                printf("no reacts found, recalculating\n");
                 recalc = true;
                 continue;
             }
@@ -926,6 +935,8 @@ public:
                 iels2->second += 1;
             }
             dt += 1/react_info.chance;
+
+            step++;
         }
         printf("run ended successfully, final step: %d\n",step);
     }
