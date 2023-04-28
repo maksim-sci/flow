@@ -335,7 +335,7 @@ public:
             }
         }
         catch(std::exception e) {
-            fmt::print("{} :{},'{}'\n",__FILE__,__LINE__,e.what());
+            fmt::print("{}:{},'{}'\n",__FILE__,__LINE__,e.what());
         }
         fs::create_directories(outfolder);
         fs::create_directories(statef);
