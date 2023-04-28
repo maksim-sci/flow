@@ -246,13 +246,6 @@ public:
 
         g.Cyclic<'x'>(true);
         g.Cyclic<'y'>(true);
-
-        geometry::Vector sizes = g.Sizes();
-
-        sizes+=HfO2A/2;
-        sizes+=HfO2B/2;
-
-        g.setPeriod(sizes);
     };
 
     void loadstructure(std::string file) {
