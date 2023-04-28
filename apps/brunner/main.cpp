@@ -848,6 +848,10 @@ public:
 
             if(step % printstep == 0) print = true;
 
+            if(print) {
+                printcharges();
+            }
+
             if (recalc)
             {
                 fmt::print("recalculating field\n");
@@ -875,7 +879,6 @@ public:
                 auto outfile = printgrid_simple();
                 fmt::print("step {} finished, printing grid to file {} \n", step, outfile.string());
                 printvoltage();
-                printcharges();
                 printrcnt();
                 printcurrent();
                 printcurrent_reacts();
