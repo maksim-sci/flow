@@ -944,6 +944,7 @@ public:
             dt += 1/react_info.chance;
 
             step++;
+            print = false;
         }
         printf("run ended successfully, final step: %d\n",step);
     }
