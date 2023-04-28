@@ -243,6 +243,16 @@ public:
         g.AddLattice(ElCube_s, ElCube_e, lElectrode);
 
         struct_end = electrode2_end;
+
+        g.Cyclic<'x'>(true);
+        g.Cyclic<'y'>(true);
+
+        geometry::Vector sizes = g.Sizes();
+
+        sizes+=HfO2A/2;
+        sizes+=HfO2B/2;
+
+        g.setPeriod(sizes);
     };
 
     void loadstructure(std::string file) {
@@ -971,8 +981,6 @@ void grid_like_final_ex()
     run_this_thing_please.init_types();
     run_this_thing_please.init_reacts();
 
-    run_this_thing_please.g.Cyclic<'x'>(true);
-    run_this_thing_please.g.Cyclic<'y'>(true);
     
     string outfile = settings.Get("folders","output","./results");
     string outfile_periodic = settings.Get("folders","periodic_output","./results/periodic");
