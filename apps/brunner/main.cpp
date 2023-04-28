@@ -840,13 +840,15 @@ public:
         static std::mt19937 rng(dev());
 
         bool recalc = true;
+        bool print = true;
         for (; step <= maxstep;)
         {
-            if(kmk_sum<=0) {
-                recalc = true;
-            }
+            if(kmk_sum<=0) recalc = true;
+            if(step % recalc_step == 0) recalc = true;
 
-            if (step % recalc_step == 0 or recalc)
+            if(step % printstep == 0) print = true;
+
+            if (recalc)
             {
                 fmt::print("recalculating field\n");
 
@@ -856,6 +858,10 @@ public:
 
                 //Cond_field.Apply(g);
 
+                if(print) {
+                    printvoltage();
+                }
+
 
                 recalc_all_reactions();
 
@@ -864,7 +870,7 @@ public:
             }
 
             fmt::print("step: {}\n", step);
-            if (step % printstep == 0)
+            if (print)
             {
                 auto outfile = printgrid_simple();
                 fmt::print("step {} finished, printing grid to file {} \n", step, outfile.string());
