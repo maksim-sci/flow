@@ -133,6 +133,7 @@ public:
     size_t maxstep;
     size_t printstep;
     size_t recalc_step;
+    size_t calc_current;
 
     void init_types()
     {
@@ -513,6 +514,7 @@ public:
     maxstep(500), 
     printstep(100), 
     recalc_step(100), 
+    calc_current(5000),
     statef(""), 
     outfolder(""), 
     kmk(), 
@@ -844,12 +846,15 @@ public:
 
         bool recalc = true;
         bool print = true;
+        bool print_current = false;
         for (; step <= maxstep;)
         {
             if(kmk_sum<=0) recalc = true;
             if(step % recalc_step == 0) recalc = true;
 
             if(step % printstep == 0) print = true;
+
+            if(step%calc_current==0) print_current = true;
 
             if(print) {
                 printcharges();
@@ -883,10 +888,13 @@ public:
                 fmt::print("step {} finished, printing grid to file {} \n", step, outfile.string());
                 printvoltage();
                 printrcnt();
-                printcurrent();
-                printcurrent_reacts();
                 dt = 0;
                 elsum.clear();
+            }
+
+            if(print_current) {
+                printcurrent();
+                printcurrent_reacts();
             }
 
             std::uniform_real_distribution<double> dist(0, kmk_sum);
@@ -992,6 +1000,7 @@ void grid_like_final_ex()
 
     run_this_thing_please.maxstep = settings.GetInteger("calculation","maxstep",10000);
     run_this_thing_please.recalc_step = settings.GetInteger("calculation","recalc_step",100);
+    run_this_thing_please.calc_current = settings.GetInteger("calculation","calc_current",5000);
     run_this_thing_please.printstep = settings.GetInteger("calculation","printstep",100);
 
     std::unordered_map<std::shared_ptr<Type>,int> cts;
