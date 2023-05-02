@@ -37,14 +37,14 @@ namespace field {
             double u1 = 0;
             double u2 = 0;
 
-            constexpr double pi_4 = 1/(4*M_PI);
-            constexpr double sqrt_2 = std::sqrt(2);
 
             //real space
             g->for_each(pos1,real_cutoff,[&](const auto& pos2, const auto& atom2) mutable {
                 Vector delta = pos2-pos1;
                 double dist = delta.abs();
                 if(dist>cutoff) {
+                    constexpr double pi_4 = 1/(4*M_PI);
+                    constexpr double sqrt_2 = std::sqrt(2);
                     u1+=pi_4*atom2->Q()/dist*erfc(dist/(sqrt_2*sigma));
                 }
             });
@@ -59,10 +59,23 @@ namespace field {
 
                         if(i==0&j==0) {}
                         else{
-                            Vector recip_translation{i*recip_x,j*recip_y,z*recip_z};
-                            double recip_dist = powf(recip_translation.abs(),2);
-                            u2+=atom2->Q()/recip_dist*cos(2*M_PI*recip_size.scalar_mul(delta))
-                            *exp(-sigma*sigma*recip_dist/2);
+                            Vector delta_translated = pos2 + Vector{i*size_x,j*size_y,0};
+
+                            Vector reciprocal_delta = Vector{recip_x*size_x/delta_translated.x,recip_y*size_y/delta_translated.y,recip_z*size_z/delta_translated.z};
+
+                            double reciprocal_delta_abs = reciprocal_delta.abs();
+
+                            if(reciprocal_delta_abs>1e+20) continue;
+
+
+                            double reciprocal_delta_sqr = reciprocal_delta_abs*reciprocal_delta_abs;
+                            double phase = reciprocal_delta.scalar_mul(delta);
+                            double exp_factor = -sigma*sigma*reciprocal_delta_sqr/2;
+                            u2+=(
+                                atom2->Q()/reciprocal_delta_sqr*
+                                cos(phase)*
+                                exp(exp_factor)
+                            );
                         }
                     }
                 }
@@ -71,7 +84,8 @@ namespace field {
             u2/=V;
 
             double u = u1+u2;
-            atom1->U(u2+u1);
+
+            atom1->U(u);
         });
 
     };
