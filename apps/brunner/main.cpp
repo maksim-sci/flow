@@ -73,9 +73,7 @@ auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__
 auto Hafnium = std::make_shared<Type>(2* sgs::ELCHARGE, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
 auto IntersitialPosition = std::make_shared<Type>(0, __COUNTER__, "Ip",6.4*powf(sgs::ANGSTROM,3));
-auto OxygenVacancy_Charged = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Vp",6.4*powf(sgs::ANGSTROM,3));
-auto ElectrodePositive = std::make_shared<Type>(+1 * sgs::ELCHARGE, __COUNTER__, "Elp",0);
-auto ElectrodeNegative = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Eln",0);
+
 
 auto R1 = std::make_shared<grid::react::ionic>(Oxygen, IntersitialPosition, OxygenVacancy_Neutral, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
 auto R21 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, Oxygen, Oxygen, OxygenVacancy_Neutral, 3 * sgs::ANGSTROM, sgs::ELVOLT * 4, 1e+13);
@@ -147,8 +145,6 @@ public:
         types.push_back(OxygenVacancy_Neutral);
         types.push_back(IntersitialPosition);
         types.push_back(OxygenVacancy_Charged);
-        types.push_back(ElectrodePositive);
-        types.push_back(ElectrodeNegative);
 
         g.AddType(TElectrode);
         g.AddType(TElectrodeR);
@@ -159,8 +155,6 @@ public:
         g.AddType(OxygenVacancy_Neutral);
         g.AddType(IntersitialPosition);
         g.AddType(OxygenVacancy_Charged);
-        g.AddType(ElectrodePositive);
-        g.AddType(ElectrodeNegative);
     }
 
     void init_structure()
@@ -253,12 +247,12 @@ public:
         loadgrid(file,chunk_size);
 
         g.for_each([&](const auto& pos, const auto& atom){
-            if(atom->Material()==TElectrodeR       ||
-               atom->Material()==TElectrodeL       ||
-               atom->Material()==ElectrodePositive ||
-               atom->Material()==ElectrodeNegative ) {
+            if(
+                atom->Material()==TElectrodeR||
+                atom->Material()==TElectrodeL
+            ) {
                 atom->Material(TElectrode);
-               }
+            }
         });
     }
 
