@@ -73,6 +73,7 @@ auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__
 auto Hafnium = std::make_shared<Type>(2* sgs::ELCHARGE, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
 auto IntersitialPosition = std::make_shared<Type>(0, __COUNTER__, "Ip",6.4*powf(sgs::ANGSTROM,3));
+auto OxygenVacancy_Charged = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
 
 
 auto R1 = std::make_shared<grid::react::ionic>(Oxygen, IntersitialPosition, OxygenVacancy_Neutral, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
