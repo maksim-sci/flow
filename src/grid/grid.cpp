@@ -217,7 +217,10 @@ namespace grid
             double x, y, z;
             ss >> name >> x >> y >> z;
             auto type = types.find(name);
-            assert_tst(type!=tend);
+            if(type==tend){
+                fmt::print("{}:{}: unknown name: '{}'\n",__FILE__,__LINE__,name);
+                exit(0);
+            }
             auto &T = type->second;
             Vector pos(x, y, z);
             pos /= div;
