@@ -991,6 +991,30 @@ void grid_like_final_ex()
     else {
         run_this_thing_please.init_structure();
     }
+
+    if(settings.GetBoolean("boundaries","used",false)) {
+        double size_y = settings.GetReal("boundaries","size_y",-1);
+        double size_x = settings.GetReal("boundaries","size_x",-1);
+
+        auto sizes = run_this_thing_please.g.Sizes();
+        bool change_sizes = false;
+
+        if(size_x>0) {
+            change_sizes = true;
+            sizes.x = size_x;
+        }
+        if(size_y>0) {
+            change_sizes = true;
+            sizes.y = size_y;
+        }
+
+        if(change_sizes) {
+            run_this_thing_please.g.setPeriod(sizes);
+        }
+
+
+
+    }
     
 
     run_this_thing_please.maxstep = settings.GetInteger("calculation","maxstep",10000);
