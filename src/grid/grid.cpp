@@ -189,7 +189,7 @@ namespace grid
     string Grid::to_xyz(double mult) const
     {
         std::stringstream ss(std::ios_base::out);
-        ss << count() << "\n";
+        ss << count() << "\n\n";
 
         for_each([&ss,mult](const Vector& pos, const std::shared_ptr<atom::Atom>& atom)mutable
         {
