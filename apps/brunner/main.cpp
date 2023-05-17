@@ -732,6 +732,7 @@ public:
     };
 
     //описывает логику для перемещения атома и т.д
+    //swap = true - значит атомы физически переместились
     double ChangeAtoms(const Vector &p1, const Vector &p2, std::shared_ptr<Type> t1, std::shared_ptr<Type> t2, bool swap)
     {
         double dq;
@@ -815,7 +816,7 @@ public:
             {
                 auto nnext = iter2;
                 nnext++;
-                recieved_reaction.erase(iter2);
+                recieved_reaction.erase(iter2); //invalidates iterator
                 iter2 = nnext;
             }
 
