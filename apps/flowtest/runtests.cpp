@@ -18,6 +18,8 @@
 #include <grid/lattice.hpp>
 #include <grid/react/react.hpp>
 #include <grid/react/barrier.hpp>
+#include <grid/react/tat.hpp>
+#include <grid/react/ionic.hpp>
 #include <grid/grid.hpp>
 #include <math/modulo.hpp>
 #include <field/condenser.hpp>
@@ -1032,106 +1034,37 @@ void grid_check_min_dist() {
 
 }
 
-void gen_result() {
-
-    Grid g(10*sgs::ANGSTROM);
-    auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El",0);
-    auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Elr",0);
-    auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "Ell",0);
+void check_reaction_chances() {
     auto Oxygen = std::make_shared<Type>(-1* sgs::ELCHARGE, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
     auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
-    auto Hafnium = std::make_shared<Type>(2* sgs::ELCHARGE, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
+
     auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
     auto IntersitialPosition = std::make_shared<Type>(0, __COUNTER__, "Ip",6.4*powf(sgs::ANGSTROM,3));
     auto OxygenVacancy_Charged = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
 
-    double ela = 2.866 * sgs::ANGSTROM;
+    auto r_ionic = std::make_shared<grid::react::ionic>(Oxygen, IntersitialPosition, OxygenVacancy_Neutral, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
+    auto r_electronic = std::make_shared<grid::react::tat>(Oxygen, IntersitialPosition, OxygenVacancy_Neutral, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 7, 1e+13);
+    
+    Grid G(sgs::ANGSTROM*4);
 
-    Geometry geoElectrode(Vector(ela, 0, 0), Vector(0, ela, 0), Vector(0, 0, ela));
+    auto atom1 = make_shared<Atom>(Oxygen);
+    auto atom2 = make_shared<Atom>(IntersitialPosition);
+    auto atom3 = make_shared<Atom>(Oxygen);
 
-    Lattice lElectrode(geoElectrode);
-    lElectrode.add(Vector(0, 0, 0), TElectrode);
+    atom1->U(sgs::VOLT*10);
+    atom3->U(sgs::VOLT*5);
+    atom2->U(sgs::VOLT*0);
 
+    assert_tst(r_ionic->AreAtomsOk(atom1,atom2));
+    assert_tst(r_electronic->AreAtomsOk(atom1,atom2));
 
-    Lattice lElectrodeR(geoElectrode);
-    lElectrodeR.add(Vector(0, 0, 0), TElectrodeR);
+    assert_tst(r_ionic->Chance(atom1,atom2,sgs::ANGSTROM*2)>0);
+    assert_tst(r_electronic->Chance(atom1,atom2,sgs::ANGSTROM*2)>0);
 
-    Lattice lElectrodeL(geoElectrode);
-    lElectrodeL.add(Vector(0, 0, 0), TElectrodeL);
+    
+    assert_tst(r_ionic->Chance(atom1,atom2,sgs::ANGSTROM*2)>r_ionic->Chance(atom3,atom2,sgs::ANGSTROM*2));
+    assert_tst(r_electronic->Chance(atom1,atom2,sgs::ANGSTROM*2)>r_electronic->Chance(atom3,atom2,sgs::ANGSTROM*2));
 
-    Vector HfO2A(5.069186, 0.000000, -0.864173);
-    Vector HfO2B(0.000000, 5.195148, 0.000000);
-    Vector HfO2C(0.000000, 0.000000, 5.326038);
-
-    HfO2A *= sgs::ANGSTROM;
-    HfO2B *= sgs::ANGSTROM;
-    HfO2C *= sgs::ANGSTROM;
-
-    Geometry geoHfO2(HfO2A, HfO2B, HfO2C);
-    Lattice lHfO2(geoHfO2);
-
-    lHfO2.add({0.724041, 0.457319, 0.292109}, Hafnium);
-    lHfO2.add({0.275959, 0.957319, 0.207891}, Hafnium);
-    lHfO2.add({0.275959, 0.542681, 0.707891}, Hafnium);
-    lHfO2.add({0.724041, 0.042681, 0.792109}, Hafnium);
-    lHfO2.add({0.551113, 0.742603, 0.022292}, Oxygen);
-    lHfO2.add({0.448887, 0.242603, 0.477708}, Oxygen);
-    lHfO2.add({0.448887, 0.257397, 0.977708}, Oxygen);
-    lHfO2.add({0.551113, 0.757397, 0.522292}, Oxygen);
-    lHfO2.add({0.932151, 0.330122, 0.652906}, OxygenVacancy_Neutral);
-    lHfO2.add({0.067849, 0.830122, 0.847094}, OxygenVacancy_Neutral);
-    lHfO2.add({0.067849, 0.669878, 0.347094}, OxygenVacancy_Neutral);
-    lHfO2.add({0.932151, 0.169878, 0.152906}, OxygenVacancy_Neutral);
-    lHfO2.add({0.78284, 0.43966, 0.7821}, Oxygen_Intersittal);
-    lHfO2.add({0.21066, 0.5392, 0.22844}, Oxygen_Intersittal);
-    lHfO2.add({0.61202, 0.9786, 0.39605}, Oxygen_Intersittal);
-    lHfO2.add({0.38798, 0.0213, 0.60394}, Oxygen_Intersittal);
-
-    double size_x = 30 * sgs::ANGSTROM;
-    double size_y = 30 * sgs::ANGSTROM;
-    double size_z = 30 * sgs::ANGSTROM;
-
-    double dist_electrode = 0.3 * sgs::ANGSTROM;
-
-    double electrode_end = 1 * sgs::ANGSTROM;
-
-    double oxyde_begin = electrode_end + dist_electrode;
-
-    double oxyde_end = 20* sgs::ANGSTROM + oxyde_begin;
-
-
-    double el_begin = oxyde_end+dist_electrode;
-
-
-    double electrode2_end = 3 * sgs::ANGSTROM + el_begin;
-
-    g.AddLattice({0., 0, 0}, Vector(size_x, size_y, electrode_end), lElectrode);
-    g.AddLattice({0, 0, oxyde_begin}, Vector(size_x, size_y, oxyde_end), lHfO2);
-    g.AddLattice({0, 0, el_begin}, Vector(size_x, size_y, electrode2_end), lElectrode);
-
-    double size_electrode = sgs::ANGSTROM * 10;
-    double size_electrode_z = sgs::ANGSTROM * 10;
-    double electrode_begin_xy = sgs::ANGSTROM * 10;
-    double electrode_begin_z = electrode_end;
-
-    Vector ElCube_s(electrode_begin_xy, electrode_begin_xy, electrode_begin_z);
-    Vector ElCube_e(electrode_begin_xy + size_electrode, electrode_begin_xy + size_electrode, electrode_begin_z + size_electrode_z);
-
-    g.ClearParallelep(ElCube_s, ElCube_e);
-
-    int cnt = g.count();
-
-    g.AddLattice(ElCube_s, ElCube_e, lElectrode);
-
-    double struct_end = electrode2_end;
-
-    {
-        std::ofstream out("generated_result.xyz");
-
-        out << g.to_xyz(1 / sgs::ANGSTROM);
-
-        out.close();
-    }
 }
 
 #define add_test(fn) tests[#fn] = fn
@@ -1193,7 +1126,7 @@ void init_tests() {
     add_test(grid_ewald_hack_simple_demo);
     add_test(react_standart);
     add_test(grid_check_min_dist);
-    add_test(gen_result);
+    add_test(check_reaction_chances);
 }
 
 bool run_test(string s) {

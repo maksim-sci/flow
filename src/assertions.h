@@ -4,6 +4,8 @@ inline void debug_fallout()
 {
     #ifdef DEBUG_MY_VERSION
     __debugbreak();
+    #else
+        exit(-1);
     #endif
 }
 
