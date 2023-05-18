@@ -245,7 +245,7 @@ public:
     };
 
     void loadstructure(std::string file) {
-        loadgrid(file,chunk_size);
+        loadgrid(file);
 
         g.for_each([&](const auto& pos, const auto& atom){
             if(
@@ -365,7 +365,7 @@ public:
         printgrid(outfile);
     }
 
-    void loadgrid(std::string& path, double chunk_size)
+    void loadgrid(std::string& path)
     {
         std::ifstream in(path);
     
