@@ -124,31 +124,32 @@ namespace grid
         void from_xyz(const string &s, double div);
         void from_xyz(std::istream& ss, double div);
 
+        #define sign(x) ((x)>0?1:-1)
 
         inline Vector getMinDist(const Vector& a, const Vector& b) {
             auto ac = getCycledVector(a);
             auto bc = getCycledVector(b);
 
-            auto delta = ac-bc;
+            auto delta = bc-ac;
             const auto& [sx,sy,sz] =  Sizes();
             auto& [dx,dy,dz] = delta;
 
             if(cycle_x) {
-                dx = std::abs(dx);
-                if(dx>sx/2) {
-                    dx = sx-dx;
+                double abs_d = std::abs(dx);
+                if(abs_d>sx/2) {
+                    dx = -sign(dx)*(sx-abs_d);
                 }
             }
             if(cycle_y) {
-                dy = std::abs(dy);
-                if(dy>sy/2) {
-                    dy = sy-dy;
+                double abs_d = std::abs(dy);
+                if(abs_d>sy/2) {
+                    dy = -sign(dy)*(sy-abs_d);
                 }
             }
             if(cycle_z) {
-                dz = std::abs(dz);
-                if(dz>sz/2) {
-                    dz = sz-dz;
+                double abs_d = std::abs(dz);
+                if(abs_d>sz/2) {
+                    dz = -sign(dz)*(sz-abs_d);
                 }
             }
 

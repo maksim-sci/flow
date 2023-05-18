@@ -1030,7 +1030,7 @@ void grid_check_min_dist() {
     assert_eq(g.getMinDist({1,1,1},{2,2,2}),Vector(1,1,1));
     assert_eq(g.getMinDist({2,2,2},{1,1,1}),Vector(-1,-1,-1));
     assert_eq(g.getMinDist({99,0,0},{1,0,0}),Vector(2,0,0));
-    assert_eq(g.getMinDist({1,0,0},{9,0,0}),Vector(-2,0,0));
+    assert_eq(g.getMinDist({1,0,0},{99,0,0}),Vector(-2,0,0));
 
 }
 
