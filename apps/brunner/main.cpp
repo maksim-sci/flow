@@ -265,11 +265,11 @@ public:
         E22->Name("E22");
         E32->Name("E32");
 
-        reacts.push_back(E1);
-        reacts.push_back(E21);
-        reacts.push_back(E31);
-        reacts.push_back(E22);
-        reacts.push_back(E32);
+        // reacts.push_back(E1);
+        // reacts.push_back(E21);
+        // reacts.push_back(E31);
+        // reacts.push_back(E22);
+        // reacts.push_back(E32);
     }
 
     void init_reacts_R()
