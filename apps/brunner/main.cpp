@@ -993,6 +993,9 @@ void grid_like_final_ex()
         run_this_thing_please.init_structure();
     }
 
+    run_this_thing_please.g.Cyclic<'x'>(true);
+    run_this_thing_please.g.Cyclic<'y'>(true);
+
     if(settings.GetBoolean("boundaries","used",false)) {
         double size_y = settings.GetReal("boundaries","size_y",-1);
         double size_x = settings.GetReal("boundaries","size_x",-1);
