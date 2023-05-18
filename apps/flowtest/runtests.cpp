@@ -28,6 +28,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 
 #include <grid/react/barrier.hpp>
 
@@ -1067,6 +1068,106 @@ void check_reaction_chances() {
 
 }
 
+void check_save_load() {
+    auto Oxygen = std::make_shared<Type>(-1* sgs::ELCHARGE, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
+    auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
+
+    auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
+    auto IntersitialPosition = std::make_shared<Type>(0, __COUNTER__, "Ip",6.4*powf(sgs::ANGSTROM,3));
+    auto OxygenVacancy_Charged = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
+
+    Grid g(10*sgs::ANGSTROM);
+    auto atom1 = make_shared<Atom>(Oxygen);
+    auto atom2 = make_shared<Atom>(Oxygen);
+    auto atom3 = make_shared<Atom>(Oxygen);
+    auto atom4 = make_shared<Atom>(Oxygen);
+
+    auto pos1 = Vector(0,0,0)*sgs::ANGSTROM;
+    auto pos2 = Vector(0,1,0)*sgs::ANGSTROM;
+    auto pos3 = Vector(0,0,2)*sgs::ANGSTROM;
+    auto pos4 = Vector(1,0,0)*sgs::ANGSTROM;
+
+    g.insert(pos1,atom1);
+    g.insert(pos2,atom2);
+    g.insert(pos3,atom3);
+    g.insert(pos4,atom4);
+
+
+
+    std::stringstream ss(std::ios_base::in | std::ios_base::out);
+
+    ss<<g.to_xyz(1/sgs::ANGSTROM);
+
+
+    Grid g1(10*sgs::ANGSTROM);
+    g1.from_xyz(ss,sgs::ANGSTROM);
+
+    assert_tst(g1.get(pos1)==atom1);
+    assert_tst(g1.get(pos2)==atom2);
+    assert_tst(g1.get(pos3)==atom3);
+    assert_tst(g1.get(pos4)==atom4);
+
+
+}
+
+void grid_iteration_check() {
+    auto Oxygen = std::make_shared<Type>(-1* sgs::ELCHARGE, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
+    auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
+
+    auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
+    auto IntersitialPosition = std::make_shared<Type>(0, __COUNTER__, "Ip",6.4*powf(sgs::ANGSTROM,3));
+    auto OxygenVacancy_Charged = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
+
+    Grid g(0.5*sgs::ANGSTROM);
+    auto atom1 = make_shared<Atom>(Oxygen);
+    auto atom2 = make_shared<Atom>(Oxygen);
+    auto atom3 = make_shared<Atom>(Oxygen);
+    auto atom4 = make_shared<Atom>(Oxygen);
+
+    auto pos1 = Vector(0,0,0)*sgs::ANGSTROM;
+    auto pos2 = Vector(0,1,0)*sgs::ANGSTROM;
+    auto pos3 = Vector(0,0,2)*sgs::ANGSTROM;
+    auto pos4 = Vector(1,0,0)*sgs::ANGSTROM;
+
+    g.insert(pos1,atom1);
+    g.insert(pos2,atom2);
+    g.insert(pos3,atom3);
+    g.insert(pos4,atom4);
+
+
+
+    std::stringstream ss(std::ios_base::in | std::ios_base::out);
+
+    ss<<g.to_xyz(1/sgs::ANGSTROM);
+
+
+    Grid g1(0.5*sgs::ANGSTROM);
+    g1.from_xyz(ss,sgs::ANGSTROM);
+
+    assert_tst(g1.get(pos1)==atom1);
+    assert_tst(g1.get(pos2)==atom2);
+    assert_tst(g1.get(pos3)==atom3);
+    assert_tst(g1.get(pos4)==atom4);
+
+    g.Cyclic<'x'>(true);
+    g1.Cyclic<'x'>(true);
+    g.Cyclic<'y'>(true);
+    g1.Cyclic<'y'>(true);
+
+    g.for_each({0,0,0},sgs::ANGSTROM*2,[&](const auto& pos, const auto& atom) {
+        bool result = false;
+        g1.for_each({0,0,0},sgs::ANGSTROM*2,[&](const auto& pos1, const auto& atom1) {
+            if(atom==atom1) {
+                result=true;
+            }
+        });
+        assert_eq(result,true);
+    });
+
+
+
+}
+
 #define add_test(fn) tests[#fn] = fn
 
 std::unordered_map<std::string,std::function<void()>> tests;
@@ -1127,6 +1228,8 @@ void init_tests() {
     add_test(react_standart);
     add_test(grid_check_min_dist);
     add_test(check_reaction_chances);
+    add_test(check_save_load);
+    add_test(grid_iteration_check);
 }
 
 bool run_test(string s) {
