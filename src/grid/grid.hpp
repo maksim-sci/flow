@@ -147,7 +147,7 @@ namespace grid
             }
             if(cycle_z) {
                 dz = std::abs(dz);
-                if(dx>sz/2) {
+                if(dz>sz/2) {
                     dz = sz-dz;
                 }
             }
