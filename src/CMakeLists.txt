@@ -14,6 +14,7 @@ set(HEADER_LIST "geometry/vector.hpp"
                 "field/ewald_hack.hpp"
                 "field/basic_electrode.hpp"
                 "field/field.hpp"
+                "field/summation.hpp"
                 "field/ewald.hpp"
                 "grid/react/ionic.hpp"
                 "grid/react/tat.hpp"
@@ -30,6 +31,7 @@ add_library(flow_library
         grid/grid.cpp
         grid/lattice.cpp
         field/ewald.cpp
+        field/summation.cpp
         ${HEADER_LIST})
 
 

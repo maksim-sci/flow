@@ -41,6 +41,7 @@
 #include <field/condenser.hpp>
 #include <field/equal.hpp>
 #include <chrono>
+#include <field/summation.hpp>
 
 #include <assertions.h>
 
@@ -748,62 +749,16 @@ public:
         double delta1 = a1->Q() - q1;
         double delta2 = a2->Q() - q2;
         dq = (delta1*(p2 - p1).z + delta2*(p1 - p2).z) / el_begin;
-        //обновляем напряжения
-        // if (delta1 == 0 && delta2 == 0)
-        // {
-        // }
-        // else
-        // {
-
-        //     auto chunk1 = g.getChunk(p1);
-        //     auto chunk2 = g.getChunk(p2);
-
-        //     if (chunk1 == chunk2)
-        //     {
-
-        //         double delta = delta1 + delta2;
-
-        //         EWALD.add_chunk_q(p1, delta);
-        //         for (auto [pos, atom] : *chunk1)
-        //         {
-        //             Zero_field.Apply(pos, atom);
-        //             //Cond_field.Apply(pos, atom);
-        //             atom->U(atom->U() + EWALD.calc_a(pos));
-        //         }
-        //     }
-        //     else
-        //     {
-        //         if (delta1 != 0)
-        //         {
-
-        //             EWALD.add_chunk_q(p1, delta1);
-        //             for (auto [pos, atom] : *chunk1)
-        //             {
-        //                 Zero_field.Apply(pos, atom);
-        //                 //Cond_field.Apply(pos, atom);
-        //                 atom->U(atom->U() + EWALD.calc_a(pos));
-        //             }
-        //         }
-        //         if (delta2 != 0)
-        //         {
-
-        //             EWALD.add_chunk_q(p2, delta2);
-        //             for (auto [pos, atom] : *chunk1)
-        //             {
-        //                 Zero_field.Apply(pos, atom);
-        //                 //Cond_field.Apply(pos, atom);
-        //                 atom->U(atom->U() + EWALD.calc_a(pos));
-        //             }
-        //         }
-        //     }
-        // }
-        //да, при перемещинии атомов предпологается просто менять им типы и менять температуры (если есть температура, которую можно менять).
         if (swap)
         {
             double t1 = a1->T();
             a1->T(a2->T());
             a2->T(t1);
         }
+
+        EWALD.add_charge(p1,delta1);
+        EWALD.add_charge(p2,delta2);
+
 
         //теперь нужно посчитать новые шансы для затронутых реакций, ну или удалить лишние как минимум
 
@@ -832,13 +787,25 @@ public:
     {
         Zero_field = field::Equal(0, 0, struct_end);
         Cond_field = field::ZCondenser(U_Between_Electrodes, 0, struct_end);
-        //EWALD = field::ewald_hack(g);
 
         printgrid_simple("initial_");
         change_electrodes(struct_end / 2,elcharge_factor);
         printgrid_simple("electrodes_updated_");
         static std::random_device dev;
         static std::mt19937 rng(dev());
+
+        {
+            fmt::print("initializing field!\n");
+            Zero_field.Apply(g);
+
+            EWALD.cache_grid_data();
+            EWALD.apply();
+            //print
+            auto outfile = statef;
+            outfile/=fmt::format("voltage_initial.txt");
+            printvoltage(outfile);
+            fmt::print("field initialization completed\n");
+        }
 
         bool recalc = true;
         bool print = true;
@@ -854,23 +821,13 @@ public:
 
             if(print) {
                 printcharges();
+                printvoltage();
             }
 
             if (recalc)
             {
-                fmt::print("recalculating field\n");
 
-                Zero_field.Apply(g);
-
-                EWALD.apply();
-
-                //Cond_field.Apply(g);
-
-                if(print) {
-                    printvoltage();
-                }
-
-
+                printf("recalculating reactions!\n");
                 recalc_all_reactions();
 
                 recalc = false;
@@ -997,8 +954,8 @@ void grid_like_final_ex()
     run_this_thing_please.g.Cyclic<'y'>(true);
 
     if(settings.GetBoolean("boundaries","used",false)) {
-        double size_y = settings.GetReal("boundaries","size_y",-1);
-        double size_x = settings.GetReal("boundaries","size_x",-1);
+        double size_y = settings.GetReal("boundaries","size_y",-1)*sgs::ANGSTROM;
+        double size_x = settings.GetReal("boundaries","size_x",-1)*sgs::ANGSTROM;
 
         auto sizes = run_this_thing_please.g.Sizes();
         bool change_sizes = false;
