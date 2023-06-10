@@ -84,10 +84,10 @@ auto R3 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, Oxygen_Int
 auto R4 = std::make_shared<grid::react::ionic>(Oxygen_Intersittal, IntersitialPosition, IntersitialPosition, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 1, 1e+13);
 
 auto E1 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E21 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E31 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E22 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeR, OxygenVacancy_Neutral, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E32 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeL, OxygenVacancy_Charged, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E21 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeP, OxygenVacancy_Neutral, TElectrodeP, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E31 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeN, OxygenVacancy_Charged, TElectrodeN, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E22 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeN, OxygenVacancy_Neutral, TElectrodeN, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E32 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeP, OxygenVacancy_Charged, TElectrodeP, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
 
 
 namespace fs = std::filesystem;
