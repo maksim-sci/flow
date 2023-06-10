@@ -25,6 +25,7 @@
 #include <field/condenser.hpp>
 #include <field/equal.hpp>
 #include <field/ewald_hack.hpp>
+#include <algo/kmk.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -1168,6 +1169,145 @@ void grid_iteration_check() {
 
 }
 
+void check_kmk() {
+    Grid g(10);
+
+    auto t1 = std::make_shared<Type>(1.,1.,"a1");
+    auto t2 = std::make_shared<Type>(1.,1.,"a2");
+
+    auto a1 = std::make_shared<Atom>(t1);
+    auto a2 = std::make_shared<Atom>(t2);
+
+    auto r1 = std::make_shared<grid::react::tat> (t1, t2, t1, t2, 3, sgs::ELVOLT * 7, 1e+13);
+
+    algo::kmk kmk(&g);
+
+    kmk.add(r1);
+
+    Vector p1{0,0,0};
+    Vector p2{0,0,1};
+
+    g.insert(p1,a1);
+    g.insert(p2,a2);
+
+    kmk.recalc();
+    auto data = kmk.chooseReact();
+
+    assert_eq(data.first, true);
+
+    assert_simple(data.second.f==a1);
+    assert_simple(data.second.s==a2);
+
+
+
+
+}
+
+
+void check_kmk_several() {
+    Grid g(10);
+
+    auto t1 = std::make_shared<Type>(1.,1.,"a1");
+    auto t2 = std::make_shared<Type>(1.,1.,"a2");
+
+    auto r1 = std::make_shared<grid::react::tat> (t1, t2, t1, t2, 3, sgs::ELVOLT * 7, 1e+13);
+
+    algo::kmk kmk(&g);
+
+    kmk.add(r1);
+
+    Vector p1{0,0,0};
+    Vector p2{0,0,1};
+    Vector p3{0,1,0};
+    Vector p4{0,1,1};
+    Vector p5{1,0,1};
+
+    g.insert(p1,std::make_shared<Atom>(t1));
+    g.insert(p2,std::make_shared<Atom>(t1));
+    g.insert(p3,std::make_shared<Atom>(t2));
+    g.insert(p4,std::make_shared<Atom>(t2));
+    g.insert(p5,std::make_shared<Atom>(t2));
+
+    kmk.recalc();
+    auto data = kmk.chooseReact();
+
+    printf("%f\n",kmk.Count());
+
+    assert_eq(kmk.Count(),6);
+    double sum = kmk.Sum();
+    assert_simple(sum>0);
+    kmk.findAndProcessReact();
+
+    assert_eq(kmk.Count(),2);
+    assert_simple(kmk.Sum()<sum);
+    sum = kmk.Sum();
+    kmk.findAndProcessReact();
+    assert_eq(kmk.Count(),0);
+    assert_simple(kmk.Sum()<sum*1e-10);
+
+
+    kmk.recalc();
+
+    assert_simple(kmk.Count()==6);
+
+
+}
+
+void check_kmk_several_ex() {
+    Grid g(10);
+
+    auto t1 = std::make_shared<Type>(1.,1.,"a1");
+    auto t2 = std::make_shared<Type>(1.,1.,"a2");
+
+    auto r1 = std::make_shared<grid::react::tat> (t1, t2, t1, t2, 3, sgs::ELVOLT * 7, 1e+13);
+    auto r2 = std::make_shared<grid::react::tat> (t2, t1, t2, t1, 3, sgs::ELVOLT * 7, 1e+13);
+
+    algo::kmk kmk(&g);
+
+    kmk.add(r1);
+    kmk.add(r2);
+
+    Vector p1{0,0,0};
+    Vector p2{0,0,1};
+    Vector p3{0,1,0};
+    Vector p4{0,1,1};
+    Vector p5{1,0,1};
+
+    g.insert(p1,std::make_shared<Atom>(t1));
+    g.insert(p2,std::make_shared<Atom>(t1));
+    g.insert(p3,std::make_shared<Atom>(t2));
+    g.insert(p4,std::make_shared<Atom>(t2));
+
+    kmk.recalc();
+    auto data = kmk.chooseReact();
+
+    printf("befire: %f\n",kmk.Count());
+
+    assert_eq(kmk.Count(),8);
+    double sum = kmk.Sum();
+    assert_simple(sum>0);
+    kmk.findAndProcessReact();
+
+    printf("after 1 react: %f\n",kmk.Count());
+
+
+    assert_eq(kmk.Count(),2);
+    assert_simple(kmk.Sum()<sum);
+    sum = kmk.Sum();
+    kmk.findAndProcessReact();
+
+    printf("after 2 reacts: %f\n",kmk.Count());
+
+    assert_eq(kmk.Count(),0);
+    assert_simple(std::fabs(kmk.Sum())<sum*1e-10);
+
+    kmk.recalc();
+
+    assert_eq(kmk.Count(),8);
+
+
+}
+
 #define add_test(fn) tests[#fn] = fn
 
 std::unordered_map<std::string,std::function<void()>> tests;
@@ -1230,6 +1370,12 @@ void init_tests() {
     add_test(check_reaction_chances);
     add_test(check_save_load);
     add_test(grid_iteration_check);
+    add_test(check_kmk);
+    add_test(check_kmk_several);
+    add_test(check_kmk_several_ex);
+    
+    
+
 }
 
 bool run_test(string s) {
