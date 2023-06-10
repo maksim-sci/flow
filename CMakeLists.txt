@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.11)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 project(
         flow
         VERSION 0.11
