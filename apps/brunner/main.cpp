@@ -500,7 +500,7 @@ public:
         outfile /= fmt::format("counts.txt", step);
         printrcnt(outfile);
     }
-    grid_runner(double _chunk_size, double uelectrodes,const char* _settings) : 
+    basic_runner(double _chunk_size, double uelectrodes,const char* _settings) : 
     chunk_size(_chunk_size), 
     g(_chunk_size), 
     U_Between_Electrodes(uelectrodes), 
