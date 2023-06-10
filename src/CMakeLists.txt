@@ -19,6 +19,7 @@ set(HEADER_LIST "geometry/vector.hpp"
                 "grid/react/ionic.hpp"
                 "grid/react/tat.hpp"
                 "grid/react/tat_simple.hpp"
+                "algo/kmk.hpp"
 )
 
 # Make an automatic library - will be static or dynamic based on user setting
@@ -32,6 +33,7 @@ add_library(flow_library
         grid/lattice.cpp
         field/ewald.cpp
         field/summation.cpp
+        algo/kmk.cpp
         ${HEADER_LIST})
 
 
