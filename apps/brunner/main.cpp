@@ -525,48 +525,128 @@ public:
 
     void change_electrodes(double lel_end,double elcharge_factor)
     {
-        size_t cnt_left = 0;
-        size_t cnt_right = 0;
-        g.for_each([&](auto& pos,auto atom) mutable
-        {
-            if (atom->Material() == TElectrode)
-            {
-                if (pos.z < lel_end)
+        double cnt = 0;
+        //Специальная формула для рассчета электродов. p = d/l
+        //задумана для того, чтобы имитировать скапливание заряда на дефекте
+        //l = |max_electrode_defect-min_electrode_defect|+formula_epsilon
+        //d = |electrode_end-pos|
+        //electrode_max - максимальное расстояние от начала электрода до дефекта.
+        //электроды ищутся на конце и в начале всей системы.
+
+        constexpr double electrode_cutoff = 5*sgs::ANGSTROM; //максимальное расстояние, на котором электрод считается цельным.
+
+        struct electrode_info {
+            double begin{0};
+            double end{0};
+            std::shared_ptr<Type> type;
+        };
+
+        double begin_electrode_L = 0;
+        double begin_electrode_R = g.Sizes().z;
+
+        double end_electrode_L = begin_electrode_L;
+        double end_electrode_R = begin_electrode_R;
+
+        bool left_positive = U_Between_Electrodes>0;
+
+        auto type_L = left_positive?TElectrodeP:TElectrodeN;
+        auto type_R = left_positive?TElectrodeN:TElectrodeP;
+
+        electrode_info left_electrode{begin_electrode_L,end_electrode_L,type_L};
+        electrode_info right_electrode{begin_electrode_R,end_electrode_R,type_R};
+
+        
+        //шизогонический рекусивный код на лямбдах для замены просто электроды на типизированные
+        const auto check_electrode_with_type = [&](const Vector& pos, electrode_info& electrode,std::shared_ptr<Type> init_type) {
+            std::function<void(const Vector& pos,Grid* g)> check_impl;
+
+            check_impl = [&electrode,&check_impl,&init_type](const Vector& pos,Grid* g)mutable {
+                g->for_each(pos,electrode_cutoff,[&](const auto& pos2, const auto& atom)mutable{
+                    if(atom->Material()==init_type) {
+                        atom->Material(electrode.type);
+                        if(std::fabs(pos2.z-electrode.begin)>std::fabs(electrode.begin-electrode.end)) {
+                            electrode.end = pos2.z;
+                        }
+                        check_impl(pos2,g);
+                    }
+                });
+            };
+            check_impl(pos,&g);
+        };
+
+        //точки для начала поиска электродов
+        Vector check_electrode_L{0,0,begin_electrode_L}; 
+        Vector check_electrode_R{0,0,begin_electrode_R};
+
+        check_electrode_with_type(check_electrode_L,left_electrode,TElectrode);
+        check_electrode_with_type(check_electrode_R,right_electrode,TElectrode);
+
+        fmt::print("left electrode: ({},{})\n",left_electrode.begin,left_electrode.end);
+        fmt::print("right electrode: ({},{})\n",right_electrode.begin,right_electrode.end);
+
+        //settings for custom formula:
+        //enabled = used or not
+        //epsilon: p = multiplier * (|end-pos|)/(|end-begin|+eps)
+
+        auto check_electrode_formula = [&](std::string suffix,electrode_info& electrode,double q) {
+            constexpr char section[] = "electrode_charge_custom";
+
+
+            std::string section_name(section);
+            section_name+=suffix;
+
+            bool enabled = settings.GetBoolean(section_name,"enabled",false);
+            double sum = 0;
+
+            double epsilon = settings.GetReal(section_name,"eps",1*sgs::ANGSTROM);
+            double multiplier = settings.GetReal(section_name,"mult",1);
+
+            g.for_each([&](const auto& pos, auto& atom) mutable{
+                if(atom->Material()==electrode.type) {
+                    double q=0;
+                    if(enabled)
                 {
-                    cnt_left++;
+                        q = (std::fabs(electrode.end-electrode.begin))/(epsilon+std::fabs(electrode.end-pos.z));
                 }
                 else
                 {
-                    cnt_right++;
+                        q = 1;
                 }
+                    sum+=q;
+                    atom->Q(q);
             }
         });
+
+            double partial = q/sum;
+
+            g.for_each([&](const auto& pos, auto& atom) mutable {
+                if(atom->Material()==electrode.type) {
+                    atom->Q(atom->Q()*partial*multiplier);
+                }
+            });
+
+        };
+
+
         auto size_vector = g.Sizes();
         auto area = size_vector.x*size_vector.y;
         double dist_between_electrodes = size_vector.z;
-        double charge = U_Between_Electrodes*area/dist_between_electrodes;
-
+        double charge = std::fabs(U_Between_Electrodes*area/dist_between_electrodes);
         charge*=elcharge_factor;
 
-        double charge_L = charge/(cnt_left);
-        double charge_R = -charge/(cnt_right);
-        TElectrodeL->Q(charge_L);
-        TElectrodeR->Q(charge_R);
-        g.for_each([&](auto& pos,auto atom) mutable
-        {
-            if (atom->Material() == TElectrode)
-            {
-                if (pos.z < lel_end)
-                {
-                    atom->Material(TElectrodeL);
+        if(left_positive) {
+            check_electrode_formula("_P",left_electrode,charge);
+            check_electrode_formula("_N",right_electrode,-charge);
                 }
-                else
-                {
-                    atom->Material(TElectrodeR);
-                }
+        else {
+            check_electrode_formula("_P",right_electrode,charge);
+            check_electrode_formula("_N",left_electrode,-charge);
             }
 
-        });
+
+
+
+
     };
 
     //просчитывает все вероятности для кинетического монте-карло с одной реакции
