@@ -244,7 +244,9 @@ public:
         g.for_each([&](const auto& pos, const auto& atom){
             if(
                 atom->Material()==TElectrodeR||
-                atom->Material()==TElectrodeL
+                atom->Material()==TElectrodeL||
+                atom->Material()==TElectrodeP||
+                atom->Material()==TElectrodeN
             ) {
                 atom->Material(TElectrode);
             }
