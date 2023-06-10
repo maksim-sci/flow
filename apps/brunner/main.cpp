@@ -141,6 +141,8 @@ public:
         types.push_back(TElectrode);
         types.push_back(TElectrodeL);
         types.push_back(TElectrodeR);
+        types.push_back(TElectrodeP);
+        types.push_back(TElectrodeN);
         types.push_back(Oxygen);
         types.push_back(Oxygen_Intersittal);
         types.push_back(Hafnium);
@@ -151,6 +153,8 @@ public:
         g.AddType(TElectrode);
         g.AddType(TElectrodeR);
         g.AddType(TElectrodeL);
+        g.AddType(TElectrodeP);
+        g.AddType(TElectrodeN);
         g.AddType(Oxygen);
         g.AddType(Oxygen_Intersittal);
         g.AddType(Hafnium);
