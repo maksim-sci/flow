@@ -1005,34 +1005,34 @@ void grid_like_final_ex()
     double U_between_electrodes = settings.GetReal("model","U_between_electrodes",0)*sgs::VOLT;
 
     double Chunk_size = settings.GetReal("calculation","chunk_size",1e-8);
-    class grid_runner run_this_thing_please(Chunk_size, U_between_electrodes,settings_path);
+    class basic_runner runner(Chunk_size, U_between_electrodes,settings_path);
 
-    run_this_thing_please.init_types();
-    run_this_thing_please.init_reacts();
+    runner.init_types();
+    runner.init_reacts();
 
     
     string outfile = settings.Get("folders","output","./results");
     string outfile_periodic = settings.Get("folders","periodic_output","./results/periodic");
-    run_this_thing_please.init_folders(outfile,outfile_periodic);
+    runner.init_folders(outfile,outfile_periodic);
 
     
     if(settings.GetBoolean("init","load",false)) {
         std::string file = settings.Get("init","loadfile","");
         assert_simple(file!="");
-        run_this_thing_please.loadstructure(file);
+        runner.loadstructure(file);
     }
     else {
-        run_this_thing_please.init_structure();
+        runner.init_structure();
     }
 
-    run_this_thing_please.g.Cyclic<'x'>(true);
-    run_this_thing_please.g.Cyclic<'y'>(true);
+    runner.g.Cyclic<'x'>(true);
+    runner.g.Cyclic<'y'>(true);
 
     if(settings.GetBoolean("boundaries","used",false)) {
         double size_y = settings.GetReal("boundaries","size_y",-1)*sgs::ANGSTROM;
         double size_x = settings.GetReal("boundaries","size_x",-1)*sgs::ANGSTROM;
 
-        auto sizes = run_this_thing_please.g.Sizes();
+        auto sizes = runner.g.Sizes();
         bool change_sizes = false;
 
         if(size_x>0) {
@@ -1045,7 +1045,7 @@ void grid_like_final_ex()
         }
 
         if(change_sizes) {
-            run_this_thing_please.g.setPeriod(sizes);
+            runner.g.setPeriod(sizes);
         }
 
 
@@ -1053,13 +1053,13 @@ void grid_like_final_ex()
     }
     
 
-    run_this_thing_please.maxstep = settings.GetInteger("calculation","maxstep",10000);
-    run_this_thing_please.recalc_step = settings.GetInteger("calculation","recalc_step",100);
-    run_this_thing_please.calc_current = settings.GetInteger("calculation","calc_current",5000);
-    run_this_thing_please.printstep = settings.GetInteger("calculation","printstep",100);
+    runner.maxstep = settings.GetInteger("calculation","maxstep",10000);
+    runner.recalc_step = settings.GetInteger("calculation","recalc_step",100);
+    runner.calc_current = settings.GetInteger("calculation","calc_current",5000);
+    runner.printstep = settings.GetInteger("calculation","printstep",100);
 
     std::unordered_map<std::shared_ptr<Type>,int> cts;
-    run_this_thing_please.g.for_each([&](auto& pos,auto atom) mutable
+    runner.g.for_each([&](auto& pos,auto atom) mutable
     {
         auto materail = atom->Material();
         auto pp = cts.find(materail);
@@ -1075,7 +1075,7 @@ void grid_like_final_ex()
     for(auto& [material,cnt]:cts) {
         fmt::print("structure generated, type: {}: {}\n",material->Name(),cnt);
     }
-    run_this_thing_please.run();
+    runner.run();
 }
 
 int main()
