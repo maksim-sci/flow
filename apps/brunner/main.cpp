@@ -200,9 +200,9 @@ public:
         double size_y = settings.GetReal("model","size_y",30) * sgs::ANGSTROM;
         double size_z = settings.GetReal("model","size_z",20) * sgs::ANGSTROM;
 
-        double dist_electrode = 0.3 * sgs::ANGSTROM;
+        double dist_electrode = 0.1 * sgs::ANGSTROM;
 
-        double electrode_end = 1 * sgs::ANGSTROM;
+        double electrode_end = 0.3 * sgs::ANGSTROM;
 
         double oxyde_begin = electrode_end + dist_electrode;
 
