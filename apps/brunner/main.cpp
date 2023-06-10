@@ -69,6 +69,8 @@ struct kmk_data
 auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El",0);
 auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Elr",0);
 auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "Ell",0);
+auto TElectrodeP = std::make_shared<Type>(0, __COUNTER__, "Ep",0);
+auto TElectrodeN = std::make_shared<Type>(0, __COUNTER__, "En",0);
 auto Oxygen = std::make_shared<Type>(-1* sgs::ELCHARGE, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
 auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
 auto Hafnium = std::make_shared<Type>(2* sgs::ELCHARGE, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
