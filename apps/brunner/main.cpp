@@ -92,7 +92,7 @@ auto E32 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrod
 
 namespace fs = std::filesystem;
 
-class grid_runner
+class basic_runner
 {
     public:
     double U_Between_Electrodes;
