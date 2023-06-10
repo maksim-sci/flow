@@ -168,13 +168,6 @@ public:
         Lattice lElectrode(geoElectrode);
         lElectrode.add(Vector(0, 0, 0), TElectrode);
 
-
-        Lattice lElectrodeR(geoElectrode);
-        lElectrodeR.add(Vector(0, 0, 0), TElectrodeR);
-
-        Lattice lElectrodeL(geoElectrode);
-        lElectrodeL.add(Vector(0, 0, 0), TElectrodeL);
-
         Vector HfO2A(5.069186, 0.000000, -0.864173);
         Vector HfO2B(0.000000, 5.195148, 0.000000);
         Vector HfO2C(0.000000, 0.000000, 5.326038);
