@@ -36,8 +36,6 @@ void kmk::processReact(react_data &data) {
       }
       calculated_reacts.erase(range.first,range.second);
     }
-    printf("c: %d\n",Count());
-    printf("r: %d\n",recieved_reacts.size());
     //a2-atom pairs
     {
       auto range = recieved_reacts.equal_range(atom);
@@ -49,7 +47,6 @@ void kmk::processReact(react_data &data) {
           auto& data = iter_calculated->second;
           if(data.s==atom) {
             sum-=data.chance;
-            printf("removed!\n");
             iter_calculated = calculated_reacts.erase(iter_calculated);
           }
           else {
