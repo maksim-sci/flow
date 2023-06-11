@@ -286,7 +286,7 @@ public:
 
        init_reacts_R();
        init_reacts_E();
-
+        
     };
 
     void init_folders(string out, string periodic_out)
@@ -485,7 +485,7 @@ public:
     recalc_step(100), 
     calc_current(5000),
     statef(""), 
-    outfolder(""), 
+    outfolder(""),
     kmk_ionic(&g),
     kmk_electron(&g),
     kmk_sum(0), 
@@ -583,17 +583,17 @@ public:
                 if(atom->Material()==electrode.type) {
                     double q=0;
                     if(enabled)
-                {
+                    {
                         q = (std::fabs(electrode.end-electrode.begin))/(epsilon+std::fabs(electrode.end-pos.z));
-                }
-                else
-                {
+                    }
+                    else
+                    {
                         q = 1;
-                }
+                    }
                     sum+=q;
                     atom->Q(q);
-            }
-        });
+                }
+            });
 
             double partial = q/sum;
 
@@ -615,11 +615,11 @@ public:
         if(left_positive) {
             check_electrode_formula("_P",left_electrode,charge);
             check_electrode_formula("_N",right_electrode,-charge);
-                }
+        }
         else {
             check_electrode_formula("_P",right_electrode,charge);
             check_electrode_formula("_N",left_electrode,-charge);
-            }
+        }
 
 
 
@@ -627,7 +627,7 @@ public:
 
     };
 
-
+    
     Vector getF(const Vector& pos){
         Vector f{0,0,0};
         g.for_each(pos,2*sgs::ANGSTROM,[&](const auto& pA, const auto& atom) mutable{
@@ -756,7 +756,7 @@ public:
 
         double delta1,delta2;
         if(a1->Material()!=t1) {
-        double q1 = a1->Q();
+            double q1 = a1->Q();
             a1->Material(t1);
             delta1 = a1->Q() - q1; 
             EWALD.add_charge(p1,delta1);
@@ -767,9 +767,9 @@ public:
         }
 
         if(a2->Material()!=t2) {
-        double q2 = a2->Q();
-        a2->Material(t2);
-        double delta2 = a2->Q() - q2;
+            double q2 = a2->Q();
+            a2->Material(t2);
+            double delta2 = a2->Q() - q2;
             EWALD.add_charge(p2,delta2);
         }
         else {
@@ -857,7 +857,7 @@ public:
 
             double rand_targ = dist(rng);
             double search_sum = 0;
-
+            
             auto [flag,react] = kmk_ionic.findAndProcessReact();
             if(not flag) {
                 fmt::print("error: unable to find reaction at step {}\n",step);
