@@ -1,6 +1,4 @@
-
-#define DEBUG_MY_VERSION
-
+//Оставь надежду, всяк сюда входящий!
 #include <iostream>
 
 #include <sgs.hpp>
@@ -42,6 +40,7 @@
 #include <field/equal.hpp>
 #include <chrono>
 #include <field/summation.hpp>
+#include <algo/kmk.hpp>
 
 #include <assertions.h>
 
@@ -55,16 +54,6 @@ using grid::Lattice;
 using grid::atom::Atom;
 using grid::atom::Type;
 using std::string;
-
-struct kmk_data
-{
-    std::shared_ptr<grid::react::react> react;
-    std::shared_ptr<grid::atom::Atom> f;
-    std::shared_ptr<grid::atom::Atom> s;
-    geometry::Vector fp;
-    geometry::Vector sp;
-    double chance;
-};
 
 auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El",0);
 auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Elr",0);
@@ -103,15 +92,13 @@ class basic_runner
     INIReader settings;
 
     std::list<std::shared_ptr<Type>> types;
-    std::list<std::shared_ptr<grid::react::react>> reacts;
 
     // TODO move this into another class
-    std::unordered_multimap<std::shared_ptr<Atom>, kmk_data> kmk;
-    std::unordered_multimap<std::shared_ptr<Atom>, std::shared_ptr<Atom>> recieved_reaction;
-    std::unordered_map<std::string, double> elsum;
+    double elsum;
     std::unordered_map<std::string, int> react_cnt;
 
-    double dt;
+    algo::kmk kmk_ionic;
+    algo::kmk kmk_electron;
 
     double struct_end;
 
@@ -266,6 +253,11 @@ public:
         E31->Name("E31");
         E22->Name("E22");
         E32->Name("E32");
+        kmk_electron.add(E1);
+        kmk_electron.add(E21);
+        kmk_electron.add(E31);
+        kmk_electron.add(E22);
+        kmk_electron.add(E32);
 
         // reacts.push_back(E1);
         // reacts.push_back(E21);
@@ -282,11 +274,11 @@ public:
         R3->Name("R3");
         R4->Name("R4");
 
-        reacts.push_back(R1);
-        reacts.push_back(R21);
-        reacts.push_back(R22);
-        reacts.push_back(R3);
-        reacts.push_back(R4);
+        kmk_ionic.add(R1);
+        kmk_ionic.add(R21);
+        kmk_ionic.add(R21);
+        kmk_ionic.add(R3);
+        kmk_ionic.add(R4);
     }
 
     void init_reacts()
@@ -295,10 +287,6 @@ public:
        init_reacts_R();
        init_reacts_E();
 
-        
-
-
-        
     };
 
     void init_folders(string out, string periodic_out)
@@ -418,18 +406,8 @@ public:
         std::ofstream out(pout, std::ios_base::app);
         out << step;
         out << std::setprecision(6);
-        double sum = 0;
         
-        for (auto& a:reacts) {
-            auto ai = elsum.find(a->Name());
-            double dq = 0;
-            if(ai!=elsum.end()) {
-                dq = ai->second;
-                sum+=dq;
-            }
-            out<<"\t"<<std::setw(11) << dq/dt;
-        }
-        out << "\t"<<std::setw(11)<<sum/dt<<std::endl;
+        out << "\t"<<std::setw(11)<<elsum/kmk_electron.Time()<<std::endl;
         out.close();
     }
 
@@ -438,14 +416,7 @@ public:
         std::ofstream out(pout, std::ios_base::app);
         double factorc=1e-20;
         out << step;
-        double sum = 0;
-        for (auto& a:reacts) {
-            auto ai = elsum.find(a->Name());
-            if(ai!=elsum.end()) {
-                double dq = ai->second/dt;
-                sum+=dq;
-            }
-        }
+        double sum = elsum;
         double area = g.Sizes().x*g.Sizes().y;
         sum*=(1/area);
         double pf = calc_PF();
@@ -467,25 +438,6 @@ public:
         printcurrent_reacts(outfile);
     }
 
-    void printrcnt(fs::path pout)
-    {
-        std::ofstream out(pout, std::ios_base::app);
-        out << fmt::format("{:6d}",step);
-        for (const auto &react : reacts)
-        {
-            int cnt = 0;
-            auto& name = react->Name();
-
-            const auto& iterator = react_cnt.find(name);
-            if(iterator!=react_cnt.end()) {
-                cnt = iterator->second;
-            }
-            out << " " << fmt::format("{:6d}",cnt);
-        }
-        out << std::endl;
-        react_cnt.clear();
-        out.close();
-    }
 
     void printcurrent()
     {
@@ -494,18 +446,38 @@ public:
         printcurrent(outfile);
     }
 
-    void printrcnt()
-    {
-        auto outfile = outfolder;
-        outfile /= fmt::format("counts.txt", step);
-        printrcnt(outfile);
-    }
+    // void printrcnt(fs::path pout)
+    // {
+    //     std::ofstream out(pout, std::ios_base::app);
+    //     out << fmt::format("{:6d}",step);
+    //     for (const auto &react : reacts)
+    //     {
+    //         int cnt = 0;
+    //         auto& name = react->Name();
+
+    //         const auto& iterator = react_cnt.find(name);
+    //         if(iterator!=react_cnt.end()) {
+    //             cnt = iterator->second;
+    //         }
+    //         out << " " << fmt::format("{:6d}",cnt);
+    //     }
+    //     out << std::endl;
+    //     react_cnt.clear();
+    //     out.close();
+    // }
+
+    // void printrcnt()
+    // {
+    //     auto outfile = outfolder;
+    //     outfile /= fmt::format("counts.txt", step);
+    //     printrcnt(outfile);
+    // }
+
     basic_runner(double _chunk_size, double uelectrodes,const char* _settings) : 
     chunk_size(_chunk_size), 
     g(_chunk_size), 
     U_Between_Electrodes(uelectrodes), 
     types(), 
-    reacts(), 
     struct_end(0), 
     step(0), 
     maxstep(500), 
@@ -514,8 +486,8 @@ public:
     calc_current(5000),
     statef(""), 
     outfolder(""), 
-    kmk(), 
-    recieved_reaction(), 
+    kmk_ionic(&g),
+    kmk_electron(&g),
     kmk_sum(0), 
     Zero_field(0, 0, 0), 
     Cond_field(uelectrodes, 0, 0), 
@@ -524,8 +496,8 @@ public:
     react_cnt(0),
     elcharge_factor(settings.GetReal("model","elcharge_factor",100)),
     elsum(0),
-    el_begin(0),
-    dt(0){};
+    el_begin(0)
+    {};
 
     //меняет типы положительному и отрицательному электроду, чтобы с ними было проще указывать реакции.
 
@@ -655,29 +627,6 @@ public:
 
     };
 
-    //просчитывает все вероятности для кинетического монте-карло с одной реакции
-    void calc_kmk_all(std::shared_ptr<grid::react::react> r)
-    {
-        int size0 = kmk.size();
-        double mdist = r->Distance();
-        g.for_each([&](const auto& pos1,auto atom1) mutable
-        {
-            g.for_each(pos1,mdist,[&](const auto& pos2,auto atom2) mutable
-            {
-                if(atom1!=atom2) {
-                    double chance = r->Chance(atom1, atom2, g.getMinDist(pos2,pos1).abs());
-                    if (chance > std::abs(kmk_sum*1e-16))
-                    {
-                        kmk_sum += chance;
-                        kmk.insert({atom1, kmk_data{r, atom1, atom2, pos1, pos2, chance}});
-                        recieved_reaction.insert({atom2, atom1});
-                    }
-                }
-            });
-        });
-
-        fmt::print("reactions found {} :{}\n", r->Name(), kmk.size()-size0);
-    };
 
     Vector getF(const Vector& pos){
         Vector f{0,0,0};
@@ -795,24 +744,6 @@ public:
     //пересчитывает поле по всему объему,
     //так как пересчитывать поле после каждой реакции слишком долго
 
-    void recalc_all_reactions()
-    {
-        kmk.clear();
-        recieved_reaction.clear();
-
-        kmk.reserve(60000);
-        recieved_reaction.reserve(60000);
-        kmk.max_load_factor(0.25);
-        recieved_reaction.max_load_factor(0.25);
-
-        kmk_sum = 0;
-
-        for (auto &r : reacts)
-        {
-            calc_kmk_all(r);
-        }
-    };
-
     //описывает логику для перемещения атома и т.д
     //swap = true - значит атомы физически переместились
     double ChangeAtoms(const Vector &p1, const Vector &p2, std::shared_ptr<Type> t1, std::shared_ptr<Type> t2, bool swap)
@@ -853,26 +784,6 @@ public:
             a2->T(t1);
         }
 
-        //теперь нужно посчитать новые шансы для затронутых реакций, ну или удалить лишние как минимум
-
-        auto rng = kmk.equal_range(a1);
-        for (auto iter = rng.first; iter != rng.second;)
-        {
-            auto next = iter;
-            auto rngrec = recieved_reaction.equal_range(iter->second.s);
-            for (auto iter2 = rngrec.first; iter2 != rngrec.second;)
-            {
-                auto nnext = iter2;
-                nnext++;
-                recieved_reaction.erase(iter2); //invalidates iterator
-                iter2 = nnext;
-            }
-
-            kmk_sum -= iter->second.chance;
-            next++;
-            kmk.erase(iter);
-            iter = next;
-        }
         return dq;
     };
 
@@ -921,7 +832,7 @@ public:
             {
 
                 printf("recalculating reactions!\n");
-                recalc_all_reactions();
+                kmk_ionic.recalc();
 
                 recalc = false;
 
@@ -933,9 +844,7 @@ public:
                 auto outfile = printgrid_simple();
                 fmt::print("step {} finished, printing grid to file {} \n", step, outfile.string());
                 printvoltage();
-                printrcnt();
-                dt = 0;
-                elsum.clear();
+                elsum=0;
             }
 
             if(print_current) {
@@ -946,59 +855,17 @@ public:
             std::uniform_real_distribution<double> dist(0, kmk_sum);
             fmt::print("step: {} sum: {}\n", step, kmk_sum);
 
-                        
-            if(kmk.size()==0) {
-                fmt::print("no reacts found, recalculating\n");
-                recalc = true;
-                continue;
-            }
-
             double rand_targ = dist(rng);
             double search_sum = 0;
-            kmk_data react_info;
 
-            for (auto &[atom, data] : kmk)
-            {
-                search_sum += data.chance;
-                if (search_sum >= rand_targ)
-                {
-                    react_info = data;
-                    break;
-                }
-            }
-            auto &react = react_info.react;
-
-
-            if( react==nullptr) {
-                printf("no reacts found, recalculating\n");
-                recalc = true;
-                continue;
+            auto [flag,react] = kmk_ionic.findAndProcessReact();
+            if(not flag) {
+                fmt::print("error: unable to find reaction at step {}\n",step);
             }
 
-            double dq = ChangeAtoms(react_info.fp, react_info.sp, react->to1, react->to2, true);
+            double dq = ChangeAtoms(react.fp, react.sp, react.r->to1, react.r->to2, true);
 
-            auto name = react->Name();
-
-            auto iels = elsum.find(name);
-            if (iels == elsum.end())
-            {
-                elsum[name] = dq;
-            }
-            else
-            {
-                iels->second += dq;
-            }
-
-            auto iels2 = react_cnt.find(name);
-            if (iels2 == react_cnt.end())
-            {
-                react_cnt[name] = 1;
-            }
-            else
-            {
-                iels2->second += 1;
-            }
-            dt += 1/react_info.chance;
+            elsum+=dq;
 
             step++;
             print = false;
