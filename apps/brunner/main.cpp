@@ -822,13 +822,29 @@ public:
         auto a2 = g.get(p2);
         if (a1 == nullptr || a2 == nullptr)
             return 0;
-        double q1 = a1->Q();
-        double q2 = a2->Q();
-        a1->Material(t1);
-        a2->Material(t2);
 
-        double delta1 = a1->Q() - q1;
+        double delta1,delta2;
+        if(a1->Material()!=t1) {
+        double q1 = a1->Q();
+            a1->Material(t1);
+            delta1 = a1->Q() - q1; 
+            EWALD.add_charge(p1,delta1);
+
+        }
+        else {
+            delta1 = 0;
+        }
+
+        if(a2->Material()!=t2) {
+        double q2 = a2->Q();
+        a2->Material(t2);
         double delta2 = a2->Q() - q2;
+            EWALD.add_charge(p2,delta2);
+        }
+        else {
+            delta2 = 0;
+        }
+
         dq = (delta1*(p2 - p1).z + delta2*(p1 - p2).z) / el_begin;
         if (swap)
         {
@@ -836,10 +852,6 @@ public:
             a1->T(a2->T());
             a2->T(t1);
         }
-
-        EWALD.add_charge(p1,delta1);
-        EWALD.add_charge(p2,delta2);
-
 
         //теперь нужно посчитать новые шансы для затронутых реакций, ну или удалить лишние как минимум
 
