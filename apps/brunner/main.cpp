@@ -113,7 +113,6 @@ class basic_runner
 
     double elcharge_factor;
 
-    double kmk_sum;
     double el_begin;
 
     size_t step;
@@ -488,7 +487,6 @@ public:
     outfolder(""),
     kmk_ionic(&g),
     kmk_electron(&g),
-    kmk_sum(0), 
     Zero_field(0, 0, 0), 
     Cond_field(uelectrodes, 0, 0), 
     settings(_settings),
@@ -795,8 +793,6 @@ public:
         printgrid_simple("initial_");
         change_electrodes(struct_end / 2,elcharge_factor);
         printgrid_simple("electrodes_updated_");
-        static std::random_device dev;
-        static std::mt19937 rng(dev());
 
         {
             fmt::print("initializing field!\n");
@@ -816,7 +812,6 @@ public:
         bool print_current = false;
         for (; step <= maxstep;)
         {
-            if(kmk_sum<=0) recalc = true;
             if(step % recalc_step == 0) recalc = true;
 
             if(step % printstep == 0) print = true;
@@ -852,10 +847,8 @@ public:
                 printcurrent_reacts();
             }
 
-            std::uniform_real_distribution<double> dist(0, kmk_sum);
-            fmt::print("step: {} sum: {}\n", step, kmk_sum);
+            fmt::print("step: {} sum: {}\n", step, kmk_ionic.Sum());
 
-            double rand_targ = dist(rng);
             double search_sum = 0;
             
             auto [flag,react] = kmk_ionic.findAndProcessReact();
@@ -870,7 +863,7 @@ public:
             step++;
             print = false;
         }
-        printf("run ended successfully, final step: %d\n",step);
+        printf("run ended successfully, final step: %zu\n",step);
     }
 };
 
