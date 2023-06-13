@@ -58,7 +58,7 @@ template <> struct fmt::formatter<geometry::Vector> {
 namespace std {
   template <> struct hash<geometry::Vector> {
     size_t operator()(const geometry::Vector& vec) const {
-        auto a = [](double d) {return std::hash<double>()(d);};
+        constexpr auto a = [](double d) {return std::hash<double>()(d);};
         return a(vec.x)^a(vec.y)^a(vec.z);
     }
   };
