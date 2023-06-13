@@ -256,12 +256,6 @@ public:
         kmk_electron.add(E31);
         kmk_electron.add(E22);
         kmk_electron.add(E32);
-
-        // reacts.push_back(E1);
-        // reacts.push_back(E21);
-        // reacts.push_back(E31);
-        // reacts.push_back(E22);
-        // reacts.push_back(E32);
     }
 
     void init_reacts_R()
