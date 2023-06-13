@@ -30,7 +30,7 @@ class kmk {
     double sum{0};
     double time{0};
 
-    std::list<ptr_react> reacts;
+    std::vector<ptr_react> reacts;
 
     std::unordered_multimap<std::shared_ptr<grid::atom::Atom>, react_data> calculated_reacts;
     std::unordered_multimap<std::shared_ptr<grid::atom::Atom>, react_data> recieved_reacts;

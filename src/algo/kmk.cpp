@@ -91,7 +91,10 @@ std::pair<bool, kmk::react_data> kmk::chooseReact() {
 
   return {false, react_data()};
 };
-void kmk::remove(ptr_react r) { reacts.remove(r); };
+void kmk::remove(ptr_react r) {
+
+   reacts.erase(std::remove_if(reacts.begin(),reacts.end(),[&r](auto& r2){return r2==r;})); 
+   };
 void kmk::add(ptr_react r) { reacts.push_back(r); };
 void kmk::recalc() {
   recieved_reacts.clear();

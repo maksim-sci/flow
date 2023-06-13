@@ -91,7 +91,7 @@ class basic_runner
     Grid g;
     INIReader settings;
 
-    std::list<std::shared_ptr<Type>> types;
+    std::vector<std::shared_ptr<Type>> types;
 
     // TODO move this into another class
     double elsum{0};
