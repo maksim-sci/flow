@@ -122,6 +122,34 @@ public:
     size_t recalc_step{1};
     size_t calc_current{5000};
 
+    // void printrcnt(fs::path pout)
+    // {
+    //     std::ofstream out(pout, std::ios_base::app);
+    //     out << fmt::format("{:6d}",step);
+    //     for (const auto &react : reacts)
+    //     {
+    //         int cnt = 0;step
+    //         auto& name = react->Name();
+
+    //         const auto& iterator = react_cnt.find(name);
+    //         if(iterator!=react_cnt.end()) {
+    //             cnt = iterator->second;
+    //         }
+    //         out << " " << fmt::format("{:6d}",cnt);
+    //     }
+    //     out << std::endl;
+    //     react_cnt.clear();
+    //     out.close();
+    // }
+
+    // void printrcnt()
+    // {
+    //     auto outfile = outfolder;
+    //     outfile /= fmt::format("counts.txt", step);
+    //     printrcnt(outfile);
+    // }
+
+
     void init_types()
     {
 
@@ -443,33 +471,6 @@ public:
         outfile /= fmt::format("current.txt", step);
         printcurrent(outfile);
     }
-
-    // void printrcnt(fs::path pout)
-    // {
-    //     std::ofstream out(pout, std::ios_base::app);
-    //     out << fmt::format("{:6d}",step);
-    //     for (const auto &react : reacts)
-    //     {
-    //         int cnt = 0;
-    //         auto& name = react->Name();
-
-    //         const auto& iterator = react_cnt.find(name);
-    //         if(iterator!=react_cnt.end()) {
-    //             cnt = iterator->second;
-    //         }
-    //         out << " " << fmt::format("{:6d}",cnt);
-    //     }
-    //     out << std::endl;
-    //     react_cnt.clear();
-    //     out.close();
-    // }
-
-    // void printrcnt()
-    // {
-    //     auto outfile = outfolder;
-    //     outfile /= fmt::format("counts.txt", step);
-    //     printrcnt(outfile);
-    // }
 
     basic_runner(double _chunk_size, double uelectrodes,const char* _settings) : 
     chunk_size(_chunk_size), 
