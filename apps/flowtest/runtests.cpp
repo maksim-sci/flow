@@ -1406,7 +1406,7 @@ bool run_test(string s) {
 
 
 int main(int argc, char** argv) {
-    if(argc<=1) { std::printf("incorrect amount of arguments: {}",argc); return -1;}
+    if(argc<=1) { std::printf("incorrect amount of arguments: %d",argc); return -1;}
     auto test = string(argv[1]);
     size_t t_cnt = 0;
     
