@@ -1,4 +1,6 @@
 #include "kmk.hpp"
+#include "geometry/vector.hpp"
+#include "grid/atom/atom.hpp"
 
 #include <algorithm>
 
@@ -96,20 +98,30 @@ void kmk::recalc() {
   calculated_reacts.clear();
   sum = 0;
 
+  
   for (auto react : reacts) {
-    g->for_each([&](const auto &pos, auto &atom) mutable {
-      g->for_each([&](const auto &pos2, auto &atom2) {
-        if (react->AreAtomsOk(atom, atom2)) {
-          double chance = react->Chance(atom, atom2, (pos2 - pos).abs());
 
-          if (chance > 0) {
-              react_data data{atom, atom2, pos, pos2, react, chance};
-            calculated_reacts.insert({atom, data});
-            recieved_reacts.insert({atom2, data});
-            sum += chance;
-          }
-        }
-      });
+    geometry::Vector pos1;
+  std::shared_ptr<grid::atom::Atom> atom1;
+
+  auto atom_enum = [&pos1, &atom1, &react,this](const auto &pos2, auto &atom2) {
+    if (react->AreAtomsOk(atom1, atom2)) {
+      double chance = react->Chance(atom1, atom2, (pos2 - pos1).abs());
+
+      if (chance > 0) {
+          react_data data{atom1, atom2, pos1, pos2, react, chance};
+        calculated_reacts.insert({atom1, data});
+        recieved_reacts.insert({atom2, data});
+        sum += chance;
+      }
+    }
+  };
+
+
+    g->for_each([&atom_enum,&pos1,&atom1,&react,this](const auto &pos, auto &atom) mutable {
+      pos1=pos;
+      atom1=atom;
+      g->for_each(pos1,react->Distance(),atom_enum);
     });
   }
 };
