@@ -87,23 +87,22 @@ class basic_runner
 {
     public:
     double U_Between_Electrodes;
-    double chunk_size;
+    double chunk_size{1};
     Grid g;
     INIReader settings;
 
     std::list<std::shared_ptr<Type>> types;
 
     // TODO move this into another class
-    double elsum;
-    std::unordered_map<std::string, int> react_cnt;
+    double elsum{0};
 
     algo::kmk kmk_ionic;
     algo::kmk kmk_electron;
 
     double struct_end;
 
-    fs::path statef;
-    fs::path outfolder;
+    fs::path statef{""};
+    fs::path outfolder{""};
 
     // TOOLS
 
@@ -113,15 +112,15 @@ class basic_runner
 
     double elcharge_factor;
 
-    double el_begin;
+    double el_begin{0};
 
-    size_t step;
+    size_t step{0};
 
 public:
-    size_t maxstep;
-    size_t printstep;
-    size_t recalc_step;
-    size_t calc_current;
+    size_t maxstep{0};
+    size_t printstep{999999};
+    size_t recalc_step{1};
+    size_t calc_current{5000};
 
     void init_types()
     {
@@ -477,24 +476,13 @@ public:
     g(_chunk_size), 
     U_Between_Electrodes(uelectrodes), 
     types(), 
-    struct_end(0), 
-    step(0), 
-    maxstep(500), 
-    printstep(100), 
-    recalc_step(100), 
-    calc_current(5000),
-    statef(""), 
-    outfolder(""),
     kmk_ionic(&g),
     kmk_electron(&g),
     Zero_field(0, 0, 0), 
     Cond_field(uelectrodes, 0, 0), 
     settings(_settings),
     EWALD(settings.GetReal("ewald","real_cutoff",sgs::ANGSTROM*5),settings.GetReal("ewald","reciprocal_cutoff",sgs::ANGSTROM*5),settings.GetInteger("ewald","calc_size",1),settings.GetReal("ewald","sigma",1)*sgs::ANGSTROM,&g),
-    react_cnt(0),
-    elcharge_factor(settings.GetReal("model","elcharge_factor",100)),
-    elsum(0),
-    el_begin(0)
+    elcharge_factor(settings.GetReal("model","elcharge_factor",100))
     {};
 
     //меняет типы положительному и отрицательному электроду, чтобы с ними было проще указывать реакции.
