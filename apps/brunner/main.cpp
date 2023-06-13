@@ -62,7 +62,7 @@ auto TElectrodeP = std::make_shared<Type>(0, __COUNTER__, "Ep",0);
 auto TElectrodeN = std::make_shared<Type>(0, __COUNTER__, "En",0);
 auto Oxygen = std::make_shared<Type>(-1* sgs::ELCHARGE, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
 auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
-auto Hafnium = std::make_shared<Type>(2* sgs::ELCHARGE, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
+auto Hafnia = std::make_shared<Type>(2* sgs::ELCHARGE, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
 auto IntersitialPosition = std::make_shared<Type>(0, __COUNTER__, "Ip",6.4*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Charged = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
@@ -132,7 +132,7 @@ public:
         types.push_back(TElectrodeN);
         types.push_back(Oxygen);
         types.push_back(Oxygen_Intersittal);
-        types.push_back(Hafnium);
+        types.push_back(Hafnia);
         types.push_back(OxygenVacancy_Neutral);
         types.push_back(IntersitialPosition);
         types.push_back(OxygenVacancy_Charged);
@@ -144,7 +144,7 @@ public:
         g.AddType(TElectrodeN);
         g.AddType(Oxygen);
         g.AddType(Oxygen_Intersittal);
-        g.AddType(Hafnium);
+        g.AddType(Hafnia);
         g.AddType(OxygenVacancy_Neutral);
         g.AddType(IntersitialPosition);
         g.AddType(OxygenVacancy_Charged);
@@ -170,10 +170,10 @@ public:
         Geometry geoHfO2(HfO2A, HfO2B, HfO2C);
         Lattice lHfO2(geoHfO2);
 
-        lHfO2.add({0.724041, 0.457319, 0.292109}, Hafnium);
-        lHfO2.add({0.275959, 0.957319, 0.207891}, Hafnium);
-        lHfO2.add({0.275959, 0.542681, 0.707891}, Hafnium);
-        lHfO2.add({0.724041, 0.042681, 0.792109}, Hafnium);
+        lHfO2.add({0.724041, 0.457319, 0.292109}, Hafnia);
+        lHfO2.add({0.275959, 0.957319, 0.207891}, Hafnia);
+        lHfO2.add({0.275959, 0.542681, 0.707891}, Hafnia);
+        lHfO2.add({0.724041, 0.042681, 0.792109}, Hafnia);
         lHfO2.add({0.551113, 0.742603, 0.022292}, Oxygen);
         lHfO2.add({0.448887, 0.242603, 0.477708}, Oxygen);
         lHfO2.add({0.448887, 0.257397, 0.977708}, Oxygen);
@@ -633,7 +633,7 @@ public:
         double E_f = 3.5*sgs::ELVOLT;
         double e_opt = 4;
         double mu = 0.1*sgs::METER/sgs::VOLT;
-        double cf = 3/(Hafnium->V()+2*Oxygen->V());
+        double cf = 3/(Hafnia->V()+2*Oxygen->V());
         auto sizes = g.Sizes();
         double volume = sizes.x*sizes.y*sizes.z;
         g.for_each([&](const auto& pos,const auto& atom){
