@@ -31,7 +31,7 @@ namespace geometry {
         bool operator== (const Vector& rhs) const;
         bool operator!= (const Vector& rhs) const;
         template<char coord>
-        const double& get() const {
+        double& get() {
           if constexpr(coord=='x') {
             return x;
           }
@@ -41,6 +41,10 @@ namespace geometry {
           if constexpr(coord=='z') {
             return z;
           }
+        };
+        template<char coord>
+        void set(double c) {
+          get<coord>() = c;
         };
 
         friend Vector operator* (const double mul, const Vector& v)  {return v*mul;};
