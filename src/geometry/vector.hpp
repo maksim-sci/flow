@@ -30,6 +30,18 @@ namespace geometry {
         Vector coord_mul (const Vector& rhs) const;
         bool operator== (const Vector& rhs) const;
         bool operator!= (const Vector& rhs) const;
+        template<char coord>
+        const double& get() const {
+          if constexpr(coord=='x') {
+            return x;
+          }
+          if constexpr(coord=='y') {
+            return y;
+          }
+          if constexpr(coord=='z') {
+            return z;
+          }
+        };
 
         friend Vector operator* (const double mul, const Vector& v)  {return v*mul;};
 
