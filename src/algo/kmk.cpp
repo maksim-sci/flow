@@ -24,7 +24,9 @@ std::pair<bool, kmk::react_data> kmk::findAndProcessReact() {
   return data;
 };
 void kmk::processReact(react_data &data) {
-  data.r->Apply(data.f, data.s);
+  if(apply) {
+    data.r->Apply(data.f, data.s);
+  }
   time+=1/sum;
 
   auto clear_reacts = [&](auto& atom) mutable{

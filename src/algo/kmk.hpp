@@ -29,6 +29,7 @@ class kmk {
     grid::Grid* g;
     double sum{0};
     double time{0};
+    bool apply{false};
 
     std::vector<ptr_react> reacts;
 

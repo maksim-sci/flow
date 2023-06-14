@@ -117,10 +117,6 @@ class basic_runner
     size_t step{0};
 
 public:
-    size_t maxstep{0};
-    size_t printstep{999999};
-    size_t recalc_step{1};
-    size_t calc_current{5000};
 
     void init_types()
     {
@@ -254,8 +250,10 @@ public:
         kmk_electron.add(E1);
         kmk_electron.add(E21);
         kmk_electron.add(E31);
-        kmk_electron.add(E22);
-        kmk_electron.add(E32);
+        if(settings.GetBoolean("calculation", "backward_reacts_electronic", true)) {
+            kmk_electron.add(E22);
+            kmk_electron.add(E32);
+        }
     }
 
     void init_reacts_R()
@@ -335,7 +333,7 @@ public:
     {
         auto outfile = statef;
         outfile /= (prefix.string()+(std::to_string(step) + ".xyz"));
-        fmt::print("step {} finished, printing grid to file {} \n", step, outfile.string());
+        fmt::print("step {}, grid to file {} \n", step, outfile.string());
         printgrid(outfile);
         return outfile;
     }
@@ -745,6 +743,66 @@ public:
         Zero_field = field::Equal(0, 0, struct_end);
         Cond_field = field::ZCondenser(U_Between_Electrodes, 0, struct_end);
 
+
+
+        struct {
+            size_t maxstep;
+            size_t recalc_ionic;
+            size_t recalc_electronic_step;
+            size_t calc_current;
+            size_t printstep;
+            size_t electronic_step_count;
+            size_t initial_electronic_calc;
+        } calculation;
+
+        struct {
+            bool recalc_ionic{true};
+            bool print_ionic{true};
+            bool print_current{false};
+            bool process_eletronic{false};
+            bool recalc_electronic{false};
+        } flags;
+
+        struct {
+            bool voltage;
+            bool charge;
+            bool current;
+            size_t step_ionic;
+            size_t step_electronic;
+            size_t electronic_step_count;
+
+            struct {
+                struct {
+                    bool ionic{false};
+                    bool electronic{false};
+                } finded;
+                struct {
+                    bool ionic{false};
+                    bool electronic{false};
+                } proceed;
+            } react_counts;
+        } print;
+
+        calculation.maxstep = settings.GetInteger("calculation","maxstep",10000);
+        calculation.recalc_ionic = settings.GetInteger("calculation","recalc_ionic",100);
+        calculation.recalc_electronic_step = settings.GetInteger("calculation","recalc_electronic",1000);
+        calculation.calc_current = settings.GetInteger("calculation","calc_current",5000);
+        calculation.printstep = settings.GetInteger("calculation","printstep",100);
+        calculation.electronic_step_count = settings.GetInteger("calculation","eletronic_step_count",100);
+        calculation.initial_electronic_calc = settings.GetInteger("calculation","initial_electronic_calc",100);
+
+        print.voltage = settings.GetBoolean("print", "voltage", false);
+        print.charge = settings.GetBoolean("print", "charge", false);
+        print.current = settings.GetBoolean("print", "current", true);
+        print.step_ionic = settings.GetInteger("print", "step_ionic", 1000);
+        print.step_electronic = settings.GetInteger("print", "step_electronic", 1000);
+        print.electronic_step_count = settings.GetInteger("print", "electronic_step_count", 1000);
+        print.react_counts.finded.ionic = settings.GetInteger("print", "reacts_counts_finded_ionic", false);
+        print.react_counts.finded.electronic = settings.GetInteger("print", "reacts_counts_finded_electronic", false);
+        print.react_counts.proceed.ionic = settings.GetInteger("print", "reacts_counts_proceed_ionic", false);
+        print.react_counts.proceed.electronic = settings.GetInteger("print", "reacts_counts_proceed_electronic", false);
+
+
         printgrid_simple("initial_");
         change_electrodes(struct_end / 2,elcharge_factor);
         printgrid_simple("electrodes_updated_");
@@ -762,50 +820,72 @@ public:
             fmt::print("field initialization completed\n");
         }
 
-        bool recalc = true;
-        bool print = true;
-        bool print_current = false;
-        for (; step <= maxstep;)
-        {
-            if(step % recalc_step == 0) recalc = true;
+        auto calc_electronic_steps = [&](size_t count)->bool {
+            kmk_electron.recalc();
+            for(size_t i = 0; i<count; i++) {
+                auto result = kmk_electron.findAndProcessReact();
+                if(not result.first) {
+                    fmt::print("warning: unable to find electronic reacts! step: {}",step);
+                    return false;
+                }
+                auto& react = result.second;
+                
+                double dq = ChangeAtoms(react.fp, react.sp, react.r->to1, react.r->to2, true);
 
-            if(step % printstep == 0) print = true;
-
-            if(step%calc_current==0) print_current = true;
-
-            if(print) {
-                printcharges();
-                printvoltage();
+                elsum+=dq;
             }
+            return true;
+        };
 
-            if (recalc)
+        auto calc_print_current = [&]() {
+            this->elsum = 0;
+            if(!calc_electronic_steps(print.electronic_step_count)) return;
+            printcurrent();
+            printcurrent_reacts();
+        };
+        
+        auto recalc_electronic_if_needed = [&]() {
+            if(flags.recalc_electronic) {
+                fmt::print("calculating electronic reacts at step: {}",step);
+                calc_electronic_steps(calculation.recalc_electronic_step);
+                flags.recalc_electronic=false;
+                flags.recalc_ionic=true;
+            }
+        };
+
+        auto print_current_if_needed = [&]() {
+            if(flags.print_current) {
+                fmt::print("calculating current at step: {}",step);
+                calc_print_current();
+                flags.recalc_ionic=true;
+                flags.print_current=false;
+            }
+        };
+
+        auto recalc_ionic_if_needed =[&](){
+            if (flags.recalc_ionic)
             {
 
                 printf("recalculating reactions!\n");
                 kmk_ionic.recalc();
 
-                recalc = false;
+                flags.recalc_ionic = false;
 
             }
+        };
 
-            fmt::print("step: {}\n", step);
-            if (print)
+        auto print_strictire_if_needed =[&](){
+            if (flags.print_ionic)
             {
                 auto outfile = printgrid_simple();
                 fmt::print("step {} finished, printing grid to file {} \n", step, outfile.string());
-                printvoltage();
-                elsum=0;
+                if(print.voltage) printvoltage();
+                flags.print_ionic=0;
             }
+        };
 
-            if(print_current) {
-                printcurrent();
-                printcurrent_reacts();
-            }
+        auto process_ionic_react =[&](){
 
-            fmt::print("step: {} sum: {}\n", step, kmk_ionic.Sum());
-
-            double search_sum = 0;
-            
             auto [flag,react] = kmk_ionic.findAndProcessReact();
             if(not flag) {
                 fmt::print("error: unable to find reaction at step {}\n",step);
@@ -813,10 +893,33 @@ public:
 
             double dq = ChangeAtoms(react.fp, react.sp, react.r->to1, react.r->to2, true);
 
-            elsum+=dq;
+        };
+        
+        for (; step <= calculation.maxstep;)
+        {
+
+            if(step % calculation.recalc_ionic == 0) flags.recalc_ionic = true;
+            if(step % calculation.printstep == 0) flags.print_ionic = true;
+            if(step%calculation.calc_current==0 && print.current && step>calculation.initial_electronic_calc) flags.print_current = true;
+            if(step%calculation.recalc_electronic_step==0 && step>calculation.initial_electronic_calc) flags.recalc_electronic=true;
+
+            if(flags.print_ionic) {
+                if(print.charge) printcharges();
+                if(print.voltage) printvoltage();
+            }
+
+            fmt::print("step: {}\n", step);
+            
+            recalc_electronic_if_needed();
+            print_current_if_needed();
+            recalc_ionic_if_needed();
+            process_ionic_react();
+
+            fmt::print("step: {} sum: {} time elapsed: {} ns\n", step, kmk_ionic.Sum(),kmk_ionic.Time()*1e+9);
+
+            print_strictire_if_needed();
 
             step++;
-            print = false;
         }
         printf("run ended successfully, final step: %zu\n",step);
     }
@@ -885,11 +988,6 @@ void grid_like_final_ex()
 
     }
     
-
-    runner.maxstep = settings.GetInteger("calculation","maxstep",10000);
-    runner.recalc_step = settings.GetInteger("calculation","recalc_step",100);
-    runner.calc_current = settings.GetInteger("calculation","calc_current",5000);
-    runner.printstep = settings.GetInteger("calculation","printstep",100);
 
     std::unordered_map<std::shared_ptr<Type>,int> cts;
     runner.g.for_each([&](auto& pos,auto atom) mutable
