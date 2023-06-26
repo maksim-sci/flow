@@ -78,7 +78,7 @@ std::pair<bool, kmk::react_data> kmk::chooseReact() {
 
   auto iter = calculated_reacts.begin();
   react_data *data = nullptr;
-  while (top < sum && iter != calculated_reacts.end()) {
+  while (top < rand_targ && iter != calculated_reacts.end()) {
     auto &i_data = iter->second;
     top += i_data.chance;
 
