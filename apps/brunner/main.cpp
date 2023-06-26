@@ -266,7 +266,7 @@ public:
 
         kmk_ionic.add(R1);
         kmk_ionic.add(R21);
-        kmk_ionic.add(R21);
+        kmk_ionic.add(R22);
         kmk_ionic.add(R3);
         kmk_ionic.add(R4);
     }
