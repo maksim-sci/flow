@@ -750,8 +750,7 @@ public:
             size_t recalc_ionic;
             size_t recalc_electronic_step;
             size_t calc_current;
-            size_t printstep;
-            size_t electronic_step_count;
+            size_t calc_ionic;
             size_t initial_electronic_calc;
         } calculation;
 
@@ -787,8 +786,7 @@ public:
         calculation.recalc_ionic = settings.GetInteger("calculation","recalc_ionic",100);
         calculation.recalc_electronic_step = settings.GetInteger("calculation","recalc_electronic",1000);
         calculation.calc_current = settings.GetInteger("calculation","calc_current",5000);
-        calculation.printstep = settings.GetInteger("calculation","printstep",100);
-        calculation.electronic_step_count = settings.GetInteger("calculation","eletronic_step_count",100);
+        calculation.calc_ionic = settings.GetInteger("calculation","printstep",100);
         calculation.initial_electronic_calc = settings.GetInteger("calculation","initial_electronic_calc",100);
 
         print.voltage = settings.GetBoolean("print", "voltage", false);
@@ -899,8 +897,8 @@ public:
         {
 
             if(step % calculation.recalc_ionic == 0) flags.recalc_ionic = true;
-            if(step % calculation.printstep == 0) flags.print_ionic = true;
-            if(step%calculation.calc_current==0 && print.current && step>calculation.initial_electronic_calc) flags.print_current = true;
+            if(step % calculation.calc_ionic == 0) flags.print_ionic = true;
+            if(step % calculation.calc_current == 0 && print.current && step>calculation.initial_electronic_calc) flags.print_current = true;
             if(step%calculation.recalc_electronic_step==0 && step>calculation.initial_electronic_calc) flags.recalc_electronic=true;
 
             if(flags.print_ionic) {
