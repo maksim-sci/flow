@@ -1001,13 +1001,13 @@ void check_reaction_chances() {
   assert_tst(r_ionic->AreAtomsOk(atom1, atom2));
   assert_tst(r_electronic->AreAtomsOk(atom1, atom2));
 
-  assert_tst(r_ionic->Chance(atom1, atom2, sgs::ANGSTROM * 2) > 0);
-  assert_tst(r_electronic->Chance(atom1, atom2, sgs::ANGSTROM * 2) > 0);
+  assert_tst(r_ionic->Chance(atom3, atom2, sgs::ANGSTROM * 2) > 0);
+  assert_tst(r_electronic->Chance(atom3, atom2, sgs::ANGSTROM * 2) > 0);
 
-  assert_tst(r_ionic->Chance(atom1, atom2, sgs::ANGSTROM * 2) >
-             r_ionic->Chance(atom3, atom2, sgs::ANGSTROM * 2));
-  assert_tst(r_electronic->Chance(atom1, atom2, sgs::ANGSTROM * 2) >
-             r_electronic->Chance(atom3, atom2, sgs::ANGSTROM * 2));
+  assert_tst(r_ionic->Chance(atom3, atom2, sgs::ANGSTROM * 2) >
+             r_ionic->Chance(atom1, atom2, sgs::ANGSTROM * 2));
+  assert_tst(r_electronic->Chance(atom3, atom2, sgs::ANGSTROM * 2) >
+             r_electronic->Chance(atom1, atom2, sgs::ANGSTROM * 2));
 }
 
 void check_save_load() {
