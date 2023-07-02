@@ -64,6 +64,7 @@ add_test(NAME grid_iteration_check COMMAND flowtests grid_iteration_check)
 add_test(NAME check_kmk COMMAND flowtests check_kmk)
 add_test(NAME check_kmk_several COMMAND flowtests check_kmk_several)
 add_test(NAME check_kmk_several_ex COMMAND flowtests check_kmk_several_ex)
+add_test(NAME check_kmk_chances_select COMMAND flowtests check_kmk_chances_select)
 
 
 #add_test(NAME test_must_crush COMMAND flowtests mc)

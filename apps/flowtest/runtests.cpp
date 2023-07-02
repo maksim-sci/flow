@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -1242,6 +1243,61 @@ void check_kmk_several_ex() {
   assert_eq(kmk.Count(), 8);
 }
 
+void check_kmk_chances_select() 
+{
+  class reactChance:public grid::react::react{
+    public:
+    double chance{0};
+    inline reactChance(double newchance):react(nullptr,nullptr,nullptr,nullptr,0),chance(newchance){};
+    inline virtual bool AreAtomsOk(std::shared_ptr<grid::atom::Atom>& f, std::shared_ptr<grid::atom::Atom>& s)const {return true;};
+    inline virtual double Chance(std::shared_ptr<grid::atom::Atom>& f, std::shared_ptr<grid::atom::Atom>& s, double distance) const {return distance<1?chance:0;};
+    inline virtual double Distance() const{return 1;};
+  };
+
+  auto t1 = std::make_shared<Type>(1., 1., "a1");
+  auto t2 = std::make_shared<Type>(1., 1., "a2");
+
+  auto r1 = std::make_shared<reactChance>(10);
+  auto r2 = std::make_shared<reactChance>(1);
+  
+  Grid g(10);
+
+  algo::kmk kmk(&g);
+
+  kmk.add(r1);
+  kmk.add(r2);
+
+  Vector p1{0, 0, 0};
+  Vector p2{0, 0, 0.5};
+
+  g.insert(p1, std::make_shared<Atom>(t1));
+  g.insert(p2, std::make_shared<Atom>(t2));
+
+  {
+    struct {
+      size_t cnt1{0};
+      size_t cnt2{0};
+    } counts;
+
+    for(size_t i = 0; i<1000; i++) {
+      kmk.recalc();
+      auto [result, react] = kmk.chooseReact(); 
+      assert_simple(result);
+
+      size_t& cnt = react.r==r1?counts.cnt1:counts.cnt2;
+      cnt++;
+    }
+
+    auto sum = counts.cnt1+counts.cnt2;
+    assert_eq(sum,1000);
+
+    fmt::print("r1: {}, r2: {}\n",counts.cnt1,counts.cnt2);
+
+    assert_simple(counts.cnt1>700);
+  }
+  
+}
+
 #define add_test(fn) tests[#fn] = fn
 
 std::unordered_map<std::string, std::function<void()>> tests;
@@ -1307,6 +1363,8 @@ void init_tests() {
   add_test(check_kmk);
   add_test(check_kmk_several);
   add_test(check_kmk_several_ex);
+  add_test(check_kmk_chances_select);
+  
 }
 
 bool run_test(string s) {
