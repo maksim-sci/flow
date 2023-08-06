@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-namespace algo{
+namespace algo {
 
 kmk::kmk(grid::Grid *_g)
     : reacts(), recieved_reacts(), calculated_reacts(), sum(0), g(_g){};
@@ -24,48 +24,44 @@ std::pair<bool, kmk::react_data> kmk::findAndProcessReact() {
   return data;
 };
 void kmk::processReact(react_data &data) {
-  if(apply) {
+  if (apply) {
     data.r->Apply(data.f, data.s);
   }
-  time+=1/sum;
+  time += 1 / sum;
 
-  auto clear_reacts = [&](auto& atom) mutable{
-
-    //atom-a2 pairs
+  auto clear_reacts = [&](auto &atom) mutable {
+    // atom-a2 pairs
     {
       auto range = calculated_reacts.equal_range(atom);
-      for(auto iter=range.first;iter!=range.second;iter++) {
+      for (auto iter = range.first; iter != range.second; iter++) {
         auto data = iter->second;
-        sum-=data.chance;
+        sum -= data.chance;
       }
-      calculated_reacts.erase(range.first,range.second);
+      calculated_reacts.erase(range.first, range.second);
     }
-    //a2-atom pairs
+    // a2-atom pairs
     {
       auto range = recieved_reacts.equal_range(atom);
-      for(auto iter=range.first;iter!=range.second;iter++) {
-        auto& data = iter->second;
+      for (auto iter = range.first; iter != range.second; iter++) {
+        auto &data = iter->second;
         auto range = calculated_reacts.equal_range(data.f);
         auto iter_calculated = range.first;
-        while(iter_calculated!=range.second) {
-          auto& data = iter_calculated->second;
-          if(data.s==atom) {
-            sum-=data.chance;
+        while (iter_calculated != range.second) {
+          auto &data = iter_calculated->second;
+          if (data.s == atom) {
+            sum -= data.chance;
             iter_calculated = calculated_reacts.erase(iter_calculated);
-          }
-          else {
+          } else {
             iter_calculated++;
           }
         }
       }
-      recieved_reacts.erase(range.first,range.second);
+      recieved_reacts.erase(range.first, range.second);
     }
   };
 
   clear_reacts(data.f);
   clear_reacts(data.s);
-
-
 };
 std::pair<bool, kmk::react_data> kmk::chooseReact() {
 
@@ -95,38 +91,55 @@ std::pair<bool, kmk::react_data> kmk::chooseReact() {
 };
 void kmk::remove(ptr_react r) {
 
-   reacts.erase(std::remove_if(reacts.begin(),reacts.end(),[&r](auto& r2){return r2==r;})); 
-   };
+  reacts.erase(std::remove_if(reacts.begin(), reacts.end(),
+                              [&r](auto &r2) { return r2 == r; }));
+};
 void kmk::add(ptr_react r) { reacts.push_back(r); };
 void kmk::recalc() {
   recieved_reacts.clear();
   calculated_reacts.clear();
   sum = 0;
 
-  
+  if(cache) {
+    for(auto&cachedData:cacheData) {
+      if (cachedData.r->AreAtomsOk(cachedData.f, cachedData.s)) {
+        double chance = cachedData.r->Chance(cachedData.f, cachedData.s, (cachedData.fp - cachedData.sp).abs());
+
+        if (chance > 0) {
+          react_data data{cachedData.f, cachedData.s, cachedData.fp, cachedData.sp, cachedData.r, chance};
+          calculated_reacts.insert({data.f, data});
+          recieved_reacts.insert({data.s, data});
+          sum += chance;
+        }
+      }
+    }
+    return;
+  }
+
   for (auto react : reacts) {
 
     geometry::Vector pos1;
-  std::shared_ptr<grid::atom::Atom> atom1;
+    std::shared_ptr<grid::atom::Atom> atom1;
 
-  auto atom_enum = [&pos1, &atom1, &react,this](const auto &pos2, auto &atom2) {
-    if (react->AreAtomsOk(atom1, atom2)) {
-      double chance = react->Chance(atom1, atom2, (pos2 - pos1).abs());
+    auto atom_enum = [&pos1, &atom1, &react, this](const auto &pos2,
+                                                   auto &atom2) {
+      if (react->AreAtomsOk(atom1, atom2)) {
+        double chance = react->Chance(atom1, atom2, (pos2 - pos1).abs());
 
-      if (chance > 0) {
+        if (chance > 0) {
           react_data data{atom1, atom2, pos1, pos2, react, chance};
-        calculated_reacts.insert({atom1, data});
-        recieved_reacts.insert({atom2, data});
-        sum += chance;
+          calculated_reacts.insert({atom1, data});
+          recieved_reacts.insert({atom2, data});
+          sum += chance;
+        }
       }
-    }
-  };
+    };
 
-
-    g->for_each([&atom_enum,&pos1,&atom1,&react,this](const auto &pos, auto &atom) mutable {
-      pos1=pos;
-      atom1=atom;
-      g->for_each(pos1,react->Distance(),atom_enum);
+    g->for_each([&atom_enum, &pos1, &atom1, &react, this](const auto &pos,
+                                                          auto &atom) mutable {
+      pos1 = pos;
+      atom1 = atom;
+      g->for_each(pos1, react->Distance(), atom_enum);
     });
   }
 };
@@ -135,4 +148,33 @@ size_t kmk::Count() const { return calculated_reacts.size(); };
 double kmk::Sum() const { return sum; };
 double kmk::Time() const { return time; };
 void kmk::ClearTime() { time = 0; };
+
+void kmk::Cache(bool mode) {
+  cache = mode;
+
+  cacheData.clear();
+
+  if (mode) {
+    for (auto react : reacts) {
+
+      geometry::Vector pos1;
+      std::shared_ptr<grid::atom::Atom> atom1;
+
+      auto atom_enum = [&pos1, &atom1, &react, this](const auto &pos2,
+                                                     auto &atom2) {
+        double distance = (pos1-pos2).abs();
+        if (react->Distance()>distance) {
+          cacheData.push_back({atom1,atom2,react,pos1,pos2});
+        }
+      };
+
+      g->for_each([&atom_enum, &pos1, &atom1, &react,
+                   this](const auto &pos, auto &atom) mutable {
+        pos1 = pos;
+        atom1 = atom;
+        g->for_each(pos1, react->Distance(), atom_enum);
+      });
+    }
+  }
+}
 } // namespace algo
