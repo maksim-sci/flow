@@ -30,6 +30,22 @@ namespace geometry {
         Vector coord_mul (const Vector& rhs) const;
         bool operator== (const Vector& rhs) const;
         bool operator!= (const Vector& rhs) const;
+        template<char coord>
+        double& get() {
+          if constexpr(coord=='x') {
+            return x;
+          }
+          if constexpr(coord=='y') {
+            return y;
+          }
+          if constexpr(coord=='z') {
+            return z;
+          }
+        };
+        template<char coord>
+        void set(double c) {
+          get<coord>() = c;
+        };
 
         friend Vector operator* (const double mul, const Vector& v)  {return v*mul;};
 
@@ -58,7 +74,7 @@ template <> struct fmt::formatter<geometry::Vector> {
 namespace std {
   template <> struct hash<geometry::Vector> {
     size_t operator()(const geometry::Vector& vec) const {
-        auto a = [](double d) {return std::hash<double>()(d);};
+        constexpr auto a = [](double d) {return std::hash<double>()(d);};
         return a(vec.x)^a(vec.y)^a(vec.z);
     }
   };

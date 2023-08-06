@@ -9,7 +9,7 @@ namespace grid {
             double fq = f->Q();
             double su = s->U();
             double fu = f->U();
-            double dE = (-fu*fq-su*sq+su*to2->Q()+fu*to1->Q()*sgs::ELVOLT/(sgs::VOLT*sgs::ELCHARGE))/2;
+            double dE = -(-fu*fq-su*sq+su*to2->Q()+fu*to1->Q())/2;
 
             return dE;
         }

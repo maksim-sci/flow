@@ -1,6 +1,7 @@
 .vscode/configurationCache.log
 .vscode/dryrun.log
 .vscode/targets.log
+.cache
 build/cmake_install.cmake
 build/CMakeCache.txt
 build/compile_commands.json

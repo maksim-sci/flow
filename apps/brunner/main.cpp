@@ -1,6 +1,4 @@
-
-#define DEBUG_MY_VERSION
-
+//Оставь надежду, всяк сюда входящий!
 #include <iostream>
 
 #include <sgs.hpp>
@@ -41,6 +39,8 @@
 #include <field/condenser.hpp>
 #include <field/equal.hpp>
 #include <chrono>
+#include <field/summation.hpp>
+#include <algo/kmk.hpp>
 
 #include <assertions.h>
 
@@ -55,22 +55,14 @@ using grid::atom::Atom;
 using grid::atom::Type;
 using std::string;
 
-struct kmk_data
-{
-    std::shared_ptr<grid::react::react> react;
-    std::shared_ptr<grid::atom::Atom> f;
-    std::shared_ptr<grid::atom::Atom> s;
-    geometry::Vector fp;
-    geometry::Vector sp;
-    double chance;
-};
-
 auto TElectrode = std::make_shared<Type>(0, __COUNTER__, "El",0);
 auto TElectrodeR = std::make_shared<Type>(0, __COUNTER__, "Elr",0);
 auto TElectrodeL = std::make_shared<Type>(0, __COUNTER__, "Ell",0);
+auto TElectrodeP = std::make_shared<Type>(0, __COUNTER__, "Ep",0);
+auto TElectrodeN = std::make_shared<Type>(0, __COUNTER__, "En",0);
 auto Oxygen = std::make_shared<Type>(-1* sgs::ELCHARGE, __COUNTER__, "O",6.4*powf(sgs::ANGSTROM,3));
 auto Oxygen_Intersittal = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "OI",6.4*powf(sgs::ANGSTROM,3));
-auto Hafnium = std::make_shared<Type>(2* sgs::ELCHARGE, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
+auto Hafnia = std::make_shared<Type>(2* sgs::ELCHARGE, __COUNTER__, "Hf",21.88*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Neutral = std::make_shared<Type>(0, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
 auto IntersitialPosition = std::make_shared<Type>(0, __COUNTER__, "Ip",6.4*powf(sgs::ANGSTROM,3));
 auto OxygenVacancy_Charged = std::make_shared<Type>(-1 * sgs::ELCHARGE, __COUNTER__, "Vo",6.4*powf(sgs::ANGSTROM,3));
@@ -83,37 +75,34 @@ auto R3 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, Oxygen_Int
 auto R4 = std::make_shared<grid::react::ionic>(Oxygen_Intersittal, IntersitialPosition, IntersitialPosition, Oxygen_Intersittal, 3 * sgs::ANGSTROM, sgs::ELVOLT * 1, 1e+13);
 
 auto E1 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, OxygenVacancy_Neutral, OxygenVacancy_Neutral, OxygenVacancy_Charged, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E21 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeL, OxygenVacancy_Neutral, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E31 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeR, OxygenVacancy_Charged, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E22 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeR, OxygenVacancy_Neutral, TElectrodeR, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
-auto E32 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeL, OxygenVacancy_Charged, TElectrodeL, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E21 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeP, OxygenVacancy_Neutral, TElectrodeP, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E31 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeN, OxygenVacancy_Charged, TElectrodeN, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E22 = std::make_shared<grid::react::ionic>(OxygenVacancy_Charged, TElectrodeN, OxygenVacancy_Neutral, TElectrodeN, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
+auto E32 = std::make_shared<grid::react::ionic>(OxygenVacancy_Neutral, TElectrodeP, OxygenVacancy_Charged, TElectrodeP, 3 * sgs::ANGSTROM, sgs::ELVOLT * 0.3, 1e+13);
 
 
 namespace fs = std::filesystem;
 
-class grid_runner
+class basic_runner
 {
     public:
     double U_Between_Electrodes;
-    double chunk_size;
+    double chunk_size{1};
     Grid g;
     INIReader settings;
 
-    std::list<std::shared_ptr<Type>> types;
-    std::list<std::shared_ptr<grid::react::react>> reacts;
+    std::vector<std::shared_ptr<Type>> types;
 
     // TODO move this into another class
-    std::unordered_multimap<std::shared_ptr<Atom>, kmk_data> kmk;
-    std::unordered_multimap<std::shared_ptr<Atom>, std::shared_ptr<Atom>> recieved_reaction;
-    std::unordered_map<std::string, double> elsum;
-    std::unordered_map<std::string, int> react_cnt;
+    double elsum{0};
 
-    double dt;
+    algo::kmk kmk_ionic;
+    algo::kmk kmk_electron;
 
     double struct_end;
 
-    fs::path statef;
-    fs::path outfolder;
+    fs::path statef{""};
+    fs::path outfolder{""};
 
     // TOOLS
 
@@ -123,16 +112,11 @@ class grid_runner
 
     double elcharge_factor;
 
-    double kmk_sum;
-    double el_begin;
+    double el_begin{0};
 
-    size_t step;
+    size_t step{0};
 
 public:
-    size_t maxstep;
-    size_t printstep;
-    size_t recalc_step;
-    size_t calc_current;
 
     void init_types()
     {
@@ -140,9 +124,11 @@ public:
         types.push_back(TElectrode);
         types.push_back(TElectrodeL);
         types.push_back(TElectrodeR);
+        types.push_back(TElectrodeP);
+        types.push_back(TElectrodeN);
         types.push_back(Oxygen);
         types.push_back(Oxygen_Intersittal);
-        types.push_back(Hafnium);
+        types.push_back(Hafnia);
         types.push_back(OxygenVacancy_Neutral);
         types.push_back(IntersitialPosition);
         types.push_back(OxygenVacancy_Charged);
@@ -150,9 +136,11 @@ public:
         g.AddType(TElectrode);
         g.AddType(TElectrodeR);
         g.AddType(TElectrodeL);
+        g.AddType(TElectrodeP);
+        g.AddType(TElectrodeN);
         g.AddType(Oxygen);
         g.AddType(Oxygen_Intersittal);
-        g.AddType(Hafnium);
+        g.AddType(Hafnia);
         g.AddType(OxygenVacancy_Neutral);
         g.AddType(IntersitialPosition);
         g.AddType(OxygenVacancy_Charged);
@@ -167,13 +155,6 @@ public:
         Lattice lElectrode(geoElectrode);
         lElectrode.add(Vector(0, 0, 0), TElectrode);
 
-
-        Lattice lElectrodeR(geoElectrode);
-        lElectrodeR.add(Vector(0, 0, 0), TElectrodeR);
-
-        Lattice lElectrodeL(geoElectrode);
-        lElectrodeL.add(Vector(0, 0, 0), TElectrodeL);
-
         Vector HfO2A(5.069186, 0.000000, -0.864173);
         Vector HfO2B(0.000000, 5.195148, 0.000000);
         Vector HfO2C(0.000000, 0.000000, 5.326038);
@@ -185,10 +166,10 @@ public:
         Geometry geoHfO2(HfO2A, HfO2B, HfO2C);
         Lattice lHfO2(geoHfO2);
 
-        lHfO2.add({0.724041, 0.457319, 0.292109}, Hafnium);
-        lHfO2.add({0.275959, 0.957319, 0.207891}, Hafnium);
-        lHfO2.add({0.275959, 0.542681, 0.707891}, Hafnium);
-        lHfO2.add({0.724041, 0.042681, 0.792109}, Hafnium);
+        lHfO2.add({0.724041, 0.457319, 0.292109}, Hafnia);
+        lHfO2.add({0.275959, 0.957319, 0.207891}, Hafnia);
+        lHfO2.add({0.275959, 0.542681, 0.707891}, Hafnia);
+        lHfO2.add({0.724041, 0.042681, 0.792109}, Hafnia);
         lHfO2.add({0.551113, 0.742603, 0.022292}, Oxygen);
         lHfO2.add({0.448887, 0.242603, 0.477708}, Oxygen);
         lHfO2.add({0.448887, 0.257397, 0.977708}, Oxygen);
@@ -206,9 +187,9 @@ public:
         double size_y = settings.GetReal("model","size_y",30) * sgs::ANGSTROM;
         double size_z = settings.GetReal("model","size_z",20) * sgs::ANGSTROM;
 
-        double dist_electrode = 0.3 * sgs::ANGSTROM;
+        double dist_electrode = 0.1 * sgs::ANGSTROM;
 
-        double electrode_end = 1 * sgs::ANGSTROM;
+        double electrode_end = 0.3 * sgs::ANGSTROM;
 
         double oxyde_begin = electrode_end + dist_electrode;
 
@@ -245,12 +226,14 @@ public:
     };
 
     void loadstructure(std::string file) {
-        loadgrid(file,chunk_size);
+        loadgrid(file);
 
         g.for_each([&](const auto& pos, const auto& atom){
             if(
                 atom->Material()==TElectrodeR||
-                atom->Material()==TElectrodeL
+                atom->Material()==TElectrodeL||
+                atom->Material()==TElectrodeP||
+                atom->Material()==TElectrodeN
             ) {
                 atom->Material(TElectrode);
             }
@@ -264,12 +247,13 @@ public:
         E31->Name("E31");
         E22->Name("E22");
         E32->Name("E32");
-
-        reacts.push_back(E1);
-        reacts.push_back(E21);
-        reacts.push_back(E31);
-        reacts.push_back(E22);
-        reacts.push_back(E32);
+        kmk_electron.add(E1);
+        kmk_electron.add(E21);
+        kmk_electron.add(E31);
+        if(settings.GetBoolean("calculation", "backward_reacts_electronic", true)) {
+            kmk_electron.add(E22);
+            kmk_electron.add(E32);
+        }
     }
 
     void init_reacts_R()
@@ -280,11 +264,11 @@ public:
         R3->Name("R3");
         R4->Name("R4");
 
-        reacts.push_back(R1);
-        reacts.push_back(R21);
-        reacts.push_back(R22);
-        reacts.push_back(R3);
-        reacts.push_back(R4);
+        kmk_ionic.add(R1);
+        kmk_ionic.add(R21);
+        kmk_ionic.add(R22);
+        kmk_ionic.add(R3);
+        kmk_ionic.add(R4);
     }
 
     void init_reacts()
@@ -292,10 +276,6 @@ public:
 
        init_reacts_R();
        init_reacts_E();
-
-        
-
-
         
     };
 
@@ -353,7 +333,7 @@ public:
     {
         auto outfile = statef;
         outfile /= (prefix.string()+(std::to_string(step) + ".xyz"));
-        fmt::print("step {} finished, printing grid to file {} \n", step, outfile.string());
+        fmt::print("step {}, grid to file {} \n", step, outfile.string());
         printgrid(outfile);
         return outfile;
     }
@@ -365,7 +345,7 @@ public:
         printgrid(outfile);
     }
 
-    void loadgrid(std::string& path, double chunk_size)
+    void loadgrid(std::string& path)
     {
         std::ifstream in(path);
     
@@ -416,18 +396,8 @@ public:
         std::ofstream out(pout, std::ios_base::app);
         out << step;
         out << std::setprecision(6);
-        double sum = 0;
         
-        for (auto& a:reacts) {
-            auto ai = elsum.find(a->Name());
-            double dq = 0;
-            if(ai!=elsum.end()) {
-                dq = ai->second;
-                sum+=dq;
-            }
-            out<<"\t"<<std::setw(11) << dq/dt;
-        }
-        out << "\t"<<std::setw(11)<<sum/dt<<std::endl;
+        out << "\t"<<std::setw(11)<<elsum/kmk_electron.Time()<<std::endl;
         out.close();
     }
 
@@ -436,14 +406,7 @@ public:
         std::ofstream out(pout, std::ios_base::app);
         double factorc=1e-20;
         out << step;
-        double sum = 0;
-        for (auto& a:reacts) {
-            auto ai = elsum.find(a->Name());
-            if(ai!=elsum.end()) {
-                double dq = ai->second/dt;
-                sum+=dq;
-            }
-        }
+        double sum = elsum;
         double area = g.Sizes().x*g.Sizes().y;
         sum*=(1/area);
         double pf = calc_PF();
@@ -453,7 +416,7 @@ public:
         double sum_all = sum+pf+shottky+direct+fn;
         out<<std::setprecision(6);
         for (auto& current:{pf,shottky,fn,direct,sum,sum_all}) {
-            out<<"\t"<<std::setw(10)<<current;
+            out<<"\t"<<std::setw(10)<<current*area;
         }
         out<<std::endl;
         out.close();
@@ -465,25 +428,6 @@ public:
         printcurrent_reacts(outfile);
     }
 
-    void printrcnt(fs::path pout)
-    {
-        std::ofstream out(pout, std::ios_base::app);
-        out << fmt::format("{:6d}",step);
-        for (const auto &react : reacts)
-        {
-            int cnt = 0;
-            auto& name = react->Name();
-
-            const auto& iterator = react_cnt.find(name);
-            if(iterator!=react_cnt.end()) {
-                cnt = iterator->second;
-            }
-            out << " " << fmt::format("{:6d}",cnt);
-        }
-        out << std::endl;
-        react_cnt.clear();
-        out.close();
-    }
 
     void printcurrent()
     {
@@ -492,111 +436,149 @@ public:
         printcurrent(outfile);
     }
 
-    void printrcnt()
-    {
-        auto outfile = outfolder;
-        outfile /= fmt::format("counts.txt", step);
-        printrcnt(outfile);
-    }
-    grid_runner(double _chunk_size, double uelectrodes,const char* _settings) : 
+    basic_runner(double _chunk_size, double uelectrodes,const char* _settings) : 
     chunk_size(_chunk_size), 
     g(_chunk_size), 
     U_Between_Electrodes(uelectrodes), 
     types(), 
-    reacts(), 
-    struct_end(0), 
-    step(0), 
-    maxstep(500), 
-    printstep(100), 
-    recalc_step(100), 
-    calc_current(5000),
-    statef(""), 
-    outfolder(""), 
-    kmk(), 
-    recieved_reaction(), 
-    kmk_sum(0), 
+    kmk_ionic(&g),
+    kmk_electron(&g),
     Zero_field(0, 0, 0), 
     Cond_field(uelectrodes, 0, 0), 
     settings(_settings),
     EWALD(settings.GetReal("ewald","real_cutoff",sgs::ANGSTROM*5),settings.GetReal("ewald","reciprocal_cutoff",sgs::ANGSTROM*5),settings.GetInteger("ewald","calc_size",1),settings.GetReal("ewald","sigma",1)*sgs::ANGSTROM,&g),
-    react_cnt(0),
-    elcharge_factor(settings.GetReal("model","elcharge_factor",100)),
-    elsum(0),
-    el_begin(0),
-    dt(0){};
+    elcharge_factor(settings.GetReal("model","elcharge_factor",100))
+    {};
 
     //меняет типы положительному и отрицательному электроду, чтобы с ними было проще указывать реакции.
 
     void change_electrodes(double lel_end,double elcharge_factor)
     {
-        size_t cnt_left = 0;
-        size_t cnt_right = 0;
-        g.for_each([&](auto& pos,auto atom) mutable
-        {
-            if (atom->Material() == TElectrode)
-            {
-                if (pos.z < lel_end)
-                {
-                    cnt_left++;
+        double cnt = 0;
+        //Специальная формула для рассчета электродов. p = d/l
+        //задумана для того, чтобы имитировать скапливание заряда на дефекте
+        //l = |max_electrode_defect-min_electrode_defect|+formula_epsilon
+        //d = |electrode_end-pos|
+        //electrode_max - максимальное расстояние от начала электрода до дефекта.
+        //электроды ищутся на конце и в начале всей системы.
+
+        constexpr double electrode_cutoff = 5*sgs::ANGSTROM; //максимальное расстояние, на котором электрод считается цельным.
+
+        struct electrode_info {
+            double begin{0};
+            double end{0};
+            std::shared_ptr<Type> type;
+        };
+
+        double begin_electrode_L = 0;
+        double begin_electrode_R = g.Sizes().z;
+
+        double end_electrode_L = begin_electrode_L;
+        double end_electrode_R = begin_electrode_R;
+
+        bool left_positive = U_Between_Electrodes>0;
+
+        auto type_L = left_positive?TElectrodeP:TElectrodeN;
+        auto type_R = left_positive?TElectrodeN:TElectrodeP;
+
+        electrode_info left_electrode{begin_electrode_L,end_electrode_L,type_L};
+        electrode_info right_electrode{begin_electrode_R,end_electrode_R,type_R};
+
+        
+        //шизогонический рекусивный код на лямбдах для замены просто электроды на типизированные
+        const auto check_electrode_with_type = [&](const Vector& pos, electrode_info& electrode,std::shared_ptr<Type> init_type) {
+            std::function<void(const Vector& pos,Grid* g)> check_impl;
+
+            check_impl = [&electrode,&check_impl,&init_type](const Vector& pos,Grid* g)mutable {
+                g->for_each(pos,electrode_cutoff,[&](const auto& pos2, const auto& atom)mutable{
+                    if(atom->Material()==init_type) {
+                        atom->Material(electrode.type);
+                        if(std::fabs(pos2.z-electrode.begin)>std::fabs(electrode.begin-electrode.end)) {
+                            electrode.end = pos2.z;
+                        }
+                        check_impl(pos2,g);
+                    }
+                });
+            };
+            check_impl(pos,&g);
+        };
+
+        //точки для начала поиска электродов
+        Vector check_electrode_L{0,0,begin_electrode_L}; 
+        Vector check_electrode_R{0,0,begin_electrode_R};
+
+        check_electrode_with_type(check_electrode_L,left_electrode,TElectrode);
+        check_electrode_with_type(check_electrode_R,right_electrode,TElectrode);
+
+        fmt::print("left electrode: ({},{})\n",left_electrode.begin,left_electrode.end);
+        fmt::print("right electrode: ({},{})\n",right_electrode.begin,right_electrode.end);
+
+        //settings for custom formula:
+        //enabled = used or not
+        //epsilon: p = multiplier * (|end-pos|)/(|end-begin|+eps)
+
+        auto check_electrode_formula = [&](std::string suffix,electrode_info& electrode,double q) {
+            constexpr char section[] = "electrode_charge_custom";
+
+
+            std::string section_name(section);
+            section_name+=suffix;
+
+            bool enabled = settings.GetBoolean(section_name,"enabled",false);
+            double sum = 0;
+
+            double epsilon = settings.GetReal(section_name,"eps",1*sgs::ANGSTROM);
+            double multiplier = settings.GetReal(section_name,"mult",1);
+
+            g.for_each([&](const auto& pos, auto& atom) mutable{
+                if(atom->Material()==electrode.type) {
+                    double q=0;
+                    if(enabled)
+                    {
+                        q = (std::fabs(electrode.end-electrode.begin))/(epsilon+std::fabs(electrode.end-pos.z));
+                    }
+                    else
+                    {
+                        q = 1;
+                    }
+                    sum+=q;
+                    atom->Q(q);
                 }
-                else
-                {
-                    cnt_right++;
+            });
+
+            double partial = q/sum;
+
+            g.for_each([&](const auto& pos, auto& atom) mutable {
+                if(atom->Material()==electrode.type) {
+                    atom->Q(atom->Q()*partial*multiplier);
                 }
-            }
-        });
+            });
+
+        };
+
+
         auto size_vector = g.Sizes();
         auto area = size_vector.x*size_vector.y;
         double dist_between_electrodes = size_vector.z;
-        double charge = U_Between_Electrodes*area/dist_between_electrodes;
-
+        double charge = std::fabs(U_Between_Electrodes*area/dist_between_electrodes);
         charge*=elcharge_factor;
 
-        double charge_L = charge/(cnt_left);
-        double charge_R = -charge/(cnt_right);
-        TElectrodeL->Q(charge_L);
-        TElectrodeR->Q(charge_R);
-        g.for_each([&](auto& pos,auto atom) mutable
-        {
-            if (atom->Material() == TElectrode)
-            {
-                if (pos.z < lel_end)
-                {
-                    atom->Material(TElectrodeL);
-                }
-                else
-                {
-                    atom->Material(TElectrodeR);
-                }
-            }
+        if(left_positive) {
+            check_electrode_formula("_P",left_electrode,charge);
+            check_electrode_formula("_N",right_electrode,-charge);
+        }
+        else {
+            check_electrode_formula("_P",right_electrode,charge);
+            check_electrode_formula("_N",left_electrode,-charge);
+        }
 
-        });
+
+
+
+
     };
 
-    //просчитывает все вероятности для кинетического монте-карло с одной реакции
-    void calc_kmk_all(std::shared_ptr<grid::react::react> r)
-    {
-        int size0 = kmk.size();
-        double mdist = r->Distance();
-        g.for_each([&](const auto& pos1,auto atom1) mutable
-        {
-            g.for_each(pos1,mdist,[&](const auto& pos2,auto atom2) mutable
-            {
-                if(atom1!=atom2) {
-                    double chance = r->Chance(atom1, atom2, g.getMinDist(pos2,pos1).abs());
-                    if (chance > std::abs(kmk_sum*1e-16))
-                    {
-                        kmk_sum += chance;
-                        kmk.insert({atom1, kmk_data{r, atom1, atom2, pos1, pos2, chance}});
-                        recieved_reaction.insert({atom2, atom1});
-                    }
-                }
-            });
-        });
-
-        fmt::print("reactions found {} :{}\n", r->Name(), kmk.size()-size0);
-    };
-
+    
     Vector getF(const Vector& pos){
         Vector f{0,0,0};
         g.for_each(pos,2*sgs::ANGSTROM,[&](const auto& pA, const auto& atom) mutable{
@@ -649,7 +631,7 @@ public:
         double E_f = 3.5*sgs::ELVOLT;
         double e_opt = 4;
         double mu = 0.1*sgs::METER/sgs::VOLT;
-        double cf = 3/(Hafnium->V()+2*Oxygen->V());
+        double cf = 3/(Hafnia->V()+2*Oxygen->V());
         auto sizes = g.Sizes();
         double volume = sizes.x*sizes.y*sizes.z;
         g.for_each([&](const auto& pos,const auto& atom){
@@ -713,24 +695,6 @@ public:
     //пересчитывает поле по всему объему,
     //так как пересчитывать поле после каждой реакции слишком долго
 
-    void recalc_all_reactions()
-    {
-        kmk.clear();
-        recieved_reaction.clear();
-
-        kmk.reserve(60000);
-        recieved_reaction.reserve(60000);
-        kmk.max_load_factor(0.25);
-        recieved_reaction.max_load_factor(0.25);
-
-        kmk_sum = 0;
-
-        for (auto &r : reacts)
-        {
-            calc_kmk_all(r);
-        }
-    };
-
     //описывает логику для перемещения атома и т.д
     //swap = true - значит атомы физически переместились
     double ChangeAtoms(const Vector &p1, const Vector &p2, std::shared_ptr<Type> t1, std::shared_ptr<Type> t2, bool swap)
@@ -740,64 +704,30 @@ public:
         auto a2 = g.get(p2);
         if (a1 == nullptr || a2 == nullptr)
             return 0;
-        double q1 = a1->Q();
-        double q2 = a2->Q();
-        a1->Material(t1);
-        a2->Material(t2);
 
-        double delta1 = a1->Q() - q1;
-        double delta2 = a2->Q() - q2;
+        double delta1,delta2;
+        if(a1->Material()!=t1) {
+            double q1 = a1->Q();
+            a1->Material(t1);
+            delta1 = a1->Q() - q1; 
+            EWALD.add_charge(p1,delta1);
+
+        }
+        else {
+            delta1 = 0;
+        }
+
+        if(a2->Material()!=t2) {
+            double q2 = a2->Q();
+            a2->Material(t2);
+            double delta2 = a2->Q() - q2;
+            EWALD.add_charge(p2,delta2);
+        }
+        else {
+            delta2 = 0;
+        }
+
         dq = (delta1*(p2 - p1).z + delta2*(p1 - p2).z) / el_begin;
-        //обновляем напряжения
-        // if (delta1 == 0 && delta2 == 0)
-        // {
-        // }
-        // else
-        // {
-
-        //     auto chunk1 = g.getChunk(p1);
-        //     auto chunk2 = g.getChunk(p2);
-
-        //     if (chunk1 == chunk2)
-        //     {
-
-        //         double delta = delta1 + delta2;
-
-        //         EWALD.add_chunk_q(p1, delta);
-        //         for (auto [pos, atom] : *chunk1)
-        //         {
-        //             Zero_field.Apply(pos, atom);
-        //             //Cond_field.Apply(pos, atom);
-        //             atom->U(atom->U() + EWALD.calc_a(pos));
-        //         }
-        //     }
-        //     else
-        //     {
-        //         if (delta1 != 0)
-        //         {
-
-        //             EWALD.add_chunk_q(p1, delta1);
-        //             for (auto [pos, atom] : *chunk1)
-        //             {
-        //                 Zero_field.Apply(pos, atom);
-        //                 //Cond_field.Apply(pos, atom);
-        //                 atom->U(atom->U() + EWALD.calc_a(pos));
-        //             }
-        //         }
-        //         if (delta2 != 0)
-        //         {
-
-        //             EWALD.add_chunk_q(p2, delta2);
-        //             for (auto [pos, atom] : *chunk1)
-        //             {
-        //                 Zero_field.Apply(pos, atom);
-        //                 //Cond_field.Apply(pos, atom);
-        //                 atom->U(atom->U() + EWALD.calc_a(pos));
-        //             }
-        //         }
-        //     }
-        // }
-        //да, при перемещинии атомов предпологается просто менять им типы и менять температуры (если есть температура, которую можно менять).
         if (swap)
         {
             double t1 = a1->T();
@@ -805,26 +735,6 @@ public:
             a2->T(t1);
         }
 
-        //теперь нужно посчитать новые шансы для затронутых реакций, ну или удалить лишние как минимум
-
-        auto rng = kmk.equal_range(a1);
-        for (auto iter = rng.first; iter != rng.second;)
-        {
-            auto next = iter;
-            auto rngrec = recieved_reaction.equal_range(iter->second.s);
-            for (auto iter2 = rngrec.first; iter2 != rngrec.second;)
-            {
-                auto nnext = iter2;
-                nnext++;
-                recieved_reaction.erase(iter2); //invalidates iterator
-                iter2 = nnext;
-            }
-
-            kmk_sum -= iter->second.chance;
-            next++;
-            kmk.erase(iter);
-            iter = next;
-        }
         return dq;
     };
 
@@ -832,128 +742,132 @@ public:
     {
         Zero_field = field::Equal(0, 0, struct_end);
         Cond_field = field::ZCondenser(U_Between_Electrodes, 0, struct_end);
-        //EWALD = field::ewald_hack(g);
+
+        printf("main run\n");
 
         printgrid_simple("initial_");
         change_electrodes(struct_end / 2,elcharge_factor);
         printgrid_simple("electrodes_updated_");
-        static std::random_device dev;
-        static std::mt19937 rng(dev());
 
-        bool recalc = true;
-        bool print = true;
-        bool print_current = false;
-        for (; step <= maxstep;)
+        auto print_voltage_if_needed = [this](std::string path) {
+            static bool enabled = settings.GetBoolean("print", "voltage",true);
+            if(!enabled) return;
+            if(path!="") printvoltage(path);
+            else printvoltage();
+        };
+
         {
-            if(kmk_sum<=0) recalc = true;
-            if(step % recalc_step == 0) recalc = true;
+            fmt::print("initializing kmk cache\n");
+            kmk_electron.Cache(true);
+            kmk_ionic.Cache(true);
+            fmt::print("initializing field!\n");
+            Zero_field.Apply(g);
 
-            if(step % printstep == 0) print = true;
+            EWALD.cache_grid_data();
+            EWALD.apply();
+            //print
+            auto outfile = statef;
+            outfile/=fmt::format("voltage_initial.txt");
 
-            if(step%calc_current==0) print_current = true;
+            print_voltage_if_needed(outfile);
 
-            if(print) {
-                printcharges();
+            fmt::print("field initialization completed\n");
+        }
+
+        static size_t maxstep = settings.GetInteger("calculation_ionic", "maxstep", -1);
+        for (; step<maxstep; step++) {
+            static bool calc_ionic_enabled = settings.GetBoolean("calculation_ionic", "enabled", true);
+
+            if(calc_ionic_enabled) {
+                static size_t ionic_recalc = settings.GetInteger("calculation_ionic", "recalc", 1);
+                if(step%ionic_recalc==0) {
+                    printf("recalculating reactions!\n");
+                    kmk_ionic.recalc();
+                }
+                auto [flag,react] = kmk_ionic.findAndProcessReact();
+                if(not flag) {
+                    fmt::print("error: unable to find reaction at step {}\n",step);
+                }
+                else {
+                    double dq = ChangeAtoms(react.fp, react.sp, react.r->to1, react.r->to2, true);
+                }
+
             }
 
-            if (recalc)
+            static bool printVoltage = settings.GetBoolean("print", "voltage", false);
+            static bool printCharges = settings.GetBoolean("print", "charges", false);
+
+            static bool calc_electronic_enabled = settings.GetBoolean("calculation_electronic", "enabled", true);
+            if(calc_electronic_enabled)
             {
-                fmt::print("recalculating field\n");
+                static size_t begin = settings.GetInteger("calculation_electronic", "initial_current_calc", 100);
+                static size_t period = settings.GetInteger("calculation_electronic", "period", 1000);
+                if(step%period==0 && step>=begin) {
+                    fmt::print("calculating electronic reacts\n");
+                    static size_t maxstep = settings.GetInteger("calculation_electronic", "maxstep", 100);
+                    for(size_t i = 0; i<maxstep; i++) {
+                        size_t recalc = settings.GetInteger("calculation_electronic", "recalc", 1);
+                        if(i%recalc==0) {
+                            kmk_electron.recalc();
+                        }
+                        auto result = kmk_electron.findAndProcessReact();
+                        if(not result.first) {
+                            fmt::print("warning: unable to find electronic reacts! step: {}",step);
+                        }
+                        auto& react = result.second;
+                        
+                        double dq = ChangeAtoms(react.fp, react.sp, react.r->to1, react.r->to2, true);
 
-                Zero_field.Apply(g);
+                    }
+                }
+            }
 
-                EWALD.apply();
+            static bool print_electronic_enabled = settings.GetBoolean("print_current", "enabled", false);
+            if(print_electronic_enabled) {
+                static size_t period = settings.GetInteger("print_current", "period", 1000);
+                static size_t begin = settings.GetInteger("calculation_electronic", "initial_current_calc", 100);
+                if(step%period==0 && step>begin) {
+                    double charge_sum = 0;
+                    double time_0 = kmk_electron.Time();
+                    fmt::print("calculating electronic reacts to get current\n");
+                    static size_t maxstep = settings.GetInteger("print_current", "maxstep", 100);
+                    for(size_t i = 0; i<maxstep; i++) {
+                        size_t recalc = settings.GetInteger("print_current", "recalc", 1);
+                        if(i%recalc==0) {
+                            kmk_electron.recalc();
+                        }
+                        auto result = kmk_electron.findAndProcessReact();
+                        if(not result.first) {
+                            fmt::print("warning: unable to find electronic reacts! step: {}",step);
+                        }
+                        auto& react = result.second;
+                        
+                        double dq = ChangeAtoms(react.fp, react.sp, react.r->to1, react.r->to2, true);
 
-                //Cond_field.Apply(g);
+                        charge_sum+=dq;
+                    }
+                    elsum = charge_sum/(kmk_electron.Time()-time_0);
+                    printcurrent_reacts();
 
-                if(print) {
+                }
+            }
+
+            size_t print_structure_period = settings.GetInteger("print_structure", "period", 100);
+            if(step%print_structure_period==0) {
+                if(printVoltage) {
                     printvoltage();
                 }
-
-
-                recalc_all_reactions();
-
-                recalc = false;
-
-            }
-
-            fmt::print("step: {}\n", step);
-            if (print)
-            {
-                auto outfile = printgrid_simple();
-                fmt::print("step {} finished, printing grid to file {} \n", step, outfile.string());
-                printvoltage();
-                printrcnt();
-                dt = 0;
-                elsum.clear();
-            }
-
-            if(print_current) {
-                printcurrent();
-                printcurrent_reacts();
-            }
-
-            std::uniform_real_distribution<double> dist(0, kmk_sum);
-            fmt::print("step: {} sum: {}\n", step, kmk_sum);
-
-                        
-            if(kmk.size()==0) {
-                fmt::print("no reacts found, recalculating\n");
-                recalc = true;
-                continue;
-            }
-
-            double rand_targ = dist(rng);
-            double search_sum = 0;
-            kmk_data react_info;
-
-            for (auto &[atom, data] : kmk)
-            {
-                search_sum += data.chance;
-                if (search_sum >= rand_targ)
-                {
-                    react_info = data;
-                    break;
+                if(printCharges) {
+                    printcharges();
                 }
+                printgrid_simple();
             }
-            auto &react = react_info.react;
-
-
-            if( react==nullptr) {
-                printf("no reacts found, recalculating\n");
-                recalc = true;
-                continue;
-            }
-
-            double dq = ChangeAtoms(react_info.fp, react_info.sp, react->to1, react->to2, true);
-
-            auto name = react->Name();
-
-            auto iels = elsum.find(name);
-            if (iels == elsum.end())
-            {
-                elsum[name] = dq;
-            }
-            else
-            {
-                iels->second += dq;
-            }
-
-            auto iels2 = react_cnt.find(name);
-            if (iels2 == react_cnt.end())
-            {
-                react_cnt[name] = 1;
-            }
-            else
-            {
-                iels2->second += 1;
-            }
-            dt += 1/react_info.chance;
-
-            step++;
-            print = false;
+            
+            fmt::print("step: {} sum: {} time elapsed: {} ns\n", step, kmk_ionic.Sum(),kmk_ionic.Time()*1e+9);
         }
-        printf("run ended successfully, final step: %d\n",step);
+
+        
+        printf("run ended successfully, final step: %zu\n",step);
     }
 };
 
@@ -970,34 +884,37 @@ void grid_like_final_ex()
         fmt::print("settings file loaded: settings.ini\n");
     }
 
-    double U_between_electrodes = settings.GetReal("model","U_between_electrodes",0)*sgs::VOLT;
+    double U_between_electrodes = -settings.GetReal("model","U_between_electrodes",0)*sgs::VOLT;
 
     double Chunk_size = settings.GetReal("calculation","chunk_size",1e-8);
-    class grid_runner run_this_thing_please(Chunk_size, U_between_electrodes,settings_path);
+    class basic_runner runner(Chunk_size, U_between_electrodes,settings_path);
 
-    run_this_thing_please.init_types();
-    run_this_thing_please.init_reacts();
+    runner.init_types();
+    runner.init_reacts();
 
     
     string outfile = settings.Get("folders","output","./results");
     string outfile_periodic = settings.Get("folders","periodic_output","./results/periodic");
-    run_this_thing_please.init_folders(outfile,outfile_periodic);
+    runner.init_folders(outfile,outfile_periodic);
 
     
     if(settings.GetBoolean("init","load",false)) {
         std::string file = settings.Get("init","loadfile","");
         assert_simple(file!="");
-        run_this_thing_please.loadstructure(file);
+        runner.loadstructure(file);
     }
     else {
-        run_this_thing_please.init_structure();
+        runner.init_structure();
     }
 
-    if(settings.GetBoolean("boundaries","used",false)) {
-        double size_y = settings.GetReal("boundaries","size_y",-1);
-        double size_x = settings.GetReal("boundaries","size_x",-1);
+    runner.g.Cyclic<'x'>(true);
+    runner.g.Cyclic<'y'>(true);
 
-        auto sizes = run_this_thing_please.g.Sizes();
+    if(settings.GetBoolean("boundaries","used",false)) {
+        double size_y = settings.GetReal("boundaries","size_y",-1)*sgs::ANGSTROM;
+        double size_x = settings.GetReal("boundaries","size_x",-1)*sgs::ANGSTROM;
+
+        auto sizes = runner.g.Sizes();
         bool change_sizes = false;
 
         if(size_x>0) {
@@ -1010,7 +927,7 @@ void grid_like_final_ex()
         }
 
         if(change_sizes) {
-            run_this_thing_please.g.setPeriod(sizes);
+            runner.g.setPeriod(sizes);
         }
 
 
@@ -1018,13 +935,8 @@ void grid_like_final_ex()
     }
     
 
-    run_this_thing_please.maxstep = settings.GetInteger("calculation","maxstep",10000);
-    run_this_thing_please.recalc_step = settings.GetInteger("calculation","recalc_step",100);
-    run_this_thing_please.calc_current = settings.GetInteger("calculation","calc_current",5000);
-    run_this_thing_please.printstep = settings.GetInteger("calculation","printstep",100);
-
     std::unordered_map<std::shared_ptr<Type>,int> cts;
-    run_this_thing_please.g.for_each([&](auto& pos,auto atom) mutable
+    runner.g.for_each([&](auto& pos,auto atom) mutable
     {
         auto materail = atom->Material();
         auto pp = cts.find(materail);
@@ -1040,7 +952,7 @@ void grid_like_final_ex()
     for(auto& [material,cnt]:cts) {
         fmt::print("structure generated, type: {}: {}\n",material->Name(),cnt);
     }
-    run_this_thing_please.run();
+    runner.run();
 }
 
 int main()

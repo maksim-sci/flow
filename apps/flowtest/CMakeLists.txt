@@ -58,5 +58,13 @@ add_test(NAME grid_radius_iterator_horizontal COMMAND flowtests grid_radius_iter
 add_test(NAME grid_radius_iterator_horizontal_z COMMAND flowtests grid_radius_iterator_horizontal_z)
 add_test(NAME react_standart COMMAND flowtests react_standart)
 add_test(NAME grid_check_min_dist COMMAND flowtests grid_check_min_dist)
-add_test(NAME gen_result COMMAND flowtests check_reaction_chances)
+add_test(NAME check_reaction_chances COMMAND flowtests check_reaction_chances)
+add_test(NAME check_save_load COMMAND flowtests check_save_load)
+add_test(NAME grid_iteration_check COMMAND flowtests grid_iteration_check)
+add_test(NAME check_kmk COMMAND flowtests check_kmk)
+add_test(NAME check_kmk_several COMMAND flowtests check_kmk_several)
+add_test(NAME check_kmk_several_ex COMMAND flowtests check_kmk_several_ex)
+add_test(NAME check_kmk_chances_select COMMAND flowtests check_kmk_chances_select)
+
+
 #add_test(NAME test_must_crush COMMAND flowtests mc)
